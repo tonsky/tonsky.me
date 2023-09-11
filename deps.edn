@@ -1,12 +1,13 @@
 {:deps
- {io.github.tonsky/clj-simple-router {:local/root "/Users/tonsky/ws/clj-simple-router"}
-  http-kit/http-kit   {:mvn/version "2.7.0"}
-  mount/mount         {:mvn/version "0.1.17"}
-  org.clojure/clojure {:mvn/version "1.11.1"}
-  ring/ring-core      {:mvn/version "1.8.0"}}
+ {instaparse/instaparse              {:mvn/version "1.4.12"}
+  io.github.tonsky/clj-simple-router {:local/root "/Users/tonsky/ws/clj-simple-router"}
+  http-kit/http-kit                  {:mvn/version "2.7.0"}
+  mount/mount                        {:mvn/version "0.1.17"}
+  org.clojure/clojure                {:mvn/version "1.11.1"}
+  ring/ring-core                     {:mvn/version "1.8.0"}}
  :aliases
  {:dev
   {:jvm-opts ["-ea"]
-   :extra-paths ["dev"]
+   :extra-paths ["dev" "test"]
    :extra-deps 
    {org.clojure/tools.namespace {:mvn/version "1.3.0"}}}}}

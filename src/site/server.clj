@@ -3,13 +3,27 @@
     [clj-simple-router.core :as router]
     [mount.core :as mount]
     [org.httpkit.server :as http]
-    [ring.util.response :as response]))
+    [ring.middleware.content-type :as content-type]
+    [ring.util.response :as response]
+    [site.parser :as parser]))
 
 (def app
-  (router/router
-    (router/routes
-      "GET /**" [path]
-      (response/file-response (str "_site/" path)))))
+  (->
+    (router/router
+      (router/routes
+        "GET /**" [path]
+        (response/file-response (str "_site/" path))
+        
+        "GET /blog/*" [id]
+        {:status  200
+         :headers {"Content-type" "text/html;charset=UTF-8"}
+         :body    (-> (str "blog/" id "/index.md")
+                    slurp
+                    parser/parse
+                    parser/transform
+                    parser/page
+                    parser/render)}))
+    content-type/wrap-content-type))
 
 (def *server-opts
   (atom
