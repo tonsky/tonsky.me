@@ -1,0 +1,364 @@
+<!doctype html>
+<html lang="en" prefix="og: http://ogp.me/ns#" xmlns:og="http://opengraphprotocol.org/schema/">
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
+  
+    <meta name="viewport" content="width=640" />
+  
+  <meta name="theme-color" content="#FDDB29">
+  <link href="/i/favicon.png" rel="icon" sizes="32x32">
+
+  <link href='/style.css?v=20201203' rel='stylesheet' type='text/css' />
+  <title>Building an ultimate writing machine from Sublime Text @ tonsky.me</title>
+
+  <link href="/blog/atom.xml" rel="alternate" title="Nikita Prokopov’s blog" type="application/atom+xml" />
+
+  <meta name="author" content="Nikita Prokopov" />
+  
+  <meta property="og:title" content="Building an ultimate writing machine from Sublime Text" />
+  <meta property="og:url" content="https://tonsky.me/blog/sublime-writer/" />
+  
+    <meta property="og:type" content="article" />
+
+    <meta property="article:published_time" content='2021-04-06' />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Building an ultimate writing machine from Sublime Text" />
+  
+
+  
+    <meta property="og:description" content="My setup for long-form writing in Sublime Text" />
+    <meta name="twitter:description" content="My setup for long-form writing in Sublime Text" />
+  
+
+  <meta property="og:site_name" content="tonsky.me" />
+  <meta property="article:author" content="https://www.facebook.com/nikitonsky" />
+  <meta property="profile:first_name" content="Nikita" />
+  <meta property="profile:last_name" content="Prokopov" />
+  <meta property="profile:username" content="tonsky" />
+  <meta property="profile:gender" content="male" />
+
+  <meta name="twitter:creator" content="@nikitonsky" />
+</head>
+<body>
+<div class="page ">
+
+<ul class=menu>
+  <li><a class="menu__item menu__item_inside" href="/">Blog</a></li>
+  <li><a class="menu__item" href="/talks/">Talks</a></li>
+  <li><a class="menu__item" href="/projects/">Projects</a></li>
+  <li><a class="menu__item" href="/design/">Logos</a></li>
+  <!-- <li><a class="menu__item" href="/consulting/">UX&nbsp;Consulting</a></li> -->
+  <li><a class="menu__item" href="/patrons/">Patrons</a></li>
+  <div class="spacer"></div>
+  <div class="dark_mode"></div>
+</ul>
+
+
+<article class="post">
+  <h1 class="title">Building an ultimate writing machine from Sublime Text</h1>
+
+  <p></p>
+
+  <p><em>UPD: It’s been more than a month since I wrote the original draft for this article. I’ve since published three other blog posts here and more than twenty in <a href="https://t.me/nikitonsky_pub">my telegam channel</a>. The setup has proven itself fantastic, I am LOVING it and have zero urge looking anywhere else.</em></p>
+
+<p>I’ve been a long-time fan of <a href="https://ia.net/writer">iA Writer</a> for, well, writing. I bought the original iPad version, the original macOS version (when it was still called MacOS X), the Android one, and even the one they re-released as a “paid full-price update”. For me, it has found the perfect balance between features and simplicity, design and focus.</p>
+
+<p>Here’s a screenshot of the original version of iA Writer <a href="https://tonsky.livejournal.com/231968.html">from 2011</a>:</p>
+
+<figure>
+    <img src="./ia_writer_2011.jpg" />
+</figure>
+
+<p>And this is how it looks today, in 2021:</p>
+
+<figure>
+  <picture>
+    <source srcset="./ia_writer_2021.webp" type="image/webp" />
+    <img src="./ia_writer_2021.png" />
+  </picture>
+</figure>
+
+<p>The design is so timeless it barely changed in 10 years.</p>
+
+<p>And I’ve been happy with it, I am not going to complain. It <em>is</em> great, both for the inspiration, for the innovation, and the actual implementation. I wholeheartedly recommend it to anyone doing any writing.</p>
+
+<h2 id="ia-writer-limitations">iA Writer limitations</h2>
+
+<p>Yet, with time, I started to feel that it’s not the perfect fit for my particular workflow:</p>
+
+<ul>
+  <li>iA Writer is designed to work with a single document at a time. I prefer to operate in projects and folders, switching back and forth between files.</li>
+  <li>iA Writer’s library is tied to iCloud and you are supposed to keep all your files there. Recently I <a href="https://tonsky.me/blog/syncthing/">moved away from iCloud</a> and in general prefer when tools don’t dictate where I keep my files.</li>
+  <li>Having a self-hosted blog, publishing consists of an occasional CSS/JS/templates editing, which, again, iA Writer is not optimized for.</li>
+  <li>I got used to Sublime’s conveniences like multiple cursors, Find in Files, Go Anywhere, and Git integration. It feels limiting not having those at your fingertips.</li>
+</ul>
+
+<h1 id="optimizing-sublime-text-for-writing">Optimizing Sublime Text for writing</h1>
+
+<p>I decided to try to replicate what iA Writer does but inside Sublime Text. This is my setup.</p>
+
+<h2 id="color-scheme">Color scheme</h2>
+
+<p>Gladly, iA Writer uses the absolute minimum of colors, so this was the easiest part to reproduce.</p>
+
+<figure>
+  <picture>
+    <source srcset="./color_scheme.webp" type="image/webp" />
+    <img src="./color_scheme.png" />
+  </picture>
+</figure>
+
+<p>Source code: <a href="https://github.com/tonsky/sublime-scheme-writer">github.com/tonsky/sublime-scheme-writer</a>.</p>
+
+<p>In Package Control: <code class="language-plaintext highlighter-rouge">Writer Color Scheme</code>.</p>
+
+<p>P.S. Yes, there’s a dark version too.</p>
+
+<h2 id="font">Font</h2>
+
+<p>iA Writer debuted with a proprietary <a href="https://boldmonday.com/typeface/nitti/">Nitti font</a>, but later switched to IBM Plex Mono, which is published under Open Font License.</p>
+
+<p>After few tries and errors, I managed to set font size, line height and page width to the values that corresponds the closes to what iA Writer is doing:</p>
+
+<figure>
+  <picture>
+    <source srcset="./font_ibm_plex_mono.webp" type="image/webp" />
+    <img class="hoverable" style="width: 600px; height: 350px;" src="./font_ibm_plex_mono.png" />
+  </picture>
+  Hover over image or click to compare to iA Writer
+</figure>
+
+<p>The parameters are:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>  "font_face": "IBM Plex Mono",
+  "font_size": 16,
+  "line_padding_bottom": 3,
+  "line_padding_top": 3,
+  "wrap_width": 72
+</code></pre></div></div>
+
+<p>This is already a very good match, but perfectionist in me wanted to get the exact match. Two things needed adjustment: ever so slightly increased font weight (Text instead of Regular), and an extra 3.5% character width. So I took a liberty and modified original IBM Plex Mono to match those characteristics. Check it out:</p>
+
+<figure>
+  <picture>
+    <source srcset="./font_writer.webp" type="image/webp" />
+    <img class="hoverable" style="width: 600px; height: 350px;" src="./font_writer.png" />
+  </picture>
+  Hover over image or click to compare to iA Writer
+</figure>
+
+<p>It matches almost perfectly! You can get my version of IBM Plex Mono at <a href="https://github.com/tonsky/font-writer">github.com/tonsky/font-writer</a>.</p>
+
+<h2 id="profile-switching">Profile switching</h2>
+
+<p>We are set up for writing, but how do we get back to coding?</p>
+
+<p>Problem is, writing mode affects multiple separate settings (19 in my case), it’s not just font and color scheme.</p>
+
+<p>Meet Profile Switcher! It keeps multiple separate <code class="language-plaintext highlighter-rouge">Preferences.sublime-settings</code> files and switches between them instantly.</p>
+
+<figure>
+  <picture>
+    <source srcset="./profiles_commands.webp" type="image/webp" />
+    <img src="./profiles_commands.png" />
+  </picture>
+</figure>
+
+<figure>
+  <picture>
+    <source srcset="./profiles_switch.webp" type="image/webp" />
+    <img src="./profiles_switch.png" />
+  </picture>
+</figure>
+
+<p>Sources: <a href="https://github.com/tonsky/sublime-profiles">github.com/tonsky/sublime-profiles</a></p>
+
+<p>In Package Control: <code class="language-plaintext highlighter-rouge">Profile Switcher</code>.</p>
+
+<p>P.S. An alternative way would be to put writing-specific settings in Markdown syntax-specific settings file. I like this approach less, because it affects e.g. Sublime Merge diff view 🤷 and all markdown files, some of which I don’t want to see in writing mode.</p>
+
+<p>Also, Profile Switcher seems like something that can be useful beyond just writing/coding duo.</p>
+
+<h2 id="all-together-tldr">All together (TL;DR)</h2>
+
+<ol>
+  <li>Download and install <a href="https://github.com/tonsky/font-writer">Writer font</a>.</li>
+  <li>Via Package Control, install <code class="language-plaintext highlighter-rouge">Writer Color Scheme</code></li>
+  <li>Via Package Control, install <code class="language-plaintext highlighter-rouge">Profile Switcher</code></li>
+  <li>Create a <code class="language-plaintext highlighter-rouge">Writing</code> profile via the <code class="language-plaintext highlighter-rouge">Profiles: Create profile</code> command.</li>
+  <li>Put these settings in (just replace everything you currently have):
+    <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{
+  "caret_extra_width": 2,
+  "draw_centered": true,
+  "draw_indent_guides": false,
+  "draw_white_space": ["none"],
+  "font_face": "Writer",
+  "font_size": 16,
+  "gutter": false,
+  "highlight_line": false,
+  "line_padding_bottom": 3,
+  "line_padding_top": 3,
+  "margin": 10,
+  "scroll_context_lines": 2,
+  "scroll_past_end": 0.5,
+  "word_wrap": true,
+  "wrap_width": 72,
+  "color_scheme": "Packages/sublime-scheme-writer/Writer.sublime-color-scheme",
+  "theme": "Adaptive.sublime-theme",
+}
+</code></pre></div>    </div>
+  </li>
+</ol>
+
+<p>You should see something like that:</p>
+
+<figure>
+  <picture>
+    <source srcset="./all_together_after.webp" type="image/webp" />
+    <img src="./all_together_after.png" />
+  </picture>
+</figure>
+
+<p>Compare to where we started:</p>
+
+<figure>
+  <picture>
+    <source srcset="./all_together_before.webp" type="image/webp" />
+    <img src="./all_together_before.png" />
+  </picture>
+</figure>
+
+<p>To go back, use <code class="language-plaintext highlighter-rouge">Profiles: Switch profile</code> command and select <code class="language-plaintext highlighter-rouge">Default</code>.</p>
+
+<h1 id="missing-features">Missing features</h1>
+
+<p>Sadly, I wasn’t able to reproduce everything, which is another reason you might consider buying iA Writer instead of following this guide. It packs so much more than just a cool font.</p>
+
+<h2 id="duospaced-font">Duospaced font</h2>
+
+<p>Wait, what? Duospaced? What’s that?</p>
+
+<p>Well, it’s another genius idea from iA: make <code class="language-plaintext highlighter-rouge">W</code> and <code class="language-plaintext highlighter-rouge">M</code> 1.5× width while leaving the rest of the font monospaced. It still looks and feels monospaced, but <code class="language-plaintext highlighter-rouge">M</code>s and <code class="language-plaintext highlighter-rouge">W</code>s are not ugly for no reason anymore. I wish more fonts were like that.</p>
+
+<figure>
+  <picture>
+    <source srcset="./Monospace-and-Duospace-Raster.webp" type="image/webp" />
+    <img src="Monospace-and-Duospace-Raster.png" />
+  </picture>
+  Illustration from <a href="https://ia.net/topics/in-search-of-the-perfect-writing-font" target="_blank">ia.net</a>
+</figure>
+
+<p>Can we reproduce it in Sublime Text? Yes and no. ST can display non-monospaced fonts, but it turns off bolds/italics if the font is not monospaced.</p>
+
+<p>Seems like a pretty old limitation, maybe with enough votes it can get the attention it deserves? <a href="https://github.com/sublimehq/sublime_text/issues/279">Vote here</a>, meanwhile, we’re stuck with a strict monospaced version for writing.</p>
+
+<p>If you want to try out Duospace font, it’s available freely at <a href="https://github.com/iaolo/iA-Fonts/tree/master/iA%20Writer%20Duo">github.com/iaolo/iA-Fonts</a>.</p>
+
+<h2 id="hanging-punctuation">Hanging punctuation</h2>
+
+<p>A feature I love since the very first version, the one and only way to format Markdown headers.</p>
+
+<figure>
+  <picture>
+    <source srcset="./hanging_punctuation.webp" type="image/webp" />
+    <img src="./hanging_punctuation.png" />
+  </picture>
+</figure>
+
+<p>Why is it so cool? If <code class="language-plaintext highlighter-rouge">###</code> is aligned to the body text, you have to skip <code class="language-plaintext highlighter-rouge">###</code> and find the first meaningful letter.</p>
+
+<p>If it hangs outside, nothing gets in your way.</p>
+
+<h2 id="dynamic-typography">Dynamic typography</h2>
+
+<p>Another thing that is hard to reproduce in Sublime Text is dynamic typography. As far as I understand, iA Writer switches dynamically between multiple versions with different spacing and weights depending on current font size and screen DPI. This is hard to reverse-engineer and even harder to reproduce in Sublime Text.</p>
+
+<p>Although, with profiles…</p>
+
+<h2 id="syntax-highlighting">Syntax highlighting</h2>
+
+<p>First of all, yes, iA Writer has syntax highlighting for plain English. It looks like this:</p>
+
+<figure>
+  <picture>
+    <source srcset="./syntax_highlighting.webp" type="image/webp" />
+    <img src="./syntax_highlighting.png" />
+  </picture>
+</figure>
+
+<p>Supposedly, it helps one write more balanced sentences. As you might have noticed, I never used it :)</p>
+
+<h2 id="focus-mode">Focus mode</h2>
+
+<p>In Focus mode only the current sentence is highlighted, everything else is dimmed. Helps you get into the zone, I wish this one was doable in ST.</p>
+
+<figure>
+  <picture>
+    <source srcset="./focus_mode.webp" type="image/webp" />
+    <img src="./focus_mode.png" />
+  </picture>
+</figure>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>Sublime Text can be customized pretty heavily and become a fantastic writing tool.</p>
+
+<p>Specialized software like iA Writer can do more, though.</p>
+
+<p>Hope you find this useful, or (even better!) get inspired to do some writing.</p>
+
+
+  <p class=footer>
+    <span>April 6, 2021</span>
+    
+
+    
+  </p>
+
+  <script>
+    document.querySelectorAll(".hoverable").forEach(function (e) {
+        e.onclick = function() { e.classList.toggle("clicked"); }
+    });
+  </script>
+
+  
+  <div class="about">
+    <div class="about_photo"></div>
+    <div class="about_inner">
+      <p>Hi!</p>
+      <p>I’m Nikita. Here I write about programming and UI design <a style="margin-left: 5px" class="btn-subscribe" href="/blog/how-to-subscribe/" target="_blank"><svg viewBox="0 0 800 800"><path d="M493 652H392c0-134-111-244-244-244V307c189 0 345 156 345 345zm71 0c0-228-188-416-416-416V132c285 0 520 235 520 520z"/><circle cx="219" cy="581" r="71"/></svg> Subscribe</a></p>
+      <p>I also create open-source stuff: Fira Code, AnyBar, DataScript and Rum. If you like what I do and want to get early access to my articles (along with other benefits), you should <a href="https://patreon.com/tonsky" target="_blank">support me on Patreon</a>.</p>
+    </div>
+  </div>
+  
+
+</article>
+
+
+<div class="preload"></div>
+
+</div>
+
+<script>
+  function updateFlashlight(e) {
+    var style = document.body.style;
+    style.backgroundPositionX = e.pageX - 250 + "px";
+    style.backgroundPositionY = e.pageY - 250 + "px";
+  }
+
+  document.querySelector(".dark_mode").onclick = function(e) {
+    var body = document.body;
+    body.classList.toggle("dark");
+    if (body.classList.contains("dark")) {
+      updateFlashlight(e);
+      ["mousemove", "touchstart", "touchmove", "touchend"].forEach(function(s) {
+        document.documentElement.addEventListener(s, updateFlashlight, false);
+      });
+    } else {
+      ["mousemove", "touchstart", "touchmove", "touchend"].forEach(function(s) {
+        document.documentElement.removeEventListener(s, updateFlashlight, false);
+      });
+    }
+  }
+</script>

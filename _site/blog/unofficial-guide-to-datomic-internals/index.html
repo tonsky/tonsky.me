@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en" prefix="og: http://ogp.me/ns#" xmlns:og="http://opengraphprotocol.org/schema/">
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
+  
+    <meta name="viewport" content="width=640" />
+  
+  <meta name="theme-color" content="#FDDB29">
+  <link href="/i/favicon.png" rel="icon" sizes="32x32">
+
+  <link href='/style.css?v=20201203' rel='stylesheet' type='text/css' />
+  <title>Unofficial guide to Datomic internals @ tonsky.me</title>
+
+  <link href="/blog/atom.xml" rel="alternate" title="Nikita Prokopov’s blog" type="application/atom+xml" />
+
+  <meta name="author" content="Nikita Prokopov" />
+  
+  <meta property="og:title" content="Unofficial guide to Datomic internals" />
+  <meta property="og:url" content="https://tonsky.me/blog/unofficial-guide-to-datomic-internals/" />
+  
+    <meta property="og:type" content="article" />
+
+    <meta property="article:published_time" content='2014-05-06' />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Unofficial guide to Datomic internals" />
+  
+
+  
+    <meta property="og:description" content="This post is a compilation of publicly available information, Datomic docs and google group answers about Datomic internals. Intention is to help others understand implementation model and use Datomic more efficiently." />
+    <meta name="twitter:description" content="This post is a compilation of publicly available information, Datomic docs and google group answers about Datomic internals. Intention is to help others understand implementation model and use Datomic more efficiently." />
+  
+
+  <meta property="og:site_name" content="tonsky.me" />
+  <meta property="article:author" content="https://www.facebook.com/nikitonsky" />
+  <meta property="profile:first_name" content="Nikita" />
+  <meta property="profile:last_name" content="Prokopov" />
+  <meta property="profile:username" content="tonsky" />
+  <meta property="profile:gender" content="male" />
+
+  <meta name="twitter:creator" content="@nikitonsky" />
+</head>
+<body>
+<div class="page ">
+
+<ul class=menu>
+  <li><a class="menu__item menu__item_inside" href="/">Blog</a></li>
+  <li><a class="menu__item" href="/talks/">Talks</a></li>
+  <li><a class="menu__item" href="/projects/">Projects</a></li>
+  <li><a class="menu__item" href="/design/">Logos</a></li>
+  <!-- <li><a class="menu__item" href="/consulting/">UX&nbsp;Consulting</a></li> -->
+  <li><a class="menu__item" href="/patrons/">Patrons</a></li>
+  <div class="spacer"></div>
+  <div class="dark_mode"></div>
+</ul>
+
+
+<article class="post">
+  <h1 class="title">Unofficial guide to Datomic internals</h1>
+
+  <p></p>
+
+  <p><em>Disclaimer: I do not work for Cognitect and, unfortunately, haven’t seen any source code of Datomic. I just made it through a lot of public talks, docs and google group answers about Datomic. This post is a compilation thereof. Intention is to help others use Datomic more efficiently by understanding what they are doing.</em></p>
+
+<h2 id="persistence">Persistence</h2>
+
+<p>Datomic models all data as 4-tuples <code class="language-plaintext highlighter-rouge">(entity, attribute, value, time)</code> called <em>datoms</em>. In “John likes pizza” “John” is an entity, “likes” is an attribute and “pizza” is a value. Everything in Datomic is represented as such simple facts. This simplicity enables Datomic to do more than any relational DB or KV storage can ever afford: to efficiently store and access sparse, irregular, hierarchical, graph data and multi-valued attributes.</p>
+
+<p>Datomic does not manage persistence itself, instead, it outsources storage problems to databases implemented by other people. Data can be kept, at your expense, in DynamoDB, Riak, Infinispan, Couchbase or SQL database.</p>
+
+<p>Storage is used to store segments as binary blobs, similar to how DBs store blocks on file system. It’s basically segment key (UUIDs are used) to segment body mapping, so Datomic requires only two things to be supported by a storage: key-value interface and CAS for updating index root records. Segments are immutable, and, once written, cannot be changed. Re-indexing only writes new segments. This makes consistent reads and immutability possible.</p>
+
+<h2 id="indexes">Indexes</h2>
+
+<p>There’s no dedicated datom storage; instead, covering indexes are used. This means they contain actual data, not a reference to a place where data can be obtained. Data reads happen directly from index, there’s no other place where data is stored beyond indexes. There’s some redundancy in it, because if а datom ends up in 3 indexes, it’ll be stored 3 times. But it’s partially mitigated.</p>
+
+<p>Indexes are B-tree-like structures: sorted, immutable, persistent, 1,000+ branching factor, custom sort order, fast lookup and range scans, able to be efficiently merged (details unknown). Index trees are shallow, no more than three level deep: root node, directories and segments as leafs.</p>
+
+<p>Elements of index trees are not individual datoms, but segments. Segment is an array of datoms, serialised with <a href="https://github.com/datomic/fressian">Fressian</a>, then compressed with zip. Segment size may be up to ~50 Kb, usually including from <nobr>1,000</nobr> to <nobr>20,000</nobr> datoms. Compression enables for faster access time and more efficient cache and storage use.</p>
+
+<p>There’re five indexes, they differ in coverage and are named after the sort order used:</p>
+
+<ul>
+  <li>
+    <p>EAVT is for efficient access to the attributes of an entity, similar to primary key lookup in traditional DBs.</p>
+  </li>
+  <li>
+    <p>AEVT is for column-style access, to retrieve entities list by a given attribute. Both EAVT and AEVT store every datom.</p>
+  </li>
+  <li>
+    <p>VAET is used for navigating relations backwards and stores all datoms with reference attributes. Given VAET, you can not only find out whom John follows (<code class="language-plaintext highlighter-rouge">“John” :follows ?x</code>), but also efficiently lookup who follows John (<code class="language-plaintext highlighter-rouge">?x :follows “John”</code>).</p>
+  </li>
+  <li>
+    <p>AVET provides efficient lookup by value and stores datoms with attributes marked as <code class="language-plaintext highlighter-rouge">unique</code> or <code class="language-plaintext highlighter-rouge">index</code> in schema. Attributes of this kind are good for external ids. AVET is the most problematic index in practice, and it’s better if you can manage to put monotonic values in it, or use it sparingly.</p>
+  </li>
+  <li>
+    <p>Finally, there’s Log index, which stores all datoms sorted by transaction id.</p>
+  </li>
+</ul>
+
+<p><img src="./eavt@2x.png" style="width: 509px; height: 154px" /></p>
+
+<p>Partitions are just big pre-allocated entity id ranges (2<sup>42</sup>). That way, when you add new entities to one partition, they will not mess up EAVT index segments related to other partitions. They also provide semantic grouping: when querying cities, for example, you will not get random stuff that happened to interleave them just by getting next db-wide sequential id.</p>
+
+<p>Same logic applies to attributes: it’s better to have not a single <code class="language-plaintext highlighter-rouge">:name</code> attribute, but use namespaced versions for different entity classes (<code class="language-plaintext highlighter-rouge">:city/name</code>, <code class="language-plaintext highlighter-rouge">:person/name</code>, <code class="language-plaintext highlighter-rouge">:transaction/name</code>, etc.). That way AEVT and AVET index updates will get better locality.</p>
+
+<p>Queries that cannot be covered by index (e.g., filter DB by Tx; or lookup by value of non-indexed attribute) lead to full DB scan and either throw exceptions at you or spend a lot of time “thinking”.</p>
+
+<h2 id="index-internals">Index internals</h2>
+
+<p>Each index is conceptually a single unit, but (except Log) is technically split into three parts, with different location and usage pattern:</p>
+
+<ol>
+  <li><em>History</em> part contains datoms that by now have been changed or deleted, so no longer hold true (both initial assertions and subsequent retractions). History is durable and kept in storage.</li>
+  <li><em>Current</em> part contains latest assertions only, facts that are relevant at the moment index was built. If “Mary” gets renamed to “John”, only “John”, as latest true datom, will be included. Current part is durable and is kept in the storage too.</li>
+  <li><em>In-memory</em> part contains both assertions and retractions, is ephemeral and is kept in peers’ and transactor’s memory.</li>
+</ol>
+
+<p>In-memory part acts like a buffer, accumulating novelty between index rebuilds. Newly written data gets written to the Log (hitting storage for write here) and to the in-memory index of transactor. Transactor then propagates that novelty to all peers, ensuring they have the same in-memory index content.</p>
+
+<p><img src="./index-parts@2x.png" style="width: 450px; height: 157px" /></p>
+
+<p>New peers or peers that got disconnected all start with empty in-memory index. They start reading Log from the point where the latest current index was built, populating their in-memory index from that information.</p>
+
+<p>Peer and transactor communication is push-based. Whenever transactor has completed a transaction, it’ll notify all peers immediately, so peers will know about the new data as fast as it’s possible. Peer <code class="language-plaintext highlighter-rouge">db</code> call does not communicate with transactor, it returns the latest DB value that the peer has heard of.</p>
+
+<h2 id="executing-queries">Executing queries</h2>
+
+<p>Now, we have indexes and want to execute queries over them, right? It is just the time where the ability to efficiently merge persistent trees comes in handy. Queries are never answered from a single index, they always consult two, sometimes three index parts:</p>
+
+<ul>
+  <li>
+    <p>To answer a regular query, current and in-memory parts get merged, giving you an illusion you’re querying the latest version of DB.</p>
+  </li>
+  <li>
+    <p>To answer <code class="language-plaintext highlighter-rouge">as-of</code> query for moment T, current, in-memory and history parts get merged, and then all data with timestamp after moment T is ignored. Note that <code class="language-plaintext highlighter-rouge">as-of</code> queries do not require older versions of current index, they use most recent current index and filter it by time, deducing the previous view of the database.</p>
+  </li>
+  <li>
+    <p>With <code class="language-plaintext highlighter-rouge">history</code> API call, you get merge result of in-memory, current and history index parts. It will contain all assertions and retractions that have happened during the DB lifetime. You decide what to do with that information.</p>
+  </li>
+  <li>
+    <p>With recent versions of Datomic, you can also access <em>Log</em> index (<code class="language-plaintext highlighter-rouge">log</code>) which is not very efficient for queries, but can be efficiently asked for a range of transactions between two timestamps.</p>
+  </li>
+</ul>
+
+<h2 id="re-indexing-and-garbage-collection">Re-indexing and garbage collection</h2>
+
+<p>When in-memory index gets too big (<code class="language-plaintext highlighter-rouge">memory-index-threshold</code>, e.g. 32 Mb), transactor starts current index re-built. It is done by merging latest current index with in-memory index. Assertions are copied from in-memory to current index, outdated assertions and retractions are copied from in-memory to history. Changes in attributes marked as <code class="language-plaintext highlighter-rouge">noHistory</code> are silently dropped. When current/history index rebuild is done, peers and transactor learn about new version of them and drop all in-memory novelty that is now covered by the new indexes.</p>
+
+<p><img src="./index-rebuild@2x.png" style="width: 505px; height: 220px" /></p>
+
+<p>There’s an API call to force re-indexing, <code class="language-plaintext highlighter-rouge">request-index</code>.</p>
+
+<p>All databases obtained from <code class="language-plaintext highlighter-rouge">datomic.api/db</code> call always reference the latest current index. Once current index is rebuilt, there’s no way to obtain reference to older versions of it. The data segments that were referenced by older versions of current index, if they were “changed” and therefore not reused by latest version, are now subject to GC.</p>
+
+<p>Garbage segments can be cleaned up, but if some peer is keeping the reference to the DB it obtained long time ago, that DB still may be referencing an old index. In most cases, you get the <code class="language-plaintext highlighter-rouge">db</code>, do some processing, and forget about it. But analytics processing or other long-running jobs may violate that pattern. Thus, GC is a manual operation, and is recommended to be run rarely (e.g., once a week). There’s an API call for that, <code class="language-plaintext highlighter-rouge">gc-storage</code>. If old index referenced by DB was garbage collected, an equivalent DB version can be obtained by getting latest DB and calling <code class="language-plaintext highlighter-rouge">as-of</code> on it.</p>
+
+<p><img src="./index-update@2x.png" style="width: 563px; height: 388px" /></p>
+
+<p>Neither GC nor re-indexing are blocking operations. They both happen in background and do not interrupt normal DB operation in any way.</p>
+
+<h2 id="laziness">Laziness</h2>
+
+<p>DB value you run queries across contains reference to root index node. Peer then deduces which segments it needs to execute the query, and reaches storage for missing segments. Queries can run across datasets that do not fit in memory (by loading and unloading cached segments during DB scans), but the result of query should fit in memory. Query results are not lazy.</p>
+
+<p>There’s an API for walking indexes directly (<code class="language-plaintext highlighter-rouge">datoms</code> and <code class="language-plaintext highlighter-rouge">seek-datoms</code>). It’s lazy and can be used when you need to walk big dataset but cannot express your intentions in a query.</p>
+
+<p>Transactor does not participate in queries. Peers with no transactor connection can still do reads from storage. If required segments are already cached, query will be executed without network reads at all.</p>
+
+<h2 id="caching">Caching</h2>
+
+<p>Caching helps to keep working set close and warm, reducing latency and storage load.</p>
+
+<p>Since segments are immutable, it’s a no-brainer to cache them — you don’t need to invalidate. Datomic supports memcache for fast external segments cache, and peer library keeps in-memory cache too. In-memory peer segments maintain two types of cache: compressed segments cache (off heap) and uncompressed segments cache (on heap, limited by <code class="language-plaintext highlighter-rouge">object-cache-max</code>, e.g. 128m).</p>
+
+<p>Because caching happens at segments level, when you obtain one attribute, you probably also obtain 1,000–20,000 datoms around it. It means you won’t get N+1 select problem if you, say, are reading entity attributes one-by-one. This kind of thing was a big no-no in traditional client-server databases.</p>
+
+<h2 id="in-conclusion">In conclusion</h2>
+
+<p>Overall, I’m very impressed how simple and elegant underlying structure is. Building blocks are small, but the combination of them is impressive in feature set. There’s almost no tricks and compromises, everything is derived directly from core model. Transactor and peers are doing very different things using the same set of basic primitives. It feels like they’ve built a whole database from tuple, persistent sorted set and communication queue.</p>
+
+
+
+  <p class=footer>
+    <span>May 6, 2014</span>
+    
+
+    
+  </p>
+
+  <script>
+    document.querySelectorAll(".hoverable").forEach(function (e) {
+        e.onclick = function() { e.classList.toggle("clicked"); }
+    });
+  </script>
+
+  
+  <div class="about">
+    <div class="about_photo"></div>
+    <div class="about_inner">
+      <p>Hi!</p>
+      <p>I’m Nikita. Here I write about programming and UI design <a style="margin-left: 5px" class="btn-subscribe" href="/blog/how-to-subscribe/" target="_blank"><svg viewBox="0 0 800 800"><path d="M493 652H392c0-134-111-244-244-244V307c189 0 345 156 345 345zm71 0c0-228-188-416-416-416V132c285 0 520 235 520 520z"/><circle cx="219" cy="581" r="71"/></svg> Subscribe</a></p>
+      <p>I also create open-source stuff: Fira Code, AnyBar, DataScript and Rum. If you like what I do and want to get early access to my articles (along with other benefits), you should <a href="https://patreon.com/tonsky" target="_blank">support me on Patreon</a>.</p>
+    </div>
+  </div>
+  
+
+</article>
+
+
+<div class="preload"></div>
+
+</div>
+
+<script>
+  function updateFlashlight(e) {
+    var style = document.body.style;
+    style.backgroundPositionX = e.pageX - 250 + "px";
+    style.backgroundPositionY = e.pageY - 250 + "px";
+  }
+
+  document.querySelector(".dark_mode").onclick = function(e) {
+    var body = document.body;
+    body.classList.toggle("dark");
+    if (body.classList.contains("dark")) {
+      updateFlashlight(e);
+      ["mousemove", "touchstart", "touchmove", "touchend"].forEach(function(s) {
+        document.documentElement.addEventListener(s, updateFlashlight, false);
+      });
+    } else {
+      ["mousemove", "touchstart", "touchmove", "touchend"].forEach(function(s) {
+        document.documentElement.removeEventListener(s, updateFlashlight, false);
+      });
+    }
+  }
+</script>

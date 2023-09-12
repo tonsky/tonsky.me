@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en" prefix="og: http://ogp.me/ns#" xmlns:og="http://opengraphprotocol.org/schema/">
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
+  
+    <meta name="viewport" content="width=640" />
+  
+  <meta name="theme-color" content="#FDDB29">
+  <link href="/i/favicon.png" rel="icon" sizes="32x32">
+
+  <link href='/style.css?v=20201203' rel='stylesheet' type='text/css' />
+  <title>How to subscribe @ tonsky.me</title>
+
+  <link href="/blog/atom.xml" rel="alternate" title="Nikita Prokopov’s blog" type="application/atom+xml" />
+
+  <meta name="author" content="Nikita Prokopov" />
+  
+  <meta property="og:title" content="How to subscribe" />
+  <meta property="og:url" content="https://tonsky.me/blog/how-to-subscribe/" />
+  
+
+  
+
+  <meta property="og:site_name" content="tonsky.me" />
+  <meta property="article:author" content="https://www.facebook.com/nikitonsky" />
+  <meta property="profile:first_name" content="Nikita" />
+  <meta property="profile:last_name" content="Prokopov" />
+  <meta property="profile:username" content="tonsky" />
+  <meta property="profile:gender" content="male" />
+
+  <meta name="twitter:creator" content="@nikitonsky" />
+</head>
+<body>
+<div class="page ">
+
+<ul class=menu>
+  <li><a class="menu__item menu__item_inside" href="/">Blog</a></li>
+  <li><a class="menu__item" href="/talks/">Talks</a></li>
+  <li><a class="menu__item" href="/projects/">Projects</a></li>
+  <li><a class="menu__item" href="/design/">Logos</a></li>
+  <!-- <li><a class="menu__item" href="/consulting/">UX&nbsp;Consulting</a></li> -->
+  <li><a class="menu__item" href="/patrons/">Patrons</a></li>
+  <div class="spacer"></div>
+  <div class="dark_mode"></div>
+</ul>
+
+
+<article class="post">
+  <h1 class="title">How to subscribe</h1>
+
+  <p></p>
+
+  <p>Three ways: RSS, Twitter or Patreon.</p>
+
+<h2 id="rss">RSS</h2>
+
+<p>This blog delivers updates via <a href="https://en.wikipedia.org/wiki/RSS">RSS</a>. To use it, you need <em>a reader</em>.</p>
+
+<ol>
+  <li>Register at one of the services or install an app. Good list of hosted RSS readers and apps can be found <a href="https://zapier.com/blog/best-rss-feed-reader-apps/">here</a>. I use <a href="https://feedly.com/">Feedly</a> via web and <a href="https://play.google.com/store/apps/details?id=com.devhd.feedly&amp;hl=en_US">Feedly Android app</a>.</li>
+  <li>Add my blog to the sources. Usually “<code class="language-plaintext highlighter-rouge">tonsky.me</code>” would work, but if it doesn’t, try this: “<code class="language-plaintext highlighter-rouge">http://tonsky.me/blog/atom.xml</code>”</li>
+  <li>Enjoy!</li>
+</ol>
+
+<p>This is how my blog looks like in my Feedly account:</p>
+
+<figure><a href="feedly.png" target="_blank"><img src="feedly.png" /></a></figure>
+
+<h2 id="twitter">Twitter</h2>
+
+<p>You might follow <a href="https://twitter.com/nikitonsky">@nikitonsky</a> on Twitter, everything I write I announce on Twitter as well.</p>
+
+<h2 id="patreon">Patreon</h2>
+
+<p>If Twitter is too much noise for you, <a href="https://www.patreon.com/tonsky">patreon.com/tonsky</a> would work too. Become a patron and you’ll be notified about all articles and other stuff that I do.</p>
+
+
+  <p class=footer>
+    <span></span>
+    
+
+    
+  </p>
+
+  <script>
+    document.querySelectorAll(".hoverable").forEach(function (e) {
+        e.onclick = function() { e.classList.toggle("clicked"); }
+    });
+  </script>
+
+    
+  
+
+</article>
+
+
+<div class="preload"></div>
+
+</div>
+
+<script>
+  function updateFlashlight(e) {
+    var style = document.body.style;
+    style.backgroundPositionX = e.pageX - 250 + "px";
+    style.backgroundPositionY = e.pageY - 250 + "px";
+  }
+
+  document.querySelector(".dark_mode").onclick = function(e) {
+    var body = document.body;
+    body.classList.toggle("dark");
+    if (body.classList.contains("dark")) {
+      updateFlashlight(e);
+      ["mousemove", "touchstart", "touchmove", "touchend"].forEach(function(s) {
+        document.documentElement.addEventListener(s, updateFlashlight, false);
+      });
+    } else {
+      ["mousemove", "touchstart", "touchmove", "touchend"].forEach(function(s) {
+        document.documentElement.removeEventListener(s, updateFlashlight, false);
+      });
+    }
+  }
+</script>

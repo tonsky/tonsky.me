@@ -1,0 +1,2254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="en-US">
+ 
+  <title>tonsky.me</title>
+  <subtitle>Nikita Prokopov’s blog</subtitle>
+  <link type="application/atom+xml" href="https://tonsky.me/blog/atom.xml" rel="self" />
+  <link rel="alternate" type="text/html" href="https://tonsky.me/" />
+  <id>https://tonsky.me/</id>
+  <updated>2023-09-13T01:35:33+02:00</updated>
+  <author>
+    <name>Nikita Prokopov</name>
+    <email>niki@tonsky.me</email>
+  </author>
+ 
+  
+
+  
+  
+  
+  
+  
+  
+    
+    
+    
+    <entry>
+      <title>A case for ClojureScript 2.0</title>
+      <link rel="alternate" type="text/html" href="https://tonsky.me/blog/clojurescript-2/" />
+      <id>https://tonsky.me/blog/clojurescript-2/</id>
+      <published>2023-06-26T00:00:00+02:00</published>
+      <updated>2023-06-26T00:00:00+02:00</updated>
+      
+        <summary type="html"><![CDATA[
+          Innocent early design decision that led to a disaster years later
+        ]]></summary>
+      
+      <content type="html"><![CDATA[
+        
+        
+        
+        
+        
+        <p>I was <a href="https://twitter.com/nikitonsky/status/1671532290172649479">complaining the other day</a> about the ergonomics of ClojureScript and realized an interesting thing.</p>
+
+<p>Quick context:</p>
+
+<ul>
+  <li>Clojure is a modern Lisp.</li>
+  <li>ClojureScript is a Clojure dialect that compiles to JS.</li>
+  <li>From its very beginning, it relied on the Google Closure compiler in an elaborate plan to confuse people with Clojure/Closure naming (joking).</li>
+  <li>It has two important compilation modes: <code class="language-plaintext highlighter-rouge">:none</code> and <code class="language-plaintext highlighter-rouge">:advanced</code>.</li>
+  <li><code class="language-plaintext highlighter-rouge">:none</code> is what you are supposed to develop with.</li>
+  <li><code class="language-plaintext highlighter-rouge">:advanced</code> is what you ship: smaller bundle size, stripped of unused code, better performance, worse stacktraces.</li>
+</ul>
+
+<p>So, I was complaining about compilation times and ergonomics of using <code class="language-plaintext highlighter-rouge">:advanced</code> mode and other devs could not understand me. Apparently, they all work in <code class="language-plaintext highlighter-rouge">:none</code> and their experience is much better.</p>
+
+<p>This is where an interesting chain of cause and effect starts that leads (in my opinion) to what ultimately should become ClojureScript 2.0.</p>
+
+<p>You see, the very existence of <code class="language-plaintext highlighter-rouge">:advanced</code> mode means you can’t really develop in <code class="language-plaintext highlighter-rouge">:none</code>.</p>
+
+<p>I know, sounds like clickbait. Let’s unpack.</p>
+
+<h1 id="advanced-makes-your-code-faster">Advanced makes your code faster</h1>
+
+<p>First, <code class="language-plaintext highlighter-rouge">:advanced</code> does not <em>just</em> packages your code and trims the bundle size. It also improves its performance <em>and</em> can change its behavior.</p>
+
+<p>Better performance is fine, of course. Who doesn’t love a little bit of extra speed that computer gives you for free, with no work from your side?</p>
+
+<p>(Rich Hickey, for one. He once famously <a href="https://groups.google.com/g/clojure/c/apkNXk08Xes/m/CGCQqLMhlHwJ">made a case</a> why <code class="language-plaintext highlighter-rouge">last</code> should be slow where it could’ve been faster.)</p>
+
+<p>Unless you are doing benchmarking (as I was), so you have to rely on <code class="language-plaintext highlighter-rouge">:advanced</code> and have to suffer worse experiences with everything else because of that.</p>
+
+<h1 id="advanced-may-break-your-code">Advanced may break your code</h1>
+
+<p>You see, most bundlers (to my knowledge, I might be ignorant here) try to do the best they can while <em>not</em> changing the behavior of your code. For example, if they can prove some code is unused, only then will they remove it. If they can’t, the code stays. Better safe than sorry.</p>
+
+<p>Google Closure is different. Google Closure actively tries <em>to destroy</em> your code. You have to <em>work</em> against it to prove that your code is, in fact, used. Or that it shouldn’t be changed. Or that if you access, for example, <code class="language-plaintext highlighter-rouge">className</code> property on a JS object, it should stay named <code class="language-plaintext highlighter-rouge">className</code> and not be renamed to some <code class="language-plaintext highlighter-rouge">fy</code> or worse. The presumption of innocence does not apply here.</p>
+
+<p>From ShadowCLJS README:</p>
+
+<blockquote>
+  <p>Ideally we want to use <code class="language-plaintext highlighter-rouge">:closure</code> as our primary JS Provider since that will run the entire application through <code class="language-plaintext highlighter-rouge">:advanced</code> giving us the most optimized output. In practice however lots of code available via npm is not compatible with the aggressive optimizations that <code class="language-plaintext highlighter-rouge">:advanced</code> compilation does. They either fail to compile at all or expose subtle bugs at runtime that are very hard to identify.</p>
+</blockquote>
+
+<h1 id="you-cant-auto-generate-externs-nobody-can">You can’t auto-generate externs. Nobody can</h1>
+
+<p>DataScript, unfortunately, is one of those libraries that need externs. Not because we do some weird shit there, but because of the nature of the problem.</p>
+
+<p>Basically, queries are data, and data doesn’t get munged by Google Closure. But datoms are classes so their fields <em>are</em> getting munged by default. That’s why we have to write <code class="language-plaintext highlighter-rouge">externs</code> to work around that.</p>
+
+<p>It’s not always bad, though. I’ve heard stories that people can develop whole applications without ever experiencing this problem.</p>
+
+<p>I’ve also heard that there’s some “AI magic” (meaning: highly indeterministic heuristics) that is supposed to “automagically” detect cases like that and just “do the right thing™”.</p>
+
+<p>Which is supposed to be good, right?</p>
+
+<p>Well, not exactly. The fact that auto-deduced externs exist means people might forget that externs are sometimes <em>essential</em> for ClojureScript code to work.</p>
+
+<p>For example, ShadowCLJS, one of the most popular ClojureScript dev tools today, ignores hand-written <code class="language-plaintext highlighter-rouge">externs</code> <em>by default</em>. Because they are supposed to be “automatically deduced”. And it works. Until it doesn’t. As you can guess, their users then come to me claiming that “DataScript is broken”.</p>
+
+<p>Well, it is. But I didn’t break it. It’s the way we do things is broken.</p>
+
+<p>BTW, did I tell you that upgrading your ClojureScript version might break things in new and exciting ways? Because it updates Google Closure, too, and the extern-deducing algorithm might change unpredictably between versions. And then it’s your problem, because, well, we didn’t really promise you anything, did we?</p>
+
+<p>The ultimate promise of Google Closure compilation is: your code might work. It might not. It also might change between versions. Good luck.</p>
+
+<h1 id="why-is-advanced-mode-needed">Why is advanced mode needed?</h1>
+
+<p>When ClojureScript started, the main premise was that people will build websites with it.</p>
+
+<p>After 10 years, I’d say that ClojureScript is best suited for web apps, not pages. The minimal bundle size, the performance—you won’t really put stuff like that on your landing page.</p>
+
+<p>But a productivity app? Custom editor? Some complex UI? Sure! People don’t really care about bundle size in that case. They are already committed to using it, they have a JS bundle probably cached (unless you release 10 times a day), so it’s much less of a problem.</p>
+
+<p>What I’m saying is: since we are not getting into really super-small, super high-perf, low overhead JS territory, maybe we can relax our constraints a little and choose a less aggressive bundler? The one that maybe produces slightly less optimal code, but code that doesn’t subtly and unexpectedly break?</p>
+
+<p>Is there really a difference between, say, a 500k bundle and a 1M bundle? A practical one? One that users will definitely notice in a meaningful way?</p>
+
+<h1 id="why-not-just-always-use-none-mode">Why not just always use <code class="language-plaintext highlighter-rouge">:none</code> mode?</h1>
+
+<p>It might seem that having more options is always better. Hey, do you want small bundle sizes and good perf? We got you covered. Great dev experience? We’ve got you too!</p>
+
+<p>And that is partially true. For app developers, at least. I think some people just ship <code class="language-plaintext highlighter-rouge">:none</code> mode and it works for them. Why wouldn’t it?</p>
+
+<p>For library authors, it’s worse. Because <code class="language-plaintext highlighter-rouge">:advanced</code> mode exists, just the fact of its existence, means we have to take it into account. We don’t really get to choose. People use it → we have to support it. In some sense having more options made life harder for us.</p>
+
+<p>You can always look at a choice like that two ways. Tesla can charge your car for free or replace your battery with no waiting time. Free or fast, says Elon Musk. But it’s also a choice between slow or paid. PS5 games have performance mode or quality mode. A good picture or fast gameplay. Or: big latency or worse picture? You don’t just choose good parts here. You also choose bad ones.</p>
+
+<h1 id="how-is-jvm-clojure-doing">How is JVM Clojure doing?</h1>
+
+<p>It’s very interesting to look at what JVM Clojure is doing differently. This is how my rant on Twitter started, actually: I was wondering why on JVM, which is designed for statically-typed languages, the Clojure experience is much more dynamic than on JS, where it’s almost comparable with C++ development (long building times, lots of options, bad stacktraces, etc)?</p>
+
+<p>Well, because ClojureScript accidentally complected two things: performance optimizations and minification. I know Clojure devs are trained to be scared of the word “complected”, and its use here is intentional: I am trying to scare you.</p>
+
+<p>Look at Clojure experience. I develop without any notion of jars, classes, paths, etc. There are no compilation options either. It Just Works™. When the time comes, I can compile my Clojure classes (or not) and package everything into a jar, which I then ship.</p>
+
+<p>So there <em>are</em> two modes on JVM Clojure as well: dev mode and prod mode. Yet the dev code behaves <em>exactly</em> how it will in production. There’s no compromise. No choice to make. I can safely work in dev mode until the time comes to ship my code. And I know I don’t even need to check it a second time—it’ll just work. It’s <em>guaranteed</em> to work, even though the storage format (jar) is different.</p>
+
+<p>Why can’t it be that way in ClojureScript? Because it uses Google Closure for both <em>bundle size</em> and <em>performance</em> optimizations.</p>
+
+<p>You see, the ClojureScript compiler outputs less performant code and relies on Google Closure to improve its performance. So even if you personally are ok with larger bundles, it’s still really hard to leave free performance on the table.</p>
+
+<h1 id="what-if-advanced-mode-didnt-exist">What if advanced mode didn’t exist?</h1>
+
+<p>So what am I proposing? Basically,</p>
+
+<ol>
+  <li>Ditch Google Closure.</li>
+  <li>Move whatever performance optimizations it does into the ClojureScript compiler. Or accept that it’ll be slightly slower.</li>
+  <li>Use whatever bundler JS people use. Even if it outputs larger bundles. It’s okay, ClojureScript is already pretty thick anyways. The important part is that it should only make safe transformations and not try to destroy your code.</li>
+</ol>
+
+<p>JS is an ecosystem. A strange one, but a huge one, too. So it was a very strange choice to ignore it completely or make it really hard to use. One of the selling points of JVM Clojure always was: to use whatever Java libraries you need. Using Java from Clojure is easier than from Java (not kidding).</p>
+
+<p>Whereas in ClojureScript it’s more like: don’t use JS libraries. It’s very hard. There are a million “buts”. Are you in node or a browser?</p>
+
+<p>That’s not the spirit, I would say.</p>
+
+<p>And no matter what Rich Hickey’s reasoning was, Google Closure is <em>not</em> part of the JS ecosystem. Nobody uses it, except, maybe, for Google.</p>
+
+<p>Getting rid of Google Closure will make interop with JS much simpler (as far as I understand). So we will only potentially lose a little bit in bundle sizes and (maybe) performance? But there are so many low-hanging performance fruits in ClojureScript anyways maybe nobody will notice.</p>
+
+<p>What’s important is what we’ll gain:</p>
+
+<center>The Simplicity.<br /><br />
+
+Ease of Mind.<br /><br />
+
+Happiness.</center>
+
+<p>I fell in love with Clojure because of how simple everything was. To this day I’m still reflecting on how the same things are unnecessarily complicated in other languages.</p>
+
+<p>And I wish the same for ClojureScript users, I want them to feel the same transformative experience.</p>
+
+<h1 id="where-are-your-patches">Where are your patches?</h1>
+
+<p>I know getting rid of Google Closure is a huge step. I’m not even sure if that’s possible in the current implementation or the current ecosystem.</p>
+
+<p>That’s why I called this post ClojureScript 2.0. It’s a huge change. Lots of work. But I believe it’s the right path.</p>
+
+<p>I also believe Michiel Borkent is working in the right direction with <a href="https://github.com/squint-cljs/cherry">Cherry 🍒</a>. I don’t know all the details but it looks like how I imagined the Clojure compiler for JavaScript <em>should</em> look like. So maybe help him out?</p>
+
+<p>All in all, the goal of this post was not to diss on ClojureScript. It’s absolutely great that it exists, and its existence has been paying my bills for the last seven(-ish?) years at least. I just was excited that I finally saw how a very early decision (use Google Closure) eventually led to “Clojure feels like the future, ClojureScript feels like developing C++” in some cases. I hope I described that path clearly enough and it’s of interest to you too.</p>
+
+<p>Again, I’m not saying it’s wrong, bad, or anything, or that anybody should’ve predicted it. It took me 10 years to realize what was going on. I only hope it will help someone in the future if any new initiatives get developed.</p>
+
+<p>Peace.</p>
+
+        
+      ]]></content>  
+      <author>
+        <name>Nikita Prokopov</name>
+        <email>niki@tonsky.me</email>
+      </author>
+    </entry>
+  
+  
+  
+    
+    
+    
+    <entry>
+      <title>Humble Chronicles: Managing State with Signals</title>
+      <link rel="alternate" type="text/html" href="https://tonsky.me/blog/humble-signals/" />
+      <id>https://tonsky.me/blog/humble-signals/</id>
+      <published>2023-05-18T00:00:00+02:00</published>
+      <updated>2023-05-18T00:00:00+02:00</updated>
+      
+        <summary type="html"><![CDATA[
+          An experiment of using incremental computations for managing state in Humble UI
+        ]]></summary>
+      
+      <content type="html"><![CDATA[
+        
+        
+        
+        
+        
+        <p>After <a href="https://tonsky.me/blog/humble-state/">the previous post</a>, I figured that the best way to decide on the direction for Humble UI is to make an experiment.</p>
+
+<p>And I did. I implemented a reactive/incremental computation engine (signals) and wrote a simple TodoMVC in it. Following are my thoughts on it.</p>
+
+<h1 id="signals">Signals</h1>
+
+<p>The idea behind signals is very simple: you declare some mutable (!) data sources:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(s/defsignal *width
+  16)
+
+(s/defsignal *height
+  9)
+</code></pre></div></div>
+
+<p>And then create a derived (computed) state that depends on those:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(s/defsignal *area
+  (println "Computing area of" @*width "x" @*height)
+  (* @*width @*height))
+</code></pre></div></div>
+
+<p>Now, the first time you dereference <code class="language-plaintext highlighter-rouge">*area</code>, it is computed:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@*area =&gt; 144
+;; Computing area of 16 x 9
+</code></pre></div></div>
+
+<p>After that, any subsequent read is cached (notice the lack of stdout):</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@*area =&gt; 144
+</code></pre></div></div>
+
+<p>If any of the sources change, it is marked as dirty (but not immediately recomputed):</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(s/reset! *width 20)
+</code></pre></div></div>
+
+<p>But if you try to read <code class="language-plaintext highlighter-rouge">*area</code> again, it will recompute and cache its value again:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@*area =&gt; 180
+;; Computing area of 20 x 9
+
+@*area =&gt; 180
+;; (no println)
+</code></pre></div></div>
+
+<p>You can check out implementation <a href="https://github.com/HumbleUI/HumbleUI/blob/d111faa1fa27c5fa2d45264fdb718e6d1f980dd5/src/io/github/humbleui/signal.clj">here</a> and some usage examples <a href="https://github.com/HumbleUI/HumbleUI/blob/d111faa1fa27c5fa2d45264fdb718e6d1f980dd5/test/io/github/humbleui/signal_test.clj">here</a>. The implementation is a proof-of-concept, so maybe don’t use it in production.</p>
+
+<h1 id="stable-object-references">Stable object references</h1>
+
+<p>The appeal of signals is that, when data changes, only the necessary minimum of computations happens. This is, of course, cool, but not entirely free — it comes at a cost of some overhead for managing the dependencies.</p>
+
+<p>I was particularly interested in using signals for Humble UI because they provide stable references. Let’s say you have a tabbed interface that has a checkbox that enables a text field:</p>
+
+<figure><img src="https://tonsky.me/blog/humble-signals/ui.png" /></figure>
+
+<p>Now, our state might look somewhat like this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(s/defsignal *tab 
+  :first)
+
+(s/defsignal *checked?
+  false)
+
+(s/defsignal *text
+  nil)
+
+(s/defsignal *tab-content
+  (column
+    (ui/checkbox *checked?)
+    (when @*checked?
+      (ui/text-field *text))))
+
+(s/defsignal *app
+  (case @*tab
+    :first  ...
+    :second *tab-content
+    :third  ...))
+</code></pre></div></div>
+
+<p>and the beauty of it is unless the user switches a tab or plays with a checkbox, <code class="language-plaintext highlighter-rouge">*tab-content</code> will be cached and NOT recomputed because its dependencies do not change!</p>
+
+<p>And that means that no matter how many times we dereference <code class="language-plaintext highlighter-rouge">*tab-content</code> e.g. for rendering or layout, it will always return <em>exactly the same instance</em> of the checkbox and text field. As in, the same object. Same DOM node, if we were in the browser.</p>
+
+<p>Cool? Cool! No diffing needed. No state tracking and positional memoization either. We can put all internal state into objects as fields and not invent any special “more persistent” storage solution at all!</p>
+
+<p>This was my main motivation to look into incremental computations. I don’t really care about optimal performance, because—how much is there to compute in UI anyways?</p>
+
+<p>And also—it’s not obvious to me that if you make every <code class="language-plaintext highlighter-rouge">+</code> and <code class="language-plaintext highlighter-rouge">concat</code> incremental it’ll be a net win because of overhead. But stable objects in a dynamic enough UI? Lack of diffing and VDOM? This is something I can use.</p>
+
+<h1 id="props-drilling">Props drilling</h1>
+
+<p>One of the examples where VDOM model doesn’t shine is props drilling. Imagine an app like this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(ui/default-theme
+  {:font-ui ...}
+  (ui/column
+    (ui/row
+      (ui/tabs
+        ...
+        (ui/tab
+          (ui/button
+            (ui/label "Hello")))))))
+</code></pre></div></div>
+
+<p>The actual details don’t matter, but the point is: there’s a default theme at the very top of your app and a label somewhere deep down.</p>
+
+<p>If you pass <code class="language-plaintext highlighter-rouge">font-ui</code> as an argument to every component, it will create a false dependency for every intermediate container that it passes through. When the time for the update comes, the whole UI will be re-created:</p>
+
+<figure>
+  <img src="https://tonsky.me/blog/humble-signals/drilling1.png" />
+</figure>
+
+<p>In a perfect world, though, <code class="language-plaintext highlighter-rouge">font-ui</code> change should only affect components that <em>actually use</em> that font. E.g. it shouldn’t affect paddings, backgrounds, or scrolls, but should affect labels and paragraphs.</p>
+
+<p>Well, incremental computation solves this problem beautifully! If you make your default font a signal, then only components that <em>actually read it</em> will subscribe to its changes:</p>
+
+<figure>
+  <img src="https://tonsky.me/blog/humble-signals/drilling2.png" />
+</figure>
+
+<p>On the other hand, how often do you change fonts in the entire app? Should it really be optimized? The question of whether this use case is important remains open.</p>
+
+<h1 id="reactive-vs-incremental">Reactive vs Incremental</h1>
+
+<p>Now let’s dig into implementation details a little bit. What we have so far is, I believe, called reactive, but not incremental. To be called incremental we must somehow <em>reuse</em>, not just re-run, previous computations.</p>
+
+<p>A simple example. Imagine we have a list of todos and a function to render them. Then we can define our UI like this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(s/defsignal *todos
+  ...)
+
+(s/defsignal *column
+  (ui/column
+    (map render-todo @*todos)))
+</code></pre></div></div>
+
+<p>This would work fine the first time, but if we add a new to-do, the whole list will be re-rendered. <code class="language-plaintext highlighter-rouge">*todos</code> changes, <code class="language-plaintext highlighter-rouge">*column</code> body gets re-executed, <code class="language-plaintext highlighter-rouge">render-todo</code> is applied to <em>every</em> todo again by <code class="language-plaintext highlighter-rouge">map</code>.</p>
+
+<p>To solve just this problem, we could introduce incremental <code class="language-plaintext highlighter-rouge">s/map</code> that only re-computes the mappings that were not computed before:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(def column
+  (ui/column
+    (s/map render-todo *todos)))
+</code></pre></div></div>
+
+<p>Under the hood, <code class="language-plaintext highlighter-rouge">s/map</code> caches previous computation and its result and, when re-evaluated, tries to reuse it as much as possible. Meaning, if it already saw the same todo before, it will return a cached version of <code class="language-plaintext highlighter-rouge">(render-todo todo)</code> instead of calculating it anew.</p>
+
+<p>Two important things to note here. First, if we care about object identities, we <em>have</em> to use incremental map. Otherwise adding new todo to the end of the list will reset the internal component state of every other one. Not good!</p>
+
+<p>Second, although “incremental map” sounds fancy and smart, under the hood it does the same thing that React does: diffing. It diffs new collection against previous collection and tries to find matches.</p>
+
+<p>It is (probably) a perf win overall, but, more importantly, diff still does happen. That’s the reason why all incremental frameworks have their own versions of for/map:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{#each arr as el}
+  &lt;li&gt;{el}&lt;/li&gt;
+{/each}
+</code></pre></div></div>
+
+<p>I can imagine it could be better when a diff happens on the data layer instead of on the final UI layer because generated UI is usually much larger than the source data. Either way, at least you can choose where it happens.</p>
+
+<p>The bad news is, you have to <em>think</em> about it, whereas in React model you usually don’t bother with such minute details at all.</p>
+
+<p>One can imagine that we’ll need incremental versions of <code class="language-plaintext highlighter-rouge">filter</code>, <code class="language-plaintext highlighter-rouge">concat</code>, <code class="language-plaintext highlighter-rouge">reduce</code> etc, and our users will <em>have</em> to learn about them and use them if they want to keep stable identities. And we’ll have to provide enough incremental versions of base core functions to keep everyone happy, and potentially teach them to write their own. Sounds harsh.</p>
+
+<h1 id="effects">Effects</h1>
+
+<p>One important feature we’re missing in our incremental framework is effects.</p>
+
+<p>We implement a mixed push/pull model: recalculating values is lazy (not done until explicitly requested), but marking as dirty is eager (immediate dependencies are marked as <code class="language-plaintext highlighter-rouge">:dirty</code> and their transitive deps are marked with <code class="language-plaintext highlighter-rouge">:check</code>, which means might or might not be dirty):</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(s/defsignal *a
+  1)
+
+(s/defsignal *b
+  (+ 10 @*a))
+
+(s/defsignal *c
+  (+ 100 @*b))
+
+@*a ; =&gt; 1
+@*b ; =&gt; 11
+@*c ; =&gt; 111
+
+(:state *b) ; =&gt; :clean
+(:value *b) ; =&gt; 11
+
+(s/reset! *a 2)
+
+(:state *b) ; =&gt; :dirty
+(:value *b) ; =&gt; 11
+(:state *c) ; =&gt; :check
+(:value *c) ; =&gt; 111
+
+@*b ; =&gt; 12
+
+(:state *c) ; =&gt; :dirty
+(:value *c) ; =&gt; 111
+
+@*c ; =&gt; 112
+</code></pre></div></div>
+
+<p>Or for us visual thinkers:</p>
+
+<figure>
+  <img src="https://tonsky.me/blog/humble-signals/lazyness.png" />
+</figure>
+
+<p>For details, see <a href="https://dev.to/modderme123/super-charging-fine-grained-reactive-performance-47ph#reactively">Reactively algorithm description</a>.</p>
+
+<p>An effect is a signal that watches when it gets marked <code class="language-plaintext highlighter-rouge">:check</code> (something down the deps tree has changed) and forces its dependencies to see if any of them are actually <code class="language-plaintext highlighter-rouge">:dirty</code>. If any of them are, it evaluates its body:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(s/defsignal *a
+  1)
+
+(s/defsignal *b
+  (mod @*a 3))
+
+(s/effect [*b]
+  (println @*a "mod 3 =" @*b))
+
+(s/reset! *a 2) ; =&gt; "2 mod 3 = 2"
+(s/reset! *a 3) ; =&gt; "3 mod 3 = 0"
+(s/reset! *a 6) ; =&gt; (no stdout: *b didn’t change)
+</code></pre></div></div>
+
+<p>This is exactly what we need to schedule re-renders. We put an effect as a downstream dependency on every signal that was read during the last <code class="language-plaintext highlighter-rouge">draw</code>. That means we’ll create an explicit dependency for everything that affected the final picture one way or another.</p>
+
+<figure>
+  <img src="https://tonsky.me/blog/humble-signals/rendering1.png" />
+</figure>
+
+<p>Then, when any of the sources change <em>and</em> the redraw effect is actually a downstream dependency on it, we’ll trigger a new redraw.</p>
+
+<h1 id="disposing-signals">Disposing signals</h1>
+
+<p>What I did have problems with is resource management. First, let’s consider something like this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(s/defsignal *object
+  "world")
+
+(def label
+  (s/signal (str "Hello, " @*object "!")))
+</code></pre></div></div>
+
+<p>Now imagine we lose a reference to the label. Irresponsible, I know, but things happen, especially in end-user code. The simplest example: we’re in REPL and we re-evaluate <code class="language-plaintext highlighter-rouge">(def label ...)</code> again. What will happen?</p>
+
+<p>Well, due to the nature of signals, they actually keep references to both upstream (for re-calculation) and downstream (for invalidation) dependencies. Meaning, the previous version of the signal will still be referenced from <code class="language-plaintext highlighter-rouge">*object</code> along with the new one:</p>
+
+<figure>
+  <img src="https://tonsky.me/blog/humble-signals/dangling_signal.png" />
+</figure>
+
+<p>We can introduce <code class="language-plaintext highlighter-rouge">dispose</code> method that could be called to unregister itself from upstream, but nobody can guarantee that users will call that in time. It’s so easy to accidentally lose a reference in a garbage-collected language!</p>
+
+<p>And this is what I am struggling with. The signal network <em>has</em> to be dynamic. Meaning, new dependencies will come and go. But de-registering something doesn’t really feel natural in Clojure or even Java code, and there’s no way to enforce that every resource that is no longer needed will be properly disposed of.</p>
+
+<p>A common solution is to make downstream references weak. That means, if we lost all references to the dependant signal (<code class="language-plaintext highlighter-rouge">label</code> on the picture below), it will eventually be garbage collected.</p>
+
+<figure>
+  <img src="https://tonsky.me/blog/humble-signals/weak_ref.png" />
+</figure>
+
+<p>What I don’t like about that solution (that we use anyways in the prototype) is that until GC is called, those unnecessary dependencies still hang around and take resources e.g. during downstream invalidation.</p>
+
+<figure>
+  <img src="https://tonsky.me/blog/humble-signals/weak_invalidation.png" />
+</figure>
+
+<p>One idea is to dispose of signals explicitly when their component unmounts. It works for some signals, but not in general. Consider this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(s/defsignal *text
+  "Hello")
+
+(ui/label *text)
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">*text</code> signal is created outside of the label and shouldn’t be disposed of by it. At the same time,</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(ui/label
+  (s/signal (str @*text ", world!")))
+</code></pre></div></div>
+
+<p>In this case, the signal is created specifically for the label, thus should be disposed of at the same time as the label. But how to express that?</p>
+
+<p>Keep in mind that we probably want both use cases at the same time:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(ui/column
+  (ui/header *text)
+  (ui/label
+    (s/signal (str @*text ", world!")))
+  (ui/label *text))
+</code></pre></div></div>
+
+<p>Eventually, unused signals will be cleaned up by GC, so we can rely on that. I’m just not sure what sorts of problems it might cause in practice.</p>
+
+<h1 id="disposing-components">Disposing components</h1>
+
+<p>Same problem I have with signals I also have with components. Because all components are values, nothing stops me from saving them in a var, using them multiple times, etc. Consider this UI:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(s/defsignal *cond
+  true)
+
+(def the-label
+  (ui/label "Hello"))
+
+(def *ui
+  (s/signal
+    (if @*cond
+      the-label
+      (ui/label "Not hello"))))
+</code></pre></div></div>
+
+<p>If we toggle <code class="language-plaintext highlighter-rouge">*cond</code> on and off, <code class="language-plaintext highlighter-rouge">the-label</code> will appear and disappear from our UI, calling <code class="language-plaintext highlighter-rouge">on-mount</code> and <code class="language-plaintext highlighter-rouge">on-unmount</code> multiple times. So if we do some resource cleanup in <code class="language-plaintext highlighter-rouge">on-unmount</code>, we should somehow restore it in <code class="language-plaintext highlighter-rouge">on-mount</code>? Feels strange, but why not?</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(core/deftype+ Label [*paint *text ^:mut *line]
+  protocols/ILifecycle
+  (-on-mount-impl [_]
+    (set! *line
+      (s/signal
+        (.shapeLine
+          core/shaper
+          (str (s/maybe-read *text))
+          @*font-ui
+          ShapingOptions/DEFAULT))))
+  
+  (-on-unmount-impl [_]
+    (s/dispose! *line)
+    (set! *line nil)))
+</code></pre></div></div>
+
+<p>This way, if a component needs some heavy resources for rendering (textures, pre-rendered lines, or other native resources) it can clean it up and restore only when it’s actually on the screen. Or rely on GC once again (not recommended).</p>
+
+<h1 id="mounting-components">Mounting components</h1>
+
+<p>Another thing that I used to take for granted since the world switched to React: lifecycle callbacks. A lot of stuff comes down to these callbacks. Enabling/disabling signals. Freeing expensive resources held by components. Users’ use cases, like setting a timer or making a fetch request. It is so convenient to be able to tie some expensive resource’s lifetime to the lifetime of a component. We certainly want these!</p>
+
+<p>How does React do it? Well, it takes mount/unmount API away from you and takes control over it, so it can guarantee to call you back at the right time.</p>
+
+<p>The solution I came up with is very simple: the component is mounted if it was drawn during render, and not mounted otherwise. At the very top level, I’m keeping track of everything that was rendered last frame and what is rendered this frame. For new stuff, <code class="language-plaintext highlighter-rouge">-on-mount</code> is called, for stuff that’s no longer visible, <code class="language-plaintext highlighter-rouge">-on-unmount</code>. The gotcha here is, as I said above, that some components might “come back” after being unmounted. I guess it’s ok?</p>
+
+<h1 id="gotchas">Gotchas</h1>
+
+<p>Working with an incremental framework breaks both imperative and functional intuition. It’s a whole other thing. I made a lot of mistakes and had to think about stuff I usually don’t have to think about. Here are a few gotchas:</p>
+
+<h2 id="dependency-too-wide">Dependency too wide</h2>
+
+<p>Imagine we want to render a TODO from very simple EDN data:</p>
+
+<figure>
+  <img src="https://tonsky.me/blog/humble-signals/gotcha_1.png" style="max-width: 300px;" />
+</figure>
+
+<p>We might write something like this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(defn render-todo [*todo]
+  (let [*text (s/signal
+                (str (:id @*todo)))]
+    (ui/label *text)))
+</code></pre></div></div>
+
+<p>This render function returns a label object that has a signal as its text. So far so good.</p>
+
+<p>The problem is, we over-depend here: we only use <code class="language-plaintext highlighter-rouge">:id</code> from <code class="language-plaintext highlighter-rouge">*todo</code> but we depend on the entire thing. A better solution would be:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(defn render-todo [*todo]
+  (let [*id   (s/signal (:id @*todo))
+        *text (s/signal (str *id))]
+    (ui/label *text)))
+</code></pre></div></div>
+
+<p>which seems a bit too tedious to write. It probably doesn’t matter all that much in this particular case, but what if computations are more expensive?</p>
+
+<p>My point is: it’s too easy to make this mistake.</p>
+
+<p>Ambrose Bonnaire-Sergeant has pointed out that Reagent and CljFX solve this by providing an explicit API:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@(subscribe [:items])
+</code></pre></div></div>
+
+<h2 id="dependency-at-the-wrong-time">Dependency at the wrong time</h2>
+
+<p>Imagine you have a UI like this:</p>
+
+<figure>
+  <img src="https://tonsky.me/blog/humble-signals/gotcha_2.png" style="max-width: 300px;" />
+</figure>
+
+<p>You have a signal that is hooked up to your text field and a button that converts it into a label:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(s/defsignal *text
+  "Your name")
+
+(s/defsignal *list
+  [])
+
+(def app
+  (ui/column
+    (s/mapv ui/label *list)
+
+    (ui/text-field {:placeholder "Type here"}
+      *text)
+
+    (ui/button
+      #(s/swap! *list conj *text)
+      (ui/label "Add"))))
+</code></pre></div></div>
+
+<p>Do you see it? We actually store the original signal in <code class="language-plaintext highlighter-rouge">*list</code> instead of making a copy. This way, when we edit text, every element in our list will also be edited!</p>
+
+<p>We might fix it like so:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#(s/swap! *list conj (s/signal @*text))
+</code></pre></div></div>
+
+<p>but it’s no good either.</p>
+
+<p>Yes, we create a new signal, but it depends on the old one :) This is an API problem, and I think maybe I should have separate functions for source signals and derived signals. Right now the proper way to write it would be:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>#(let [text @*text]
+   (s/swap! *list conj (s/signal text)))
+</code></pre></div></div>
+
+<p>which is almost identical! but the result is very different.</p>
+
+<p>It reminds me a lot about Clojure laziness puzzles, which is both ok (we all learned to deal with them) and not so much (the best way to deal with laziness is not to use it).</p>
+
+<h2 id="recomputing-too-much">Recomputing too much</h2>
+
+<p>There’s another gotcha in the previous example. <code class="language-plaintext highlighter-rouge">column</code> takes a collection or a signal that contains a collection, so we have to satisfy that:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(ui/column
+  (s/signal
+    (concat
+      (mapv ui/label @*list)
+      [(ui/text-field ...)
+       (ui/button ...)]))))
+</code></pre></div></div>
+
+<p>But now our <code class="language-plaintext highlighter-rouge">s/signal</code> will re-create a text-field and a button each time <code class="language-plaintext highlighter-rouge">*list</code> changes. The solution might be:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(let [text-field (ui/text-field ...)
+      button     (ui/button ...)]
+  (ui/column
+    (s/signal
+      (concat
+        (mapv ui/label @*list)
+        [text-field
+         button]))))
+</code></pre></div></div>
+
+<p>which, again, kind of breaks referential transparency. Depending on where we allocate our components, an app behaves differently. Doesn’t matter for the button, as it doesn’t have an internal state, but does matter for the text field.</p>
+
+<p>Alternatively, we might introduce a version of concat that accepts both signals wrapping sequences as well as sequence values. Then argument evaluation will lock the <code class="language-plaintext highlighter-rouge">text-field</code> value for us:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(ui/column
+  (s/signal
+    (s/concat
+      (s/mapv ui/label *list)
+      [(ui/text-field ...)
+       (ui/button ...)])))
+</code></pre></div></div>
+
+<h2 id="ambiguity">Ambiguity</h2>
+
+<p>It was not always clear to me which parts of the state should be signals and which should be values. Right now, for example, a list of todos is signal containing signals that point to todos:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(defn random-todo []
+  {:id       (rand-int 1000)
+   :checked? (rand-nth [true false])})
+
+(s/defsignal *todos
+  [(s/signal (random-todo))
+   (s/signal (random-todo))
+   (s/signal (random-todo))
+   ...])
+</code></pre></div></div>
+
+<p>This way list of todos could be decoupled from the todos themselves. When we add new todo, we need to change the list and generate a new component. But when an individual todo is e.g. toggled, it’s handled entirely inside and shouldn’t affect the list.</p>
+
+<p>I guess this solution is okay, although double-nested mutable structures do give me pause.</p>
+
+<p>Could the same be done “single atom”-style? Probably, with some sort of keyed map operator and lenses?</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(s/defsignal *todos
+  [(random-todo)
+   (random-todo)
+   (random-todo)
+   ...])
+
+(def *todo-0
+  (s/signal
+    {:read  (nth @*todos 0)
+     :write #(s/update *todos assoc 0 %)}))
+</code></pre></div></div>
+
+<p>The same ambiguity problem happens here:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(s/defsignal *text
+  "Hello")
+  
+(ui/label *text)
+</code></pre></div></div>
+
+<p>or</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(s/signal
+  (ui/label @*text))
+</code></pre></div></div>
+
+<p>Should I use a label that contains a signal or a signal that contains a label? Both are viable.</p>
+
+<p>This is not necessarily a problem, just an observation. I guess I prefer Python’s “There should be one—and preferably only one—obvious way to do it” to Perl’s “There’s more than one way to do it”.</p>
+
+<h2 id="repeating-computations">Repeating computations</h2>
+
+<p>I have a few constants defined in my app, including <code class="language-plaintext highlighter-rouge">*scale</code> (UI scale, e.g. <code class="language-plaintext highlighter-rouge">2.0</code> on Retina) and <code class="language-plaintext highlighter-rouge">*padding</code> (in logical pixels, e.g. <code class="language-plaintext highlighter-rouge">10</code>).</p>
+
+<p>But actual rendering requires screen pixels, not UI pixels. For that, I was using the derived signal calculated inside the <code class="language-plaintext highlighter-rouge">padding</code> constructor:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(defn padding [*amount]
+  (map-&gt;Padding
+    {:amount (s/signal (* @*scale @*amount))}))
+</code></pre></div></div>
+
+<p>The problem? I was using default <code class="language-plaintext highlighter-rouge">*padding</code> everywhere:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(padding *padding ...)
+...
+(padding *padding ...)
+...
+(padding *padding ...)
+...
+</code></pre></div></div>
+
+<p>This way I ended up with dozens of equivalent signals (different identities, same value, dependencies, and function) that multiply the same numbers to get the same result.</p>
+
+<p>Is it bad? In this case, probably not. It just doesn’t feel as clean, considering that the rest of the app uses the absolute required minimum of computations and the dependency graph is carefully constructed.</p>
+
+<p>But I don’t see a way to merge identical signals together, either. I guess we’ll have to live with this imperfection.</p>
+
+<h1 id="pre-compilation">Pre-compilation</h1>
+
+<p>I started this experiment inspired by Svelte, Solid, and Electric Clojure. All of them have compilation steps that I wanted to avoid.</p>
+
+<p>The most non-obvious result I get from this is that it looks like you <em>need</em> pre-compilation for better ergonomics and resource management. Both of these problems go away if we don’t let users interact with our incremental engine directly, but instead, do it for them.</p>
+
+<p>We can replace calls to if/map/concat with their incremental versions transparently, track dependencies reliably, and add <code class="language-plaintext highlighter-rouge">dispose</code> calls where needed—basically, all these things you can’t trust humans to get right.</p>
+
+<p>I am also getting reports that Reagent (that has a similar thing, <code class="language-plaintext highlighter-rouge">r/track</code>) is hard to use correctly at scale. Can anyone confirm?</p>
+
+<p>Maybe it’s worth running another experiment to see if I can get pre-compilation working and how much it helps.</p>
+
+<h1 id="results">Results</h1>
+
+<p>Some preliminary results from the experiment:</p>
+
+<h2 id="it-works">It works</h2>
+
+<p>After some massaging, I was able to build incremental TodoMVC that keeps the state of its components that do not directly change.</p>
+
+<p>Here’s a video:</p>
+
+<figure>
+  <video autoplay="" muted="" loop="" preload="auto" playsinline="" controls="">
+    <source src="https://tonsky.me/blog/humble-signals/demo.mp4" type="video/mp4" />
+  </video>
+</figure>
+
+<p>The magenta outline means that the component was just created and is rendered for the first time.</p>
+
+<p>Notice how when I add new TODO only its row is highlighted. That’s because the rest reuses the same components that were created before.</p>
+
+<p>When you switch between tabs, it causes some of the rows to be filtered out. When you go back to “All”, only the ones that were not visible are recreated.</p>
+
+<p>Also, notice the same effect on tabs: when you switch e.g. from “All” to “Active”, “All” becomes a button but “Active” becomes just a label, so they both have to be recreated. But “Completed” stays a button, so it doesn’t get recreated.</p>
+
+<p>And the last thing: when I toggle TODOs, nothing gets highlighted. This is because I made labels accept signals as text:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(s/defsignal *text
+  "Hello")
+
+(ui/label *text)
+</code></pre></div></div>
+
+<p>So the label could stay the same while the text it displays changes. Not necessary, but feels neat, actually. Another way to do it would’ve been:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(s/signal
+  (ui/label @*text))
+</code></pre></div></div>
+
+<p>Then it would be highlighted on the toggle:</p>
+
+<figure>
+  <video autoplay="" muted="" loop="" preload="auto" playsinline="" controls="">
+    <source src="https://tonsky.me/blog/humble-signals/demo2.mp4" type="video/mp4" />
+  </video>
+</figure>
+
+<h2 id="it-feels-very-satisfying">It feels very satisfying</h2>
+
+<p>…knowing no computation is wasted on diffs and only the necessary minimum of UI is recreated.</p>
+
+<h2 id="props-drilling-works">Props drilling works</h2>
+
+<p>I made UI scale, padding, and button fill color signals and when I change them necessary parts of UI are updated:</p>
+
+<figure>
+  <video autoplay="" muted="" loop="" preload="auto" playsinline="" controls="">
+    <source src="https://tonsky.me/blog/humble-signals/demo3.mp4" type="video/mp4" />
+  </video>
+</figure>
+
+<p>This feels very satisfying, too: knowing that you made the dependency very explicit and very precise, not the hacky “let’s just reset everything just in case” way. And it requires no special setup, it “just works”.</p>
+
+<h2 id="no-vdom-needed">No VDOM needed</h2>
+
+<p>I don’t have to implement VDOM and diffing! And I don’t need both heavy- and lightweight versions of each component. I don’t need to track the state separately from the components. That’s a huge burden off my shoulders.</p>
+
+<h2 id="we-need-incremental-algorithms">We need incremental algorithms</h2>
+
+<p>I do need to provide a set of incremental algorithms. Incremental <code class="language-plaintext highlighter-rouge">map</code>, incremental <code class="language-plaintext highlighter-rouge">filter</code>, <code class="language-plaintext highlighter-rouge">concat</code> etc. <code class="language-plaintext highlighter-rouge">for</code> macro, too.</p>
+
+<p>Ideally, we want users to be able to write their own.</p>
+
+<h2 id="it-breaks-intuition">It breaks intuition</h2>
+
+<p>Working with incremental computations could be tricky. Making a mistake is easy, and double-checking yourself is hard, so it’s hard to know if you are doing the right thing.</p>
+
+<p>But it seems that the stakes are not that high: the worst that could happen is you re-create too much and your performance suffers. I’d say it’s a ~similar deal you get with React.</p>
+
+<h2 id="is-there-a-deeper-reason">Is there a deeper reason?</h2>
+
+<p>There’s probably a good reason React won and FRP/incremental remain marginal technologies that have been tried dozens of times. I understand the appeal, but I also see how it’s not everybody’s cup of tea.</p>
+
+<p>OTOH, Reagent seems to be doing fine in Clojure land, although many people prefer to pair it with re-frame.</p>
+
+<h2 id="source-code">Source code</h2>
+
+<p>If you are curious, the code is <a href="https://github.com/HumbleUI/HumbleUI/blob/main/dev/incremental.clj">on Github</a>. The run script is at <code class="language-plaintext highlighter-rouge">scripts/incremental.sh</code>.</p>
+
+<p>Let me know what you think! And I’m going to try VDOM approach next. And then I guess I’ll have to make <a href="https://www.youtube.com/watch?v=c5QF2HjHLSE">a decision matrix</a>.</p>
+
+        
+      ]]></content>  
+      <author>
+        <name>Nikita Prokopov</name>
+        <email>niki@tonsky.me</email>
+      </author>
+    </entry>
+  
+  
+  
+    
+    
+    
+    <entry>
+      <title>Humble Chronicles: State Management</title>
+      <link rel="alternate" type="text/html" href="https://tonsky.me/blog/humble-state/" />
+      <id>https://tonsky.me/blog/humble-state/</id>
+      <published>2023-04-29T00:00:00+02:00</published>
+      <updated>2023-04-29T00:00:00+02:00</updated>
+      
+        <summary type="html"><![CDATA[
+          Search for the best state management solution for Humble UI
+        ]]></summary>
+      
+      <content type="html"><![CDATA[
+        
+        
+        
+        
+        
+        <p>Recently I’ve been trying to improve state management and component API in Humble UI. For that, I’ve tried to read and compile all the possible known approaches and synthesize something from them.</p>
+
+<p>I haven’t decided on anything for Humble UI yet, let’s say I’m in an experimenting phase. But I think my notes could be useful to quickly get a birds-eye overview of the field.</p>
+
+<p>This is a compilation of my research so far.</p>
+
+<h1 id="object-oriented-user-interface-ooui">Object-oriented user interface (OOUI)</h1>
+
+<p>Classic UIs like Swing, original native Windows/macOS APIs and the browser’s DOM are all implemented in an OOP manner: components are objects and they have methods: <code class="language-plaintext highlighter-rouge">addChild</code>, <code class="language-plaintext highlighter-rouge">removeChild</code>, <code class="language-plaintext highlighter-rouge">render</code>. That fits so well, actually, that you might think OOP was invented specifically for graphical UIs.</p>
+
+<p>The problem with that approach is code duplication: you have to define both how your initial UI is constructed and how it will change in the future. Also, amount of transitions scales as N² compared to the amount of states, so at some point you either get overwhelmed or miss something.</p>
+
+<p>Nevertheless, OOUIs show great performance, a very straightforward programming model and are widely used everywhere.</p>
+
+<figure><img src="https://tonsky.me/blog/humble-state/delphi.png" /></figure>
+
+<h1 id="humble-ui--current-state">Humble UI — current state</h1>
+
+<p>Given the above, it’s only natural that Humble UI started with the OOP paradigm. Yes, we have stateful widgets and component instances, not functions or classes.</p>
+
+<p>Look, mutable fields and inheritance! In Clojure!</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(defparent AWrapper [child ^:mut child-rect]
+  protocols/IComponent
+  (-measure [this ctx cs]
+    (when-some [ctx' (protocols/-context this ctx)]
+      (core/measure child ctx' cs))))
+
+(core/deftype+ Clip []
+  :extends core/AWrapper
+  
+  protocols/IComponent  
+  (-draw [_ ctx rect ^Canvas canvas]
+    (canvas/with-canvas canvas
+      (canvas/clip-rect canvas rect)
+      (core/draw child ctx rect canvas))))
+</code></pre></div></div>
+
+<p>These objects can lay out, draw themselves and handle events, but in true Clojure fashion, they can’t be modified.</p>
+
+<p>I mean, theoretically, sure, I could add something like <code class="language-plaintext highlighter-rouge">setChildren</code> and the like, but what’s the point if we are not going in that direction anyway?</p>
+
+<p>But wait! — you’d say. I’ve certainly seen Humble UI apps modifying themselves!</p>
+
+<figure><video autoplay="" muted="" loop="" preload="auto" playsinline="" controls=""><source src="https://tonsky.me/blog/humble-state/todomvc.mp4" type="video/mp4" /></video></figure>
+
+<p>And you’ll be right. There’s a special type of component, <code class="language-plaintext highlighter-rouge">dynamic</code>, that doesn’t have a fixed list of children. Instead, it takes a function that generates and caches them based on its inputs. When inputs change, old children are thrown away and new ones are generated.</p>
+
+<p>In this example, when <code class="language-plaintext highlighter-rouge">*clicks</code> changes, a new label will be created and the old one will be thrown away.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(def *clicks
+  (atom 0))
+
+(def app
+  (ui/dynamic _ [clicks @*clicks]
+    (ui/label (str "Clicks: " clicks))))
+</code></pre></div></div>
+
+<p>You can get quite far with that approach. However, not far enough. The problem with dynamic is that it throws away the entire subtree, no matter which parts have changed. Consider</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(ui/dynamic _ [p @*p]
+  (ui/padding p
+    (ui/rect (paint/fill 0xFFF3F3F3)
+      (ui/label "Label"))))
+</code></pre></div></div>
+
+<p>In this example, only <code class="language-plaintext highlighter-rouge">ui/padding</code> component needs to be re-created, but its children would be thrown away and re-created, too. Sometimes it can be fixed, actually, by writing it this way:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(let [body (ui/rect (paint/fill 0xFFF3F3F3)
+             (ui/label "Label"))]
+  (ui/dynamic _ [padding @*padding]
+    (ui/padding padding
+      body)))
+</code></pre></div></div>
+
+<p>Remember — components are values, so the <code class="language-plaintext highlighter-rouge">body</code> reference will stay the same and will be captured by dynamic.</p>
+
+<p>This is both good and bad: it works, but it’s kinda backward (you wouldn’t want to write your UI this way).</p>
+
+<p>It also creates very confusing “owning” semantics. Like, who should “unmount” the <code class="language-plaintext highlighter-rouge">body</code> in that case? Should it be <code class="language-plaintext highlighter-rouge">padding</code>? Or <code class="language-plaintext highlighter-rouge">dynamic</code>? Actually, it can be neither of them, because <code class="language-plaintext highlighter-rouge">body</code> outlives them both, and they have no way of knowing this.</p>
+
+<p>Why is it a problem? Stateful components. If I throw away and re-create the text field, for example, it’ll lose selection, cursor position, scroll position, etc. Not good.</p>
+
+<p>Funnily enough, current implementation of text field asks you to hold its state because it has nowhere to put it reliably.</p>
+
+<p>But overall, we managed to get quite far with this approach and polish some stateful components, so I don’t consider it a waste.</p>
+
+<h1 id="declarative-uis">Declarative UIs</h1>
+
+<p>So at some point, programmers decided: we’ve had enough. Enough with OOUI, we don’t want to write</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>window.add(button);
+window.show();
+</code></pre></div></div>
+
+<p>anymore. We want comfort!</p>
+
+<p>And that’s how declarative UIs were born. The idea is that you describe your UI in some simpler language, bind it to your data, and then the computer goes brrr and displays it somehow.</p>
+
+<p>Well, why not? Sounds good, right?</p>
+
+<p>This is what people have come up with.</p>
+
+<h2 id="templates">Templates</h2>
+
+<p>You describe your UI in XML/PHP/HTML/what have you, sprinkle special instructions on top, give it to a black box and it magically works!</p>
+
+<p>Example: Svelte</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>&lt;script&gt;
+  let count = 1;
+&lt;/script&gt;
+
+&lt;button on:click={handleClick}&gt;
+  Count: {count}
+&lt;/button&gt;
+</code></pre></div></div>
+
+<p>The upsides of this approach are that language is probably very simple and very declarative, and also that you can do a lot of optimizations/preprocessing before turning it into UI. Maximum declarativity!</p>
+
+<p>The downsides are, of course, that you have to work in a second, “not real” language, which is usually less powerful, harder to interop with, and less dynamic.</p>
+
+<p>Probably because of the limitations of templates, the MVVM pattern was born: you prepare your data in a real language and get it into a shape that can be consumed by a simple template.</p>
+
+<h2 id="procedural-dsls">Procedural DSLs</h2>
+
+<p>You call builder functions in the right context and your UI framework somehow tracks them and turns them into components. Examples would be Dear Imgui or Jetpack Compose:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ImGui::Text("Hello, world %d", 123);
+if (ImGui::Button("Save"))
+    MySaveFunction();
+ImGui::InputText("string", buf, IM_ARRAYSIZE(buf));
+ImGui::SliderFloat("float", &amp;f, 0.0f, 1.0f);
+</code></pre></div></div>
+
+<p>Notice that you don’t explicitly “add” or “return” components anywhere. Instead, just calling builders is enough. Almost procedural style :)</p>
+
+<p>The upside: the code is very compact.</p>
+
+<p>The downside: you can’t work with components as values. Like, can’t put them in an array and reverse it, or take the first 10, or something like that. Your builders become lambdas, and lambdas are opaque: you can’t do much about them except call. Call sites start to matter, where they normally don’t: what looks like a normal program has a few non-obvious gotchas.</p>
+
+<h2 id="value-oriented-dsls">Value-oriented DSLs</h2>
+
+<p>In value-oriented DSLs, you return values from your components. Like in React:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>export default function Button() {
+  return (
+    &lt;button&gt;I don't do anything&lt;/button&gt;
+  );
+}
+</code></pre></div></div>
+
+<p>Notice that you return the button, not call some constructor that adds it to the form. How you get — doesn’t matter. The only thing that matters is the actual value you return. You can do what you want with it: use, ignore, compare, use twice, cache, throw away.</p>
+
+<p>This is also the most natural way to write programs in my opinion: pure functions taking and returning data. It also suits Clojure the best, so we’ll probably want something like that for Humble UI.</p>
+
+<p>Note also that <code class="language-plaintext highlighter-rouge">&lt;button&gt;</code> syntax, although technically being a DSL, is just a pure convenience. It doesn’t do anything smart, it’s just a more natural way of writing:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>react.createElement('button', {})
+</code></pre></div></div>
+
+<p>which returns a button.</p>
+
+<h2 id="declarative-oo-duality">Declarative-OO duality</h2>
+
+<p>Another interesting point is that all declarative UIs work on top of dirty, mutable, old-fashioned OOUI. Flutter has <code class="language-plaintext highlighter-rouge">RenderObject</code>, for example, and browser UIs utilize and exploit DOM.</p>
+
+<p>If you, like me, ever wondered why didn’t browsers implement React natively somehow, in the same manner they adopted jQuery APIs. Well, the answer is: you kind of need DOM. VDOM sounds cool and fancy as long as all the heavy lifting is done in real DOM.</p>
+
+<h2 id="summing-up">Summing up</h2>
+
+<p>Declarative UIs are great but require a layer of real mutable widgets underneath. That means it’s all overhead, and all we can do is make it as small as possible.</p>
+
+<p>But we still want declarativity, if only for developer experience alone. We want to write more concise code and we don’t want to write update logic.</p>
+
+<p><a href="https://raphlinus.github.io/ui/druid/2019/11/22/reactive-ui.html">As Raph Levien put it</a>, “industry is fast converging on the reactive approach” (reactive/declarative, nobody knows what these words mean anymore). We are not going to argue with that.</p>
+
+<h1 id="reconciliation">Reconciliation</h1>
+
+<p>In declarative frameworks, each component exists in two forms: a lightweight, user-generated description of it (React elements, Flutter Widgets, SwiftUI Views, let’s call them VDOM) and a “heavy” stateful counterpart (DOM nodes, Flutter RenderObjects, “real DOM”).</p>
+
+<p>Reconciliation is a process of transforming the former into the latter. This gives up two main sources of overhead on top of OOUI:</p>
+
+<ol>
+  <li>
+    <p>Garbage. VDOM, while lightweight, still has allocates objects and needs to be cleaned up after reconciliation.</p>
+  </li>
+  <li>
+    <p>Diffing. We need to figure out how much has changed. The less we do it, the faster our apps will be.</p>
+  </li>
+</ol>
+
+<h1 id="full-top-down-reconciliation">Full top-down reconciliation</h1>
+
+<p>The simplest, but probably most wasteful, way is just to regenerate the entire UI <em>description</em> on each frame. This is what Dear ImGui does, for example.</p>
+
+<p>The problem is that then you have to reconcile the whole tree, too. And if some parts of your UI take a lot of time to generate — sorry to be you, you can’t skip them.</p>
+
+<p>Here’s a diagram of the full top-down reconciliation:</p>
+
+<figure><img src="https://tonsky.me/blog/humble-state/reconcile_imgui.png" /></figure>
+
+<h2 id="optimized-top-down-reconciliation">Optimized top-down reconciliation</h2>
+
+<p>React updates are also mostly top-down, with two important improvements.</p>
+
+<p>First, when generating and comparing new tree, it has a way to be told “this subtree hasn’t changed, I promise” and it’ll skip reconciliation for it altogether:</p>
+
+<figure><img src="https://tonsky.me/blog/humble-state/reconcile_react_1.png" /></figure>
+
+<p>The second optimization is when you find a specific component and only reconcile its sub-trees:</p>
+
+<figure><img src="https://tonsky.me/blog/humble-state/reconcile_react_2.png" /></figure>
+
+<p>Unfortunately, these techniques are not applied automatically, so a programmer’s work is required. And even then React adds quite a lot of overhead. The discovery of React team was, though, that this overhead is not important/tolerable in most cases and is a great tradeoff.</p>
+
+<p>In theory, both techniques combined could allow one to update one specific component and nothing else, giving you optimal performance. But it’ll probably be a little bit cumbersome to write.</p>
+
+<h2 id="surgical-point-updates">Surgical point updates</h2>
+
+<p>Why can’t all React updates be surgical, affecting only the element in question and neither its parents nor children? Well, because of data dependencies! Consider this simple UI:</p>
+
+<figure><video autoplay="" muted="" loop="" preload="auto" playsinline="" controls=""><source src="https://tonsky.me/blog/humble-state/conv.mp4" type="video/mp4" /></video></figure>
+
+<p>What would it look like in React? Something like this (yes, I asked ChatGPT to write it):</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>function CelsiusInput(props) {
+  return (
+    &lt;div&gt;
+      &lt;input value={props.celsius}
+             onChange={props.onChange} /&gt;
+      Celsius
+    &lt;/div&gt;
+  );
+}
+
+function FahrenheitOutput(props) {
+  return (
+    &lt;div&gt;{props.fahrenheit} Fahrenheit&lt;/div&gt;
+  );
+}
+
+function TemperatureConverter() {
+  const [celsius, setCelsius] = useState(0);  
+  const handleCelsiusChange = 
+    (e) =&gt; setCelsius(e.target.value);
+  return (
+    &lt;div&gt;
+      &lt;CelsiusInput
+        celsius={celsius}
+        onChange={handleCelsiusChange} /&gt; =
+      &lt;FahrenheitOutput
+        fahrenheit={celsius * 9 / 5 + 32} /&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre></div></div>
+
+<p>In this example, <code class="language-plaintext highlighter-rouge">TemperatureConverter</code> owns the mutable state and both <code class="language-plaintext highlighter-rouge">CelsiusInput</code> and <code class="language-plaintext highlighter-rouge">FahrenheitOutput</code> have a data dependency on it, received through properties.</p>
+
+<p>Intuitively it feels like <code class="language-plaintext highlighter-rouge">CelsiusInput</code> should own that state, but beacuse it’s used in its sibling, it has to be declared in the parent component. Because of that, not only <code class="language-plaintext highlighter-rouge">CelsiusInput</code> and <code class="language-plaintext highlighter-rouge">FahrenheitOutput</code> will have to be re-rendered, but their parent <code class="language-plaintext highlighter-rouge">TemperatureConverter</code>, too.</p>
+
+<p>Another problem is that, because <code class="language-plaintext highlighter-rouge">TemperatureConverter</code> is written as a single function, when <code class="language-plaintext highlighter-rouge">setCelsius</code> is called <code class="language-plaintext highlighter-rouge">TemperatureConverter</code> its entire body will be re-evaluated. This, for example, means that a new instance of <code class="language-plaintext highlighter-rouge">handleCelsiusChange</code> will be created, even though it’s completely unnecessary.</p>
+
+<p>These are two problems that frameworks like Svelte and SolidJS tried to solve: update as little as possible, only components that need to be updated and nothing more:</p>
+
+<figure><img src="https://tonsky.me/blog/humble-state/reconcile_svelte.png" /></figure>
+
+<p><a href="https://signalsandthreads.com/building-a-ui-framework/#1523">Quoting Ron Minsky</a>:</p>
+
+<blockquote>
+  <p>UIs in general, what are they doing? They are computing something to display to the user and those things need to change quickly. And one of the things that can help them change quickly is they don’t change all at once, little bits of them change. You go and click somewhere and some small part of what you’re seeing changes, it’s not everything in the entire view being transformed all at once.</p>
+</blockquote>
+
+<p>How do they do it? Well,</p>
+
+<blockquote>
+  <p>[…] hidden inside of every UI framework is some kind of incrementalization framework as well, because you basically need this incrementalization for performance reasons everywhere.</p>
+</blockquote>
+
+<p>What’s the incrementalization framework? Imagine you compute a function once, but then are asked to compute it again, with slightly different inputs. If you store some partial computations somewhere and can do the computation faster a second time, if the input hasn’t changed too much, then you have an incremental function.</p>
+
+<p>The way Solid/Svelte solve re-evaluation problem is by rewriting your function body. They try to split it into isolated pieces and insert reactive callbacks where needed. I’m not sure I’m a huge fan of implicit rewrites, but the goal seems noble enough to pursue.</p>
+
+<p>Now, imagine you build your UI like this: you start with some data sources, like a <code class="language-plaintext highlighter-rouge">counter</code> signal (same as a variable, but reactive). Then you derive some computables from it, like <code class="language-plaintext highlighter-rouge">squared</code>, which is, well, counter with square function applied to it. Finally, UI components that display <code class="language-plaintext highlighter-rouge">counter</code> and <code class="language-plaintext highlighter-rouge">squared</code> could be further derived from those signals. Something like:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>const counter      = reactive(0);
+const counterLabel = reactive(() =&gt; &lt;div&gt;{counter.value}&lt;/div&gt;);
+const squared      = reactive(() =&gt; counter.value ** 2);
+const squaredLabel = reactive(() =&gt; &lt;div&gt;{squared.value}&lt;/div&gt;);
+const app          = reactive(() =&gt; {
+  &lt;div&gt;{counterLabel} * {counterLabel} = {squaredLabel}&lt;/div&gt;
+});
+</code></pre></div></div>
+
+<p>This creates an acyclic dependency graph like this:</p>
+
+<figure><img src="https://tonsky.me/blog/humble-state/reactively.png" /></figure>
+
+<p>which can be efficiently updated. For example, if we bump <code class="language-plaintext highlighter-rouge">counter</code>, it will trigger updates of <code class="language-plaintext highlighter-rouge">squared</code> and <code class="language-plaintext highlighter-rouge">counterLabel</code>. Then <code class="language-plaintext highlighter-rouge">squared</code> will trigger an update of <code class="language-plaintext highlighter-rouge">squaredLabel</code>. Both <code class="language-plaintext highlighter-rouge">counterLabel</code> and <code class="language-plaintext highlighter-rouge">squaredLabel</code> could be effects that update their corresponding DOM node, but the return value is the same — they return exactly the same node their work with, so they won’t trigger further updates at all: app structure is static and doesn’t need to be revisited.</p>
+
+<p>This is the simplified and at the same time the most ideal case that we want to at least try to approach in Humble UI.</p>
+
+<h1 id="state-management">State management</h1>
+
+<p>UI’s don’t exist in isolation, they need to interact with larger program. Components on a screen represent some state (business model), but they often also have an internal state to keep track of (scroll position, selection, etc).</p>
+
+<p>In OOUI that wasn’t a problem: you just keep the state inside components. Each component is an object, state is just that object’s fields. As I said — OOP fits UI very nicely. And if the business model changes, well, you go and change your UI with <code class="language-plaintext highlighter-rouge">addNode</code>/<code class="language-plaintext highlighter-rouge">removeNode</code>/…</p>
+
+<h2 id="internal-state">Internal state</h2>
+
+<p>React introduced an interesting paradigm: your component is a function (not an object), but you can request a state inside it and the framework will allocate and track that state for you. Looks a bit weird, but it works:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>function Counter() {
+  const [count, setCount] = useState(0);
+  setCount(count + 1);
+}
+</code></pre></div></div>
+
+<p>The trick here is that <code class="language-plaintext highlighter-rouge">useState</code> will return exactly the same object over multiple <code class="language-plaintext highlighter-rouge">Counter()</code> calls if and only if <code class="language-plaintext highlighter-rouge">Counter</code> component stays in the same place in the tree. That’s called positional memoization. Functions and lightweight descriptions (elements) are always generated anew, but positions in the tree are stable and can have state attached to them.</p>
+
+<p>SwiftUI does the same, but it looks even weirder:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>struct CounterView: View {
+    @State var count = 0
+    let id = UUID()
+    
+    var body: some View {
+        Text("ID: \(id.uuidString) Count: \(count)")
+    }
+}
+</code></pre></div></div>
+
+<p>This looks like an object, but you can’t store normal properties inside it. On each render, the framework will create new instances of <code class="language-plaintext highlighter-rouge">CounterView</code> and any internal fields will be lost, but! It will fill fields marked with <code class="language-plaintext highlighter-rouge">@State</code> for you each time with the same object. In other words, <code class="language-plaintext highlighter-rouge">id</code> will be different on each render, but <code class="language-plaintext highlighter-rouge">count</code> will be exactly the same.</p>
+
+<p>Anyways, SwiftUI approach works too, although I’d argue it’s a bit counter-intuitive.</p>
+
+<h2 id="external-state">External state</h2>
+
+<p>External state mostly defines what UI components you need to construct: how many lines are in a list, enabled or disabled button, show warning or not.</p>
+
+<h3 id="all-state-external">All state external</h3>
+
+<p>One approach is to make all state external. For example, Humble UI’s text fields right now ask you to hold their state in your atom. Fun, but can get very tedious, especially when you need to clean up the state for components that are no longer visible.</p>
+
+<p>I think in the early days of ClojureScript frameworks Circle CI (IIRC) frontend’s state could be entirely serialized into a string and re-created on another machine, down do text selection and button hovers. Given that nobody else does this might suggest that it might be an overkill. Cool flex, though.</p>
+
+<h3 id="single-atom">Single atom</h3>
+
+<p>Another approach is to put all your state in a single atom and only pass down sub-trees of that atom. This is what Om pioneered, and other ClojureScript frameworks adopted as well. This way you can do very cheap pointer comparisons on arguments, it’ll be so cheap it makes sense to do it by default.</p>
+
+<p>Of course, it only works with immutable data, but luckily, ClojureScript data tends to be immutable already. 10 years ago. Good times.</p>
+
+<p>I have three issues with this approach:</p>
+
+<ol>
+  <li>
+    <p>First, I don’t want to store everything in a tree. I want to have options. I want to use a database.</p>
+  </li>
+  <li>
+    <p>Second, I don’t want to be limited to a single source of truth. I want an ad-hoc state, too. Like a few global atoms that control settings and which I can add/inspect/remove quickly. Why not?</p>
+  </li>
+  <li>
+    <p>Finally, pointer comparisons only work if you pass down sub-trees. If you e.g. <code class="language-plaintext highlighter-rouge">map</code> or <code class="language-plaintext highlighter-rouge">filter</code> a collection, the resulting pointer will be new each time and you’ll have re-render, breaking the optimization.</p>
+  </li>
+</ol>
+
+<h2 id="state-in-incremental-frameworks">State in incremental frameworks</h2>
+
+<p>One simplification in incremental compared to React’s prop drilling is that you can safely pass signals through properties, as only components that actually read the value will get re-rendered.</p>
+
+<p>But I’m also thinking about a different angle here: what if components themselves (real ones, heavyweight objects that do layout rendering, not lightweight descriptions) were the output of incremental functions? I mean, they’d stay stable until they need to be changed, right?</p>
+
+<figure><img src="https://tonsky.me/blog/humble-state/reconcile_incremental.png" /></figure>
+
+<p>That would mean that we can keep the state inside them naturally, and we won’t need any VDOM at all, just incremental computations.</p>
+
+<p>This is just a theory at this point, but I am building a proof of concept to see where it goes. Subscribe for updates!</p>
+
+<h1 id="component-dsl">Component DSL</h1>
+
+<p>The way we write components is important: it must be ergonomic.</p>
+
+<p>For example, in <a href="https://docs.flutter.dev/resources/architectural-overview">Flutter architectural overview</a> they call this example trivial:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('My Home Page'),
+        ),
+        body: Center(
+          child: Builder(
+            builder: (context) {
+              return Column(
+                children: [
+                  const Text('Hello World'),
+                  const SizedBox(height: 20),
+                  ElevatedButton(
+                    onPressed: () {
+                      print('Click!');
+                    },
+                    child: const Text('A button'),
+                  ),
+                ],
+              );
+            },
+          ),
+        ),
+      ),
+    );
+  }
+}
+</code></pre></div></div>
+
+<p>But to my eye, it reads way harder than it should. Same but in Clojure + Hiccup:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[MaterialApp
+ [Scaffold
+  {:appBar
+   [AppBar
+    {:title [Text "My Home Page"]}]}
+  [Center
+   [Column
+    [Text "Hello World"]
+    [SizedBox {:height 20}]
+    [ElevatedButton
+     {:onPresed #(print "Click!")}
+     [Text "A button"]]]]]]
+</code></pre></div></div>
+
+<p>Now you can finally see what’s going on!</p>
+
+<p>Another important thing is that the way you write your components might impose unnecessary dependencies or other semantics. We don’t want to make users choose between fast and readable, we want them to have both.</p>
+
+<h2 id="parent--child-dependencies">Parent → child dependencies</h2>
+
+<p>Let’s look at React example again:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>function TemperatureConverter() {
+  const [celsius, setCelsius] = useState(0);  
+  const handleCelsiusChange =
+    (e) =&gt; setCelsius(e.target.value);
+  return (
+    &lt;div&gt;
+      &lt;CelsiusInput
+        celsius={celsius}
+        onChange={handleCelsiusChange} /&gt; =
+      &lt;FahrenheitOutput
+        fahrenheit={celsius * 9 / 5 + 32} /&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre></div></div>
+
+<p>See the problem? By being plain JavaScript and plain function, if <code class="language-plaintext highlighter-rouge">TemperatureConverter</code> needs to be re-evaluated, the only thing to do here is to call the entire function. Meaning, do all the calculations again, allocate new objects and new functions again. Then diffing kicks in, trying to figure out which objects are the same and which are different. That’s a bit too much work than necessary, but React design forces us to do it.</p>
+
+<p>Let’s look at another example, in Humble UI this time:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(ui/vscrollbar
+  (ui/column
+    (ui/label @*count)
+    (ui/button #(swap! *count)
+      "Increment")))
+</code></pre></div></div>
+
+<p>By the way it’s constructed, <code class="language-plaintext highlighter-rouge">column</code> depends on both <code class="language-plaintext highlighter-rouge">label</code> and <code class="language-plaintext highlighter-rouge">button</code>, and <code class="language-plaintext highlighter-rouge">scrollbar</code> depends on <code class="language-plaintext highlighter-rouge">column</code>.</p>
+
+<p>This parent-children dependency comes naturally from evaluation order, but do we really want it? For example, if <code class="language-plaintext highlighter-rouge">*count</code> changes, we do want a new label to be created, or an old one to change its text? Ideally, we would also like to keep <code class="language-plaintext highlighter-rouge">column</code>, <code class="language-plaintext highlighter-rouge">button</code> and <code class="language-plaintext highlighter-rouge">scroll</code>—they might have important inner state, e.g. scroll position.</p>
+
+<h2 id="child--parent-dependencies">Child → parent dependencies</h2>
+
+<p>Another example (pseudo-code):</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(defcomp child []
+  (ui/dynamic ctx [{:keys [accent-color]} ctx]
+    (ui/fill accent-color
+      (ui/label "Hello"))))
+
+(defcomp parent []
+  (ui/with-context [:accent-color 0x1EA0F2]
+    (ui/center
+      (child))))
+
+(parent)
+</code></pre></div></div>
+
+<p>I guess the point here is that parent creates a child (and could do it conditionally, in a loop, or in any other non-trivial way), so it kind of depends on the child (at least it defines it). But at the same time, the child it creates depends on a property defined by a parent, too.</p>
+
+<p>Again, maybe it’s not a problem if each component would be a macro that evaluates its children separately from itself, but still tricky to think about.</p>
+
+<p>Think of it this way: some data flows from top to bottom, defining which components should be created. Then changes flow from leaves back to top. Sometimes change in a signal might invalidate both a leaf and its parent, and that parent might decide not to re-create said leaf! This could lead to some unnecessary evaluations if not handled properly.</p>
+
+<h2 id="component-persistence">Component persistence</h2>
+
+<p>One more example:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(ui/dynamic _ [has-errors? (boolean @*errors)]
+  (if has-errors?
+    (ui/border 0xFF0000
+      (ui/text-field @*state))
+    (ui/border 0xCCCCCC
+      (ui/text-field @*state))))
+</code></pre></div></div>
+
+<p>Should these two text fields be different <em>objects</em> or the same? I mean, in our example we want them to be the same, but by construction, they are different <em>object instances</em>.</p>
+
+<p>In React they will be the same, because React only cares about what you return and reconciles values, ignoring e.g. positional information or object instances.</p>
+
+<p>But then, we can trick React, too, to re-create text field:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(ui/dynamic _ [has-errors? (boolean @*errors)]
+  (if has-errors?
+    (ui/border 0xFF0000
+      (ui/text-field @*state))
+    (ui/text-field @*state)))
+</code></pre></div></div>
+
+<p>Now, because the return structure is different, React will drop the previous instance of the text field and create a new one, even if we don’t want it. It’ll drop the state, too. If I understand this correctly, even keys wouldn’t help us in this case (Flutter seems to have <code class="language-plaintext highlighter-rouge">GlobalKey</code> for cases like this, though).</p>
+
+<p>When operating on heavy-weight components directly, we can do this transformation:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(let [text-field (ui/text-field @*state)]
+  (ui/dynamic _ [has-errors? (boolean @*errors)]
+    (if has-errors?
+      (ui/border 0xFF0000
+        text-field)
+      text-field)))
+</code></pre></div></div>
+
+<p>So it feels like this approach is a little bit more capable? I’m not sure how well it converts into that incremental dream, by the way.</p>
+
+<h1 id="live-reload">Live reload</h1>
+
+<p>React plays very well with live reload because it does its thing in runtime. Basically, it expects nothing from you in advance and because of that can do all sorts of crazy stuff without reloading/recompiling/etc. E.g. I can define a new component and mount it into an existing tree in runtime and not lose any state in other components.</p>
+
+<p>This property of React is very appealing. I’m not sure how development experience is with incremental frameworks that require additional compilation, but I assume it’s more complicated.</p>
+
+<p>Full restart is also an option, as long as it happens in the same JVM and allows you to keep at least an external state intact. Luckily, Clojure works well for that.</p>
+
+<p>For example, after a certain threshold I switched from buffer evals for reload to full <code class="language-plaintext highlighter-rouge">tools.namespace</code> nuke &amp; load because manual buffer evals were becoming too complex:</p>
+
+<figure><video autoplay="" muted="" loop="" preload="auto" playsinline="" controls=""><source src="https://tonsky.me/blog/humble-state/reload.mp4" type="video/mp4" /></video></figure>
+
+<p>This unloads the namespace, loads it back, creates all new hierarchy of components, etc. All faster than a single frame on a 144 Hz monitor. Things our computers can do if they don’t have to run Xcode!</p>
+
+<p>Also, this approach should be compatible even with templates/preprocessing and it still gives you close-to-zero turnaround times and state persistence.</p>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>Looks like our industry has converged on the following approaches:</p>
+
+<ul>
+  <li>OOUI (old classics)</li>
+  <li>VDOM (“declarative”/“reactive” UI frameworks)</li>
+</ul>
+
+<p>Where VDOM could be implemented with:</p>
+
+<ul>
+  <li>Templates</li>
+  <li>Call-site positioning</li>
+  <li>Return values</li>
+</ul>
+
+<p>And data organization:</p>
+
+<ul>
+  <li>Top-down props drilling</li>
+  <li>Reactivity</li>
+  <li>Incremental computations (reactivity on steroids)</li>
+</ul>
+
+<p>I’m leaning towards VDOM + return values + incremental computations for Humble UI, but will have to run a few experiments to see how it feels and performs.</p>
+
+<p>Also, I hope people will find this article by searching for “React vs Svelte”. It’ll be so funny.</p>
+
+<p>Overall, developing a UI framework is so interesting, I’m learning so much. You should try it one day, too.</p>
+
+<p>Until that, take care. See you next time!</p>
+
+        
+      ]]></content>  
+      <author>
+        <name>Nikita Prokopov</name>
+        <email>niki@tonsky.me</email>
+      </author>
+    </entry>
+  
+  
+  
+    
+    
+    
+    <entry>
+      <title>Adventures in REPL implementation</title>
+      <link rel="alternate" type="text/html" href="https://tonsky.me/blog/clojure-sublimed-3/" />
+      <id>https://tonsky.me/blog/clojure-sublimed-3/</id>
+      <published>2023-03-09T00:00:00+01:00</published>
+      <updated>2023-03-09T00:00:00+01:00</updated>
+      
+        <summary type="html"><![CDATA[
+          Writing Clojure REPL plugin for Sublime Text
+        ]]></summary>
+      
+      <content type="html"><![CDATA[
+        
+        
+        
+        
+        
+        <p>It’s a strange thing to announce, but I wrote <a href="https://github.com/tonsky/Clojure-Sublimed">Clojure plugin for Sublime Text</a>. <a href="https://tonsky.me/blog/sublime-clojure/">Again</a>.</p>
+
+<p>I mean, the previous version worked fine, but it had a few flaws:</p>
+
+<ul>
+  <li>REPL depended on syntax highlighting (yikes!),</li>
+  <li>the whole implementation was in a single file,</li>
+  <li>it was hard to add REPLs.</li>
+</ul>
+
+<p>So, let’s do it again, almost from scratch, and right this time!</p>
+
+<h1 id="what-is-repl">What is REPL?</h1>
+
+<p>In a nutshell, REPL consists of three parts: client, server, and communication protocol between them.</p>
+
+<p>Here’s an architectural diagram for you:</p>
+
+<figure><img src="https://tonsky.me/blog/clojure-sublimed-3/architecture.webp" /></figure>
+
+<h1 id="repl-client">REPL Client</h1>
+
+<p>As you can see from the diagram, REPL clients live in a variety of environments dictated by their host: Java for Idea, Python for Sublime Text, JS for VS Code, etc. In my case, it was Sublime Text, so the environment I was stuck with happened to be Python 3.8.</p>
+
+<p>Of course, writing client-server apps is not hard in any language. Unfortunately for us, REPL client needs to be able to read, speak and actually understand Clojure for a few features:</p>
+
+<h2 id="problem-1-automatic-namespace-switching">Problem 1: Automatic namespace switching</h2>
+
+<p>When you go to a file and eval something there, you want it to be run in the context of that file’s namespace. But how to figure out which namespace it is, without parsing Clojure source file?</p>
+
+<p>The level of understanding is non-trivial: there could be multiple namespace declarations, not necessarily at the top of the file:</p>
+
+<figure><img src="https://tonsky.me/blog/clojure-sublimed-3/ns_switching.webp" /></figure>
+
+<p>The declaration itself could be complex, too, containing comments and/or meta tokens before the actual name:</p>
+
+<figure><img src="https://tonsky.me/blog/clojure-sublimed-3/complex_ns.webp" /></figure>
+
+<h2 id="problem-2-form-boundaries">Problem 2: Form boundaries</h2>
+
+<p>I want a shortcut that evals “the topmost form” around my cursor. To do so, I need to know where those boundaries are.</p>
+
+<p>Notice how I don’t explicitly “select” what I want to evaluate. Instead, REPL client finds form boundary for me:</p>
+
+<figure><video autoplay="" muted="" loop="" preload="auto" playsinline="" controls=""><source src="https://tonsky.me/blog/clojure-sublimed-3/form_boundaries.mp4" type="video/mp4" /></video></figure>
+
+<p>This is tricky, too. For the very least, you can count parens, but even then you’d have to be aware of strings.</p>
+
+<p>To make things harder, Clojure also has reader tags <code class="language-plaintext highlighter-rouge">#inst "2023-02-24"</code>, metadata <code class="language-plaintext highlighter-rouge">^bytes b</code> and different weird symbols like <code class="language-plaintext highlighter-rouge">@</code> or <code class="language-plaintext highlighter-rouge">#'</code> that are not wrapped in parens but are still considered to be part of the form.</p>
+
+<p>Bonus points for treating technically second-level forms inside <code class="language-plaintext highlighter-rouge">(comment)</code> as top-level.</p>
+
+<p>All of this requires a really deep understanding of Clojure syntax.</p>
+
+<h2 id="problem-3-indentation-and-pretty-printing">Problem 3: Indentation and pretty-printing</h2>
+
+<p>Clojure Sublimed originally started when I wasn’t happy with what happened when I press “Enter” in Clojure file. Cursor would go to the wrong place, and I (subjectively) was spending too much time correcting it, so I decided to fix that once and for all.</p>
+
+<figure><video autoplay="" muted="" loop="" preload="auto" playsinline="" controls=""><source src="https://tonsky.me/blog/clojure-sublimed-3/indent.mp4" type="video/mp4" /></video></figure>
+
+<p>Indentation is not really a REPL concern, but it’s another part of Clojure Sublimed that requires a model of Clojure code.</p>
+
+<p>Indentation logic re-applied to the whole file is formatting, so I got this one for free (both follow <a href="https://tonsky.me/blog/clojurefmt/">Better Clojure formatting</a> rules).</p>
+
+<figure><video autoplay="" muted="" loop="" preload="auto" playsinline="" controls=""><source src="https://tonsky.me/blog/clojure-sublimed-3/format.mp4" type="video/mp4" /></video></figure>
+
+<p>Finally, there’s a question of pretty printing, which is basically indentation + deciding where to put line breaks. Normally this would be done on Clojure side, but doing it on a client has clear advantages:</p>
+
+<ul>
+  <li>you have to send less data when transferring evaluation results (no need to send spaces at the beginning of the line),</li>
+  <li>it works for every Clojure REPL the same,</li>
+  <li>it can adjust for your current editor configuration instead of some arbitrary server-side number like 80 characters.</li>
+</ul>
+
+<figure>
+    <img src="https://tonsky.me/blog/clojure-sublimed-3/pretty_print.webp" />
+    Wrapping on current window width
+</figure>
+
+<p>Another upside is that I can adjust pretty-printing rules to my liking, of course.</p>
+
+<h1 id="clojure-parser-in-python">Clojure parser in Python</h1>
+
+<p>So, client lives inside your code editor and needs to understand Clojure <em>before</em> it starts communicating with it. Meaning, without Clojure runtime. Meaning, we had to parse Clojure in Python!</p>
+
+<p>This is where things get hard because support for libraries, especially native ones, is not great in Sublime Text. Meaning, pure Python implementation!</p>
+
+<p>I was put off by that task for a long time because it felt enormous. In the first Clojure Sublimed version, I deduced this information from syntax highlighting (Sublime Text already parses your source code for highlighting, and you can kind of access the results of that). But this time I wanted to make things right.</p>
+
+<p>And, in fact, it turned out not to be all that bad! Clojure, like any Lisp, <em>is</em> relatively easy to parse. This is the entire grammar:</p>
+
+<figure><img src="https://tonsky.me/blog/clojure-sublimed-3/grammar.webp" /></figure>
+
+<p>Full source at <a href="https://github.com/tonsky/Clojure-Sublimed/blob/master/cs_parser.py">GitHub</a>.</p>
+
+<p>Some notable details below.</p>
+
+<h2 id="parser-cutting-corners">Parser: Cutting Corners</h2>
+
+<p>I cut some corners to write less code and get max performance by e.g. not distinguishing between numbers, keywords, symbols — they are all just tokens. It’s probably not hard to add them, but I don’t really need them for what I do, so they are not there.</p>
+
+<h2 id="parser-performance">Parser: Performance</h2>
+
+<p>I haven’t spent any serious time trying to optimize the parser. In its current state, it can go through clojure.core (enormous 8000 loc file) in 170ms on my M1 Mac.</p>
+
+<p>Clojure itself does the same in roughly 30-50 ms, though, so there’s definitely potential for improvement.</p>
+
+<h2 id="parser-incrementality">Parser: Incrementality</h2>
+
+<p>Should be possible one day :) So far performance is good enough to re-parse on each “enter” keypress.</p>
+
+<h2 id="parser-testing">Parser: Testing</h2>
+
+<p>Parse trees could be quite hard to navigate, and twice as hard to compare.</p>
+
+<p>Parsing also requires <em>a lot</em> of tests to get everything right and to avoid regressions. So having a nice and ergonomic way to write and inspect tests was super important.</p>
+
+<p>I ended up copying test syntax from tree-sitter.</p>
+
+<figure><img src="https://tonsky.me/blog/clojure-sublimed-3/test.webp" /></figure>
+
+<p>Test runner just compares the actual result with the expected one string-wise and if they are different, reports an error in a nice to comprehend table:</p>
+
+<figure><img src="https://tonsky.me/blog/clojure-sublimed-3/failed_test.webp" /></figure>
+
+<p>Having this early on saved me a ton of time and I am 100% happy I made that investment.</p>
+
+<h2 id="parser-error-recovery">Parser: Error recovery</h2>
+
+<p>Parsing valid Clojure code is quite easy. But code in the process of editing is not always correct, even syntactically. That means that our parser has to work around errors somehow!</p>
+
+<p>So I decided to see how people smarter than me do it and found this:</p>
+
+<blockquote>
+  <p>In the yacc and bison parser generators, the parser has an ad hoc mechanism to abandon the current statement, discard some parsed phrases and lookahead tokens surrounding the error, and resynchronize the parse at some reliable statement-level delimiter like semicolons or braces.</p>
+</blockquote>
+
+<p>So yeah, I guess no beautiful theory on error recovery.</p>
+
+<p>For our purposes, though, it was quite simple: see something that you don’t understand? That must be an error. Most stuff gets consumed as a symbol or a number, though, so these were rare.</p>
+
+<p>We did accept some invalid programs as valid, but that’s okay for our use case: find expression boundaries, throw it over the fence, and let Clojure work out the rest of the details.</p>
+
+<h2 id="parser-accidentally-quadratic">Parser: Accidentally quadratic</h2>
+
+<p>One funny thing happened during testing: I noticed that sometimes the parser was becoming ultra-slow on moderately-sized files. Like, seconds instead of milliseconds. That means I had quadratic behavior somewhere.</p>
+
+<figure><img src="https://tonsky.me/blog/clojure-sublimed-3/algorithm.webp" style="max-width: 540px" /></figure>
+
+<p>And that was indeed the case. The first version of the parser, roughly, was parsing parens/brackets/braces like this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Seq(Char("["),
+    Repeat(Choice('_gap', '_form')),
+    Char("]"))
+</code></pre></div></div>
+
+<p>This basically means: if you see an opening bracket, consume forms and whitespace inside as long as you can, and in the end, there must be a closing bracket.</p>
+
+<p>Well, what if it’s not there? That means it wasn’t a <code class="language-plaintext highlighter-rouge">'brackets'</code> form in the first place! This is technically correct, but also means we have to mark the opening bracket as an error and then <em>re-parse everything inside it again</em>. That’s your quadratic behavior right here!</p>
+
+<p>A simple change got rid of this problem:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Seq(Char("["),
+    Repeat(Choice('_gap', '_form')),
+    Optional(Char("]")))
+</code></pre></div></div>
+
+<p>Technically, this accepts incorrect programs. In practice, though, it works exactly as we need for indentation: we only care about opening parens up to the point of the cursor and don’t really care what happens after it.</p>
+
+<h2 id="parser-conclusion">Parser: Conclusion</h2>
+
+<p>Writing the parser was very fun! So many little details to figure out and get right, but in the end, when everything snaps into place, it’s so satisfying!</p>
+
+<p>I also now understand why Lisps were so popular back in the day: they are really made for ease of implementation. Hacking together an entire parser from scratch in a weekend — can you imagine it for something like C++ or Python?</p>
+
+<p>Anyways, if you need Clojure parser in Python, take a peek at <a href="https://github.com/tonsky/Clojure-Sublimed/blob/master/cs_parser.py">my implementation</a> — maybe it’ll help you out!</p>
+
+<h1 id="protocol">Protocol</h1>
+
+<p>Let’s move to the second part of our architecture: the communication channel.</p>
+
+<p>How does a server talk to a client? Die-hard Clojure fans would answer immediately: EDN! But it’s not that simple.</p>
+
+<p>Yes, EDN is the simplest thing for Clojure users. But what about the rest of the world? Don’t forget that on the other side there’s an arbitrary platform and, despite Rich’s best efforts, EDN is not as widespread as we’d like.</p>
+
+<h2 id="just-send-forms">Just send… forms?</h2>
+
+<p>This is what <code class="language-plaintext highlighter-rouge">clojure.core.server/repl</code> does. Basically, it’s the same interactive experience as with command-line REPL, but over a socket:</p>
+
+<figure><video autoplay="" muted="" loop="" preload="auto" playsinline="" controls=""><source src="https://tonsky.me/blog/clojure-sublimed-3/socket_repl.mp4" type="video/mp4" /></video></figure>
+
+<p>Not machine-friendly at all.</p>
+
+<h2 id="half-edn">Half-EDN</h2>
+
+<p>Type in forms, receive EDN-formatted output. <code class="language-plaintext highlighter-rouge">clojure.core.server/io-prepl</code> does that:</p>
+
+<figure><img src="https://tonsky.me/blog/clojure-sublimed-3/prepl.webp" /></figure>
+
+<p>Half machine-friendly and you have to be able to parse EDN.</p>
+
+<h2 id="json--edn">JSON + EDN</h2>
+
+<p>Following the half-EDN example, our protocol doesn’t have to be symmetric, either. If we make ease of implementation our first priority, we can go crazy:</p>
+
+<ul>
+  <li>Client sends EDN, which is easy to parse in Clojure,</li>
+  <li>Server sends JSON, which could be parsed with Python stdlib.</li>
+</ul>
+
+<p>Not elegant, but, you know, gets the job done. In both cases, messages are simple enough to be composed with string concatenation, so we only really care about parsing.</p>
+
+<p>The only problem I have with this solution is that it offends my sense of beauty.</p>
+
+<h2 id="bencode">Bencode</h2>
+
+<p>nREPL also had this problem: a common denominator for multiple clients in all possible languages. Their answer? Bencode.</p>
+
+<p>Bencode is a simple binary encoding developed for BitTorrent. And when I say simple, I mean <em>very</em> simple. Yes, simpler than JSON.</p>
+
+<p>This is the entire Bencode grammar:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>number = '0' / '-'? [1-9][0-9]*
+int    = 'i' number 'e'
+list   = 'l' value* 'e'
+dict   = 'd' (value value)* 'e'
+string = length ':' bytes
+length = '0' / [1-9][0-9]*
+value  = int / list / dict / string
+</code></pre></div></div>
+
+<p>And here are some actual messages when communicating with nREPL server:</p>
+
+<figure><img src="https://tonsky.me/blog/clojure-sublimed-3/nrepl.webp" /></figure>
+
+<p>Bencode is not supported out of the box by either Python or Clojure, but implementation easily fits in 200 LoC.</p>
+
+<p>Problem? It’s binary. Unfortunately, you can’t run binary protocols on top of Socket Server, only the text ones. So to be able to use bencode you’ll have to start your own server.</p>
+
+<p>Clojure Sublimed uses bencode for connecting to nREPL servers.</p>
+
+<h2 id="messagepack">MessagePack</h2>
+
+<p>MessagePack is beautiful, exactly as I would’ve designed a compact binary serialization format. Everything is length-prefixed, super-simple to implement and you can support only parts that you actually use.</p>
+
+<p>But it’s binary, so can’t be used on top of Socket Server, and I’m not prepared to write my own REPL server yet.</p>
+
+<p>Consider voting for <a href="https://clojure.atlassian.net/browse/CLJ-2752">this issue</a> and the situation might change! I believe Clojure deserves binary REPLs as much as text-based ones.</p>
+
+<h2 id="edn-both-ways">EDN both ways</h2>
+
+<p>A lucky coincidence saved me here. Remember the first part where I was writing Clojure parser? Guess what? Since EDN is a subset of Clojure, my parser also can parse EDN well enough to understand REPL server responses!</p>
+
+<p>This is what my upgraded Socket Server REPL looks like on the wire:</p>
+
+<figure><img src="https://tonsky.me/blog/clojure-sublimed-3/socket_sublime.webp" /></figure>
+
+<p>Yes, it looks like nREPL over EDN.</p>
+
+<p>No, it’s not exactly nREPL, it’s subtly different (see the server breakdown below), so there can be more chaos.</p>
+
+<p>Did I invent another wheel? Maybe. But it’s a good wheel and it suits my needs well.</p>
+
+<h2 id="a-note-on-message-boundaries">A note on message boundaries</h2>
+
+<p>The tricky part of EDN-on-the-wire? How to separate messages.</p>
+
+<p>Clojure has a streaming parser: it consumes data from socket char-by-char and parses it as it goes until it reads a complete form. That’s why, for example, you can’t evaluate something like <code class="language-plaintext highlighter-rouge">(+ 1 2</code> in the REPL, no matter how many times you press Enter.</p>
+
+<p>But my Python parser wasn’t streaming :( You give it a string, it’ll parse it. But it can’t tell you how much of that string to read from a socket. If only TCP was message-oriented — one can dream!</p>
+
+<p>So the solution was… split on newlines :) Lucky for me, the default Clojure printer escapes newlines in strings, so it can’t occur inside the message.</p>
+
+<p>EDN doesn’t exactly forbid newlines, though, so let’s hope they won’t suddenly start to appear one day.</p>
+
+<h1 id="server">Server</h1>
+
+<p>Finally, the third and final part of our architecture: the server. When I only started learning about Clojure and Lisps, I imagined that REPL is literally that:</p>
+
+<figure><img src="https://tonsky.me/blog/clojure-sublimed-3/repl_naive.webp" /></figure>
+
+<p>Because of that ignorance, it was hard for me to understand why there are different REPL implementations and why you need to “implement” REPL at all.</p>
+
+<p>Let’s go from the simplest case to more complex ones.</p>
+
+<h2 id="naive-repl">Naive REPL</h2>
+
+<p>Funny enough, the function I showed you above works:</p>
+
+<figure><video autoplay="" muted="" loop="" preload="auto" playsinline="" controls=""><source src="https://tonsky.me/blog/clojure-sublimed-3/repl_naive.mp4" type="video/mp4" /></video></figure>
+
+<p>It’s very fragile, though: it’ll die on the first exception.</p>
+
+<p>It also doesn’t do many things which you’ll see more sophisticated REPLs provide.</p>
+
+<h2 id="clojuremainrepl">clojure.main/repl</h2>
+
+<p>This is the REPL you get when you run <code class="language-plaintext highlighter-rouge">clj</code> or <code class="language-plaintext highlighter-rouge">clojure</code> command-line utility.</p>
+
+<p>It works essentially the same, but does a little bit of extra work for you:</p>
+
+<p>First and most notably, it prints a command prompt that displays the current namespace:</p>
+
+<figure><img src="https://tonsky.me/blog/clojure-sublimed-3/repl_main_prompt.webp" /></figure>
+
+<p>Which you can actually customize to your liking:</p>
+
+<figure><img src="https://tonsky.me/blog/clojure-sublimed-3/repl_main_custom_prompt.webp" /></figure>
+
+<p>Then, it catches and prints exceptions, so your REPL doesn’t die when you make a mistake:</p>
+
+<figure><img src="https://tonsky.me/blog/clojure-sublimed-3/repl_main_exception.webp" /></figure>
+
+<p>It also stores the last calculated values in special <code class="language-plaintext highlighter-rouge">*1</code>..<code class="language-plaintext highlighter-rouge">*3</code> dynamic vars and the last exception in <code class="language-plaintext highlighter-rouge">*e</code>. These variables do not exist outside of REPL:</p>
+
+<figure><img src="https://tonsky.me/blog/clojure-sublimed-3/repl_main_dynamic.webp" /></figure>
+
+<p>Another convenience that default REPL does is requiring some stuff from <code class="language-plaintext highlighter-rouge">clojure.repl</code> and <code class="language-plaintext highlighter-rouge">clojure.pprint</code>:</p>
+
+<figure><img src="https://tonsky.me/blog/clojure-sublimed-3/repl_main_requires.webp" /></figure>
+
+<p>Were you wondering where <code class="language-plaintext highlighter-rouge">(doc)</code> in REPL comes from? Now you know.</p>
+
+<p>Finally, it isolates vars like <code class="language-plaintext highlighter-rouge">*ns*</code> or <code class="language-plaintext highlighter-rouge">*warn-on-reflection*</code> so that when you <code class="language-plaintext highlighter-rouge">set!</code> them in your REPL session it doesn’t alter their root bindings.</p>
+
+<p>Quite a bit of nuance, huh? With all that, <code class="language-plaintext highlighter-rouge">clojure.main/repl</code> is still considered very basic. There’s more stuff you can do!</p>
+
+<h2 id="clojurecoreserverrepl">clojure.core.server/repl</h2>
+
+<p>Basically the same as <code class="language-plaintext highlighter-rouge">main/repl</code>, but for the access over the network.</p>
+
+<p>The only difference is output. If your entire program IS the REPL, you don’t have to do anything special with it.</p>
+
+<p>But if you are connecting dynamically to a working program, things get trickier. Where should <code class="language-plaintext highlighter-rouge">(println "Hello")</code> print?</p>
+
+<p>If it prints to stdout of the process, you won’t see it in your REPL. It’ll go to wherever the server process redirects its standard output.</p>
+
+<p>So what Server REPL does is it redefines <code class="language-plaintext highlighter-rouge">*in*</code>/<code class="language-plaintext highlighter-rouge">*out*</code>/<code class="language-plaintext highlighter-rouge">*err*</code> to socket streams instead of process’s stdout and sends to you what <em>you</em> print over the network. Everybody gets their own stdout!</p>
+
+<figure><video autoplay="" muted="" loop="" preload="auto" playsinline="" controls=""><source src="https://tonsky.me/blog/clojure-sublimed-3/repl_server_stdout.mp4" type="video/mp4" /></video></figure>
+
+<p>Really tricky stuff to figure out, but essential to understand if you consider yourself an advanced Clojure REPL user.</p>
+
+<p>The rest is the same. Server REPL literally calls into <code class="language-plaintext highlighter-rouge">main/repl</code> after rebinding <code class="language-plaintext highlighter-rouge">*in*</code>/<code class="language-plaintext highlighter-rouge">*out*</code>/<code class="language-plaintext highlighter-rouge">*err*</code>.</p>
+
+<h2 id="clojurecoreserverio-prepl">clojure.core.server/io-prepl</h2>
+
+<p>pREPL is Clojure team’s answer to nREPL and critique that Clojure Socket REPL is not machine-friendly. It’s basically <code class="language-plaintext highlighter-rouge">server/repl</code> but with EDN-formatted output:</p>
+
+<figure><img src="https://tonsky.me/blog/clojure-sublimed-3/prepl.webp" /></figure>
+
+<p>pREPL consumes raw Clojure forms but outputs EDN-structured data.</p>
+
+<p>In terms of what it does for you, it also formats exceptions (not in a Clojure-aware way, unfortunately) and synchronizes your output so that two threads can’t print simultaneously. But that’s about it.</p>
+
+<p>The main problem with pREPL is that it’s based on EDN and, thus, aimed at Clojure clients first and foremost.</p>
+
+<h2 id="nrepl">nREPL</h2>
+
+<p>nREPL is a third-party server started by Chas Emerick and lately adopted by Bozhidar Batsov. It’s a separate library that you have to add to your project and start the server yourself.</p>
+
+<p>As Rich Hickey put it, ”<a href="https://nextjournal.com/mk/rich-hickey-on-repls">nREPL is not a REPL, it’s remote evaluation API</a>”. He’s not wrong, but I think that’s exactly what tooling authors need: remote eval API, not interactive console.</p>
+
+<p>First, nREPL is machine-friendly both ways. It receives bencode-d data and sends bencode-d data back.</p>
+
+<p>Second, it walks an extra mile for you:</p>
+
+<ul>
+  <li>Its <code class="language-plaintext highlighter-rouge">eval</code> optionally accepts file name and position in that file, so that stack traces would contain the correct position.</li>
+  <li>It limits the size of the output to a user-provided threshold, saving you from printing infinite sequences which are not rare in Clojure.</li>
+  <li>It provides interruption for already executing evals.</li>
+  <li>Some of its functions like <code class="language-plaintext highlighter-rouge">lookup</code> and <code class="language-plaintext highlighter-rouge">load-file</code> solve problems that their Clojure alternatives don’t.</li>
+  <li>Some are just conveniences like <code class="language-plaintext highlighter-rouge">completions</code>.</li>
+  <li>It’s extensible, allowing you to create your own operations.</li>
+</ul>
+
+<p>All this stuff is very useful and doesn’t come “naturally” with naive REPL implementations.</p>
+
+<p>The downside? You need to add nREPL server dependency to your app. It also has a noticeable startup cost (~500ms on my machine).</p>
+
+<h2 id="extended-nrepl">Extended nREPL</h2>
+
+<p>Since nREPL is extensible, one can extend it to do even more. That’s what the first version of Clojure Sublimed did and still does. Including:</p>
+
+<ul>
+  <li>Formating stack traces in a Clojure-aware way and sending them back with errors:</li>
+</ul>
+
+<figure><img src="https://tonsky.me/blog/clojure-sublimed-3/cs_repl_stacktrace.webp" /></figure>
+
+<ul>
+  <li>Parallel evaluation and execution time:</li>
+</ul>
+
+<figure><video autoplay="" muted="" loop="" preload="auto" playsinline="" controls=""><source src="https://tonsky.me/blog/clojure-sublimed-3/cs_repl_parallel.mp4" type="video/mp4" /></video></figure>
+
+<p>It worked well for me for 1.5 years, but still, you know, nREPL dependency, startup time, NIH syndrome. I wanted to give REPL a shot on my own.</p>
+
+<h2 id="repl-upgraded">REPL, upgraded</h2>
+
+<p>Even the simplest REPL still has the full power of Clojure in it! We can start with something very basic, like <code class="language-plaintext highlighter-rouge">server.repl</code>, send our own server’s code to it first thing after connecting, and then take control over stdin/stdout and start serving our own protocol with our own execution model.</p>
+
+<p>This is called “upgrading” your REPL and that’s how Christophe Grand’s Unrepl works, for example. The beauty of it is zero dependencies: you only need Clojure and nothing more. Everything you need you bring with you.</p>
+
+<p>In our case, it looks like this. First, we send a lot of Clojure code (unformatted, because machine doesn’t care):</p>
+
+<figure><img src="https://tonsky.me/blog/clojure-sublimed-3/socket_snd.webp" /></figure>
+
+<p>Then, we receive this:</p>
+
+<figure><img src="https://tonsky.me/blog/clojure-sublimed-3/socket_rcv.webp" /></figure>
+
+<p>Which basically means “Yes, I’ve heard you”.</p>
+
+<p>This is all happening inside basic <code class="language-plaintext highlighter-rouge">server/repl</code>. It looks messy because it was designed for human consumption (eye-balling), and we don’t even try to interpret it. We just cross our fingers and hope everything we sent works.</p>
+
+<p>At this point, we’re ready to “upgrade” our REPL. This is how we do it:</p>
+
+<figure><img src="https://tonsky.me/blog/clojure-sublimed-3/socket_started.webp" /></figure>
+
+<p><code class="language-plaintext highlighter-rouge">(repl)</code> is a function we defined in our initial payload. <code class="language-plaintext highlighter-rouge">{"tag" "started"}</code> is the first message of our own protocol. I really, really, really hope here that it will not be messed up by other output (printing in Socket Server is not synchronized, and everyone who worked with Clojure REPL in the terminal knows how often it messes up your output).</p>
+
+<p>After the client sees <code class="language-plaintext highlighter-rouge">{"tag" "started"}</code> somewhere in the socket, it considers the upgrade to be finished and now works in our own nREPL-like EDN-based protocol.</p>
+
+<h2 id="clojure-sublimed-repl-server">Clojure Sublimed REPL Server</h2>
+
+<p>Our upgraded Clojure Sublimed REPL does all the same basic stuff that nREPL does. The only practical difference for clients is batch evaluation: send multiple forms together (e.g. when evaluating the whole buffer) and get separate results for each one.</p>
+
+<p>nREPL eval-buffer:</p>
+
+<figure><img src="https://tonsky.me/blog/clojure-sublimed-3/nrepl_batch_eval.webp" /></figure>
+
+<p>Clojure Sublimed eval-buffer:</p>
+
+<figure><img src="https://tonsky.me/blog/clojure-sublimed-3/cs_repl_batch_eval.webp" /></figure>
+
+<p>Under the hood, though, it’s a completely new REPL. It sits on top of Socket Server, yes, but it has its own evaluation model and its own protocol. It’s clean, minimal, fast to load, and works much better with Clojure Sublimed client than nREPL.</p>
+
+<p>I don’t want to release yet separately from Clojure Sublimed (yet?), but, you know, take a peek <a href="https://github.com/tonsky/Clojure-Sublimed/blob/master/src_clojure/clojure_sublimed/socket_repl.clj">at the implementation</a> anyway.</p>
+
+<h2 id="your-own-repl">Your own REPL!</h2>
+
+<p>The original version of Clojure Sublimed (client) was organized quite poorly and adding new REPLs was problematic.</p>
+
+<p>New, refactored Clojure Sublimed was designed to be easy to extend. Out of the box, we ship with these now:</p>
+
+<ul>
+  <li>JVM nREPL which installs a few extra middlewares.</li>
+  <li>(new) Raw nREPL for non-JVM environments (babashka, etc).</li>
+  <li>Shadow-CLJS nREPL which (now) adapts better to shadow-cljs quirks.</li>
+  <li>(new) JVM Socket REPL which works on top of bare-bone Clojure Socket Server.</li>
+</ul>
+
+<p>And there could be more! If you are interested, let me know, or, better, jump in with a PR! I promise it should be much easier now. I even wrote docstrings <strike>everywhere</strike> at some places :)</p>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>So, Clojure Sublimed v3 is out there. To sum up the major differences:</p>
+
+<ul>
+  <li>REPL doesn’t depend on syntax highlighting,</li>
+  <li>new JVM Socket REPL,</li>
+  <li>easier to add new REPLs,</li>
+  <li>client-side pretty-printer,</li>
+  <li>faster indenter and formatter.</li>
+</ul>
+
+<p>As always, you can get the new version in <a href="https://packagecontrol.io/packages/Clojure%20Sublimed">Package Control</a> or on Github:</p>
+
+<figure><a href="https://github.com/tonsky/Clojure-Sublimed"><img src="https://tonsky.me/blog/clojure-sublimed-3/banner.webp" /></a></figure>
+
+<p>Let me know what you think! Issues are open :) And happy Clojur-ing!</p>
+
+<h1 id="you-were-going-to-ask-anyway">You were going to ask anyway</h1>
+
+<p>Color scheme: <a href="https://github.com/tonsky/sublime-color-schemes/">Niki Berkeley</a>.</p>
+
+<p>The font on screenshots: <a href="https://berkeleygraphics.com/typefaces/berkeley-mono/">Berkeley Mono</a>.</p>
+
+        
+      ]]></content>  
+      <author>
+        <name>Nikita Prokopov</name>
+        <email>niki@tonsky.me</email>
+      </author>
+    </entry>
+  
+  
+  
+    
+    
+    
+    <entry>
+      <title>Java Swag</title>
+      <link rel="alternate" type="text/html" href="https://soundcloud.com/javaswag/e40" />
+      <id>https://soundcloud.com/javaswag/e40</id>
+      <published>2022-12-23T01:00:00+01:00</published>
+      <updated>2022-12-23T01:00:00+01:00</updated>
+      
+      <content type="html"><![CDATA[
+        
+        
+        
+        
+        
+        Разочарование в Java, простота Clojure и опенсорс проекты
+        
+          <br />
+          <div class="podcast" style="background-image: url(./covers/Java%20Swag.png)"><audio controls><source src="https://s.tonsky.me/tonsky.me/2022-12%20Java%20Swag.mp3" type="audio/mpeg"></audio></div>
+        
+      ]]></content>  
+      <author>
+        <name>Nikita Prokopov</name>
+        <email>niki@tonsky.me</email>
+      </author>
+    </entry>
+  
+  
+  
+    
+    
+    
+    <entry>
+      <title>Как мы попали в IT</title>
+      <link rel="alternate" type="text/html" href="https://www.youtube.com/watch?v=6B92JkMWajw" />
+      <id>https://www.youtube.com/watch?v=6B92JkMWajw</id>
+      <published>2022-12-19T01:00:00+01:00</published>
+      <updated>2022-12-19T01:00:00+01:00</updated>
+      
+      <content type="html"><![CDATA[
+        
+        
+        
+        
+        
+        Как влиять на технологии и делать значимый опенсорс
+        
+          <br />
+          <iframe width="560" height="315" src="https://www.youtube.com/embed/6B92JkMWajw?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+        
+      ]]></content>  
+      <author>
+        <name>Nikita Prokopov</name>
+        <email>niki@tonsky.me</email>
+      </author>
+    </entry>
+  
+  
+  
+    
+    
+    
+    <entry>
+      <title>Clojure + UI = ❤️</title>
+      <link rel="alternate" type="text/html" href="https://www.youtube.com/watch?v=cM5e_tJqbT8" />
+      <id>https://www.youtube.com/watch?v=cM5e_tJqbT8</id>
+      <published>2022-10-29T02:00:00+02:00</published>
+      <updated>2022-10-29T02:00:00+02:00</updated>
+      
+      <content type="html"><![CDATA[
+        
+        
+        
+        
+        
+        Introducing Humble UI, a desktop UI framework for Clojure
+        
+          <br />
+          <iframe width="560" height="315" src="https://www.youtube.com/embed/cM5e_tJqbT8?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+        
+      ]]></content>  
+      <author>
+        <name>Nikita Prokopov</name>
+        <email>niki@tonsky.me</email>
+      </author>
+    </entry>
+  
+  
+  
+    
+    
+    
+    <entry>
+      <title>GMTK Game Jam 2022: Dice Out</title>
+      <link rel="alternate" type="text/html" href="https://tonsky.me/blog/dice-out/" />
+      <id>https://tonsky.me/blog/dice-out/</id>
+      <published>2022-07-26T00:00:00+02:00</published>
+      <updated>2022-07-26T00:00:00+02:00</updated>
+      
+        <summary type="html"><![CDATA[
+          Experience report from participating in latest GMTK Game Jam
+        ]]></summary>
+      
+      <content type="html"><![CDATA[
+        
+        
+        
+        
+        
+        <p>I’ve made a game! Well, a small one and in just 48 hours, but still a game.</p>
+
+<p>You can play it in the browser:</p>
+
+<figure>
+  <a href="https://tonsky.itch.io/dice-out" target="_blank"><img src="https://tonsky.me/blog/dice-out/cover.png" /></a>
+</figure>
+
+<p>Here are my observations.</p>
+
+<h2 id="game-engine">Game engine</h2>
+
+<p>Using a game engine helps a lot. It solves a lot of problems that you don’t want to deal with in 48 hours or, probably, never.</p>
+
+<p>I chose Godot and liked it a lot: Python-like language seems like a better fit for casual scripting than C#, and apparently it has much better HTML export than Unity.</p>
+
+<p>A game engine also gives you a visual editor for many resources you’ll need for a game: tilesets, sprites, animations, levels, and state machines. You don’t want to tune all that in JSON.</p>
+
+<h2 id="game-programming">Game programming</h2>
+
+<p>Game programming is quite different from standard web- or whatever type of programming we do.</p>
+
+<p>In games they prefer ECS over OOP (data and behavior separation, components instead of inheritance), encourage global mutable state, like simple solutions, and dislike abstractions.</p>
+
+<h2 id="art-pipeline">Art pipeline</h2>
+
+<p>Figma feels a great fit for 2D sprites because of the components. In the case of our dice, I designed dots and faces separately and then combined them into dice. When I wanted to tune colors or shapes, I changed them in one place and they updated everywhere.</p>
+
+<figure><img src="https://tonsky.me/blog/dice-out/figma.png" /></figure>
+
+<p>Feels like programming!</p>
+
+<h2 id="characters">Characters</h2>
+
+<p>Any game is better with a character. We made a pretty abstract roll-the-dice-in-a-labyrinth game which by itself would be inherently boring:</p>
+
+<figure><img src="https://tonsky.me/blog/dice-out/boring.png" /></figure>
+
+<p>That’s why we introduced Gnargle! Look how he follows the dice with his eyes:</p>
+
+<figure><video autoplay="" muted="true" loop="true" preload="auto" playsinline="" controls=""><source src="https://tonsky.me/blog/dice-out/fun.mp4" type="video/mp4" /></video></figure>
+
+<p>Much more lively, isn’t it?</p>
+
+<h2 id="juice">Juice</h2>
+
+<p>Juice are small effects that add the feeling of “impact” to the actions. In the example above, it’s a puff of smoke after the dice, a little jump, screen shake, and dynamic camera position.</p>
+
+<p>Compare it to the version without all that:</p>
+
+<figure><video autoplay="" muted="true" loop="true" preload="auto" playsinline="" controls=""><source src="https://tonsky.me/blog/dice-out/no_juice.mp4" type="video/mp4" /></video></figure>
+
+<p>Still functional, but much less fun.</p>
+
+<h2 id="level-design-spoilers">Level design (spoilers!)</h2>
+
+<p>I’m pretty proud of our level design. Each level tries to explore an interesting property that’s inherent to the dice as a mathematical object.</p>
+
+<p>I’m going to go through each level explaining its purpose, so if you want first to experience it yourself, open our <a href="https://tonsky.itch.io/dice-out" target="_blank">Itch.io page</a> and play the game. It shouldn’t take you more than 10-15 minutes.</p>
+
+<h3 id="level-1">Level 1</h3>
+
+<p>A pretty standard tutorial level that explains how the game works and what your goal is:</p>
+
+<figure><img src="https://tonsky.me/blog/dice-out/level1.png" /></figure>
+
+<p>On top of that, it shows that returning dice exactly the same way changes nothing, or that any path is completely reversible.</p>
+
+<h3 id="level-2">Level 2</h3>
+
+<p>Still tutorial, it demonstrates that if you take another path you might get a different result. It also shows that the solution from level 1 won’t work, so you have to adapt:</p>
+
+<figure><img src="https://tonsky.me/blog/dice-out/level2.png" /></figure>
+
+<h3 id="level-3">Level 3</h3>
+
+<p>This teaches an interesting property: rotation around one vertex.</p>
+
+<figure><video autoplay="" muted="true" loop="true" preload="auto" playsinline="" controls=""><source src="https://tonsky.me/blog/dice-out/level3.mp4" type="video/mp4" /></video></figure>
+
+<p>Notice how 1 travels from the top left to bottom left to bottom right. That’s because only three faces are touching one vertex which makes a cycle of three (1, 2, and 3 in that case). But there are four tiles on the board, so using this rotation you can move any top-facing face to any of the four squares you want.</p>
+
+<h3 id="level-4">Level 4</h3>
+
+<p>This is pretty much an extended version of level 3, but now, given more than four tiles, you can get faces that weren’t previously possible:</p>
+
+<figure><img src="https://tonsky.me/blog/dice-out/level4.png" /></figure>
+
+<h3 id="level-5">Level 5</h3>
+
+<p>This was supposed to demonstrate that now that you can get any face with 3-by-3 tiles, you can get them anywhere. This is the level how it went to the game:</p>
+
+<figure><img src="https://tonsky.me/blog/dice-out/level5.png" /></figure>
+
+<p>But after the release I thought of a better way to demonstrate the point:</p>
+
+<figure><img src="https://tonsky.me/blog/dice-out/level5_better.png" /></figure>
+
+<h3 id="level-6">Level 6</h3>
+
+<p>This is a tiny aha moment (hopefully). You thought your goal is to move your dice somewhere, but here’s no goal. How come?</p>
+
+<figure><img src="https://tonsky.me/blog/dice-out/level6.png" /></figure>
+
+<p>Of course, because the target tile is under your starting position!</p>
+
+<h3 id="level-7">Level 7</h3>
+
+<p>To be honest, designing puzzles for this wasn’t easy because you can get absolutely anything given 3x3 and almost anything given 2x2, as we’ve explored before.</p>
+
+<figure><img src="https://tonsky.me/blog/dice-out/level7.png" /></figure>
+
+<p>So in this case you don’t get a single 2x2 configuration and instead get a cycle that you need to run multiple times to get the dice in the correct position.</p>
+
+<h3 id="level-8">Level 8</h3>
+
+<p>This is in some sense a re-iteration of level 5, again illustrating that you can pretty much get anything anywhere.</p>
+
+<figure><img src="https://tonsky.me/blog/dice-out/level8.png" /></figure>
+
+<p>The gotcha in this one is, I guess, that an easy-looking tile configuration doesn’t mean the solution will be equally straightforward.</p>
+
+<h3 id="level-9">Level 9</h3>
+
+<p>Finally, level 9, which could be best described with the video:</p>
+
+<figure><video autoplay="" muted="true" loop="true" preload="auto" playsinline="" controls=""><source src="https://tonsky.me/blog/dice-out/level9.mp4" type="video/mp4" /></video></figure>
+
+<p>Again, this is a non-verbal joke that is communicated entirely through level design.</p>
+
+<p>But beyond that, the missing tile is located so inconveniently that players will (hopefully) figure out a way to predict the value they will get there (which is quite simple, because going in a straight line is a simple 4-cycle).</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>Thanks for reading and I hope you liked the game! I for sure had a lot of fun!</p>
+
+        
+      ]]></content>  
+      <author>
+        <name>Nikita Prokopov</name>
+        <email>niki@tonsky.me</email>
+      </author>
+    </entry>
+  
+  
+ 
+</feed>

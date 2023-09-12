@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en" prefix="og: http://ogp.me/ns#" xmlns:og="http://opengraphprotocol.org/schema/">
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
+  
+    <meta name="viewport" content="width=640" />
+  
+  <meta name="theme-color" content="#FDDB29">
+  <link href="/i/favicon.png" rel="icon" sizes="32x32">
+
+  <link href='/style.css?v=20201203' rel='stylesheet' type='text/css' />
+  <title>Designing good DSL @ tonsky.me</title>
+
+  <link href="/blog/atom.xml" rel="alternate" title="Nikita Prokopov’s blog" type="application/atom+xml" />
+
+  <meta name="author" content="Nikita Prokopov" />
+  
+  <meta property="og:title" content="Designing good DSL" />
+  <meta property="og:url" content="https://tonsky.me/blog/dsl/" />
+  
+    <meta property="og:type" content="article" />
+
+    <meta property="article:published_time" content='2018-07-16' />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Designing good DSL" />
+  
+
+  
+    <meta property="og:description" content="A look at common mistakes in DSL designs and how to fix them" />
+    <meta name="twitter:description" content="A look at common mistakes in DSL designs and how to fix them" />
+  
+
+  <meta property="og:site_name" content="tonsky.me" />
+  <meta property="article:author" content="https://www.facebook.com/nikitonsky" />
+  <meta property="profile:first_name" content="Nikita" />
+  <meta property="profile:last_name" content="Prokopov" />
+  <meta property="profile:username" content="tonsky" />
+  <meta property="profile:gender" content="male" />
+
+  <meta name="twitter:creator" content="@nikitonsky" />
+</head>
+<body>
+<div class="page ">
+
+<ul class=menu>
+  <li><a class="menu__item menu__item_inside" href="/">Blog</a></li>
+  <li><a class="menu__item" href="/talks/">Talks</a></li>
+  <li><a class="menu__item" href="/projects/">Projects</a></li>
+  <li><a class="menu__item" href="/design/">Logos</a></li>
+  <!-- <li><a class="menu__item" href="/consulting/">UX&nbsp;Consulting</a></li> -->
+  <li><a class="menu__item" href="/patrons/">Patrons</a></li>
+  <div class="spacer"></div>
+  <div class="dark_mode"></div>
+</ul>
+
+
+<article class="post">
+  <h1 class="title">Designing good DSL</h1>
+
+  <p></p>
+
+  <p>DSLs are great tool to reduce complexity and define problems in a compact and succinct way. In case you need to design your own, these are a few common traps to avoid.</p>
+
+<h2 id="make-it-verbose">Make it verbose</h2>
+
+<p>Most well-known example of non-verbose DSL is regular expressions:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>([A-Z][a-z]*[,.!?]\s+)*
+</code></pre></div></div>
+
+<p>Even though regular expressions are quite popular, it’s not a good design to copy.</p>
+
+<p>First, most of its syntax beyond the very basics like <code class="language-plaintext highlighter-rouge">"X+"</code> or <code class="language-plaintext highlighter-rouge">"[^X]"</code> is impossible to remember. It’d be nice to know what <code class="language-plaintext highlighter-rouge">"(?&lt;!X)"</code> does without having to look it up first.</p>
+
+<p>Second: how do I google something like that?</p>
+
+<p>And third: it’s really hard to read. There are no clear boundaries, so it’s hard to understand what is part of what. I always struggle even on simple cases like <code class="language-plaintext highlighter-rouge">"https?"</code> (it’s either <code class="language-plaintext highlighter-rouge">"http"</code> or <code class="language-plaintext highlighter-rouge">"https"</code> but it’s really hard to see that at first sight). And when things get complex—and they do get complex quick—you’ll spend more time parsing regex in your head than you would spend writing it anew. I mean, try reading this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[a-z]{3,10}://([^/?#]*)([^?#]*)(?:\?([^#]*))?(?:#(.*))?
+</code></pre></div></div>
+
+<p>There’s nothing tricky going on, but it’s way too hard to read than it needs to be. That’s why they call Perl write-only language.</p>
+
+<p>Another non-verbose DSL example is Java date and time format string:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>"YYYY-MM-DD'T'HH:mm:ss.SSSZ"
+</code></pre></div></div>
+
+<p>More readable (the domain is way simpler) but also less widespread, so you still have to look it up every time. Not a problem while writing, but consider this: you just walking by that code and want to make simple modification (change short month to full month) or even fool-proof that it uses padded 24-hour for hours. Now, is <code class="language-plaintext highlighter-rouge">"HH"</code> 24-hour format or 12-hour? Is <code class="language-plaintext highlighter-rouge">"MM"</code> the format of month you really want here? Is it even a month, or minutes? It’s all still write-only and ungooglable.</p>
+
+<p>Things get worse if we move to Clojure land. Clojure started as a language that assigned contextual meaning to a few language-defined syntax structures: vector might be a let-binding in <code class="language-plaintext highlighter-rouge">let</code> expression, function arguments list in <code class="language-plaintext highlighter-rouge">fn</code> and just a data structure. Again, more or less fine in a language because language is the same for all its users, finite and fixed. Learn it once and move along (still, mature developers keep discovering that e.g. <code class="language-plaintext highlighter-rouge">case</code> expression treats lists specially etc).</p>
+
+<p>It got worse when library authors treated it as a design guideline. 
+E.g. Datomic rules are specified like this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[[(descendant? ?p ?c)
+  [?p :parent ?c]]
+ [(descendant? ?p ?c)
+  [?p :parent ?x]
+  (descendant? ?x ?c)]]
+</code></pre></div></div>
+
+<p>No words at all, just three-level deep mix of lists and vectors. If you don’t a priori know what’s going on it’s hard to even formulate a question about THAT. Also, as a user, I have to admit it’s really annoying placing all these brackets and parents right every time.</p>
+
+<p>Core.async has the same problem. Here’s how you specify get operation in <code class="language-plaintext highlighter-rouge">alt!</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(alt! [c t] ...)
+</code></pre></div></div>
+
+<p>And this is put (value to channel):</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(alt! [[c v]] ...)
+</code></pre></div></div>
+
+<p>I mean, this doesn’t correspond to anything in core language or even in core.async itself! It’s just a structure-based syntax for the sake of structure-basedness. Strange that the very same <code class="language-plaintext highlighter-rouge">alt!</code> has named options—compare how clearer those are!</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(alt! [c t]     ...
+      [[c v]]   ...
+      :default  nil
+      :priority true) 
+</code></pre></div></div>
+
+<p>How to solve? Simple:</p>
+
+<blockquote>
+  <p>Always give alternative options/behaviors/branches long, descriptive names.</p>
+</blockquote>
+
+<p>E.g. core.match does this right:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(match [x]
+  ([1 2] :seq)    ...
+  (:or 1 2 3)     ...
+  (_ :guard odd?) ...
+  :else           ...)
+</code></pre></div></div>
+
+<p>Notice those <code class="language-plaintext highlighter-rouge">:seq</code> <code class="language-plaintext highlighter-rouge">:or</code> and <code class="language-plaintext highlighter-rouge">:guard</code>. Those are the explicit words marking different behaviour, not some implicit shape-defined structure.</p>
+
+<p>Clojure.spec does good job too. It still uses short non-descriptive <code class="language-plaintext highlighter-rouge">+</code> and <code class="language-plaintext highlighter-rouge">?</code> (those are borrowed from regexes) but rest is perfectly readable and googlable words: <code class="language-plaintext highlighter-rouge">alt, cat, keys, req, coll-of, map-of, every, tuple</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(spec/alt
+ :arity-1 ::args+body
+ :arity-n (spec/cat
+           :bodies (spec/+ (spec/spec ::args+body))
+           :attr   (spec/? map?)))
+</code></pre></div></div>
+
+<p>This is how datetime formatting could be done, aided by this principle (example from <a href="https://github.com/tonsky/tongue">Tongue</a>):</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{hour12}:{minutes-padded}{dayperiod} {month-numeric}/{day}/ {year-2digit}
+</code></pre></div></div>
+
+<p>Verbose, yes, but why would you care about just a few more characters here, when readability is at stake? By making it verbose, even without any prior experience with Tongue, anyone can fool-proof that this code will output something like <code class="language-plaintext highlighter-rouge">"1:05PM 7/13/18"</code> and not <code class="language-plaintext highlighter-rouge">"13:5PM 07/13/2018"</code>. Or even add 0-padding to hours, day and month and maybe even change 12-hour to 24-hour format if needed. Without even looking at the docs! Can you say the same about <code class="language-plaintext highlighter-rouge">"H:mm a d/M/y"</code>?</p>
+
+<p>As for regexes, there’re <a href="https://github.com/VerbalExpressions">VerbalExpressions</a>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var tester = VerEx()
+    .startOfLine()
+    .then('http')
+    .maybe('s')
+    .then('://')
+    .maybe('www.')
+    .anythingBut(' ')
+    .endOfLine();
+</code></pre></div></div>
+
+<h2 id="dont-invent-second-syntax">Don’t invent second syntax</h2>
+
+<p>Sometimes your DSL starts simple and then you figure there’s no way to handle complex cases. So you extend it with advanced ways to do stuff. E.g. Datomic Pull syntax let you simply list attributes you need, attribute = keyword:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[:artist/name :artist/gid ...]
+</code></pre></div></div>
+
+<p>But that way there’s no way to specify additional options: nesting, limits, etc. So even though attributes started as keywords in a list, sometimes they might be specified as a map:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>{:artist/tracks [:track/name :track/gid ...]}
+</code></pre></div></div>
+
+<p>Or a list can be used instead of keyword:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(:artist/endYear :default "N/A")
+</code></pre></div></div>
+
+<p>Now even I am confused how to combine default and nesting in a single expression.</p>
+
+<p>Sometimes you start with all-powerful solution and then figure it’s really too much writing for simple cases. So you add shortcuts. E.g. Datomic query let you shorthand this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(d/q {:find  [?a]
+      :where [[?a :artist/name "Beatles"]]})
+</code></pre></div></div>
+
+<p>to this (less brackets):</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(d/q [:find  ?a
+      :where [?a :artist/name "Beatles"]])
+</code></pre></div></div>
+
+<p>Both ways, now your language has two+ ways of saying the same thing.</p>
+
+<p>Having more than one way to do something is not a virtue, it’s a curse. Your users now have to learn two syntaxes. They need twice as much examples. Answers found on internet might not work because they use different syntax, etc.</p>
+
+<p>My suggestion:</p>
+
+<blockquote>
+  <p>One way to do it + an escape hatch.</p>
+</blockquote>
+
+<p>You cover most of your users’ needs (that’s the primary value of your DSL anyway) and let users figure the rest in plain old code—best of both worlds.</p>
+
+<h2 id="dont-be-too-liberal">Don’t be too liberal</h2>
+
+<p>Almost the same as the previous one, but on a smaller scale. Sometimes DSLs let you get away with small variations: e.g. in Datomic you can specify <code class="language-plaintext highlighter-rouge">default</code> and <code class="language-plaintext highlighter-rouge">limit</code> as either keyword, symbol or a string—all are fine (apparently, you can even change order):</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(:artist/tracks :limit 10)
+(:artist/tracks "limit" 10)
+(limit :artist/tracks 10)
+</code></pre></div></div>
+
+<p>Hiccup lets you drop empty attributes map:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[:div {} "Hello, world"]
+[:div "Hello, world"]
+</code></pre></div></div>
+
+<p>Core.match lets you drop vector in case you’re matching a single value:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(match [x]
+  [:a] ...
+  :a   ...) // the same
+</code></pre></div></div>
+
+<p>The thing with special cases, same as with multiple syntaxes, is that you have to learn them, remember about them and recognize them. That’s a problem: it eats up cognitive resources better spent elsewhere.</p>
+
+<p>Also, people in your/other teams will have <em>preferences</em> or would simply not care about consistency. Hence:</p>
+
+<blockquote>
+  <p>The only way to force everybody to always do the same thing is to ban any variations.</p>
+</blockquote>
+
+<p>Being DSL designer, it’s your responsibility alone.</p>
+
+<h2 id="keep-it-small">Keep it small</h2>
+
+<p>Rule of thumb:</p>
+
+<blockquote>
+  <p>Your DSL should be entirely memorizable.</p>
+</blockquote>
+
+<p>That makes using it quick (once you’ve learned it), and this is where the value comes from. If you don’t use it too often or there’s too much syntax, you’ll be required to look at documentation each time before using or reading it. That slows things down, making using DSL an effort and eventually leading to DSL being replaced with a simpler solution.</p>
+
+<h2 id="dont-try-to-help-too-much">Don’t try to help too much</h2>
+
+<p>Many DSLs were designed to reduce amount of non-DSL code to the absolute zero. They try to help too much. Your stance here should be:</p>
+
+<blockquote>
+  <p>Do in DSL what you know how to do well, leave rest for the users to figure out.</p>
+</blockquote>
+
+<p>E.g. routing libraries might extract parameters but shouldn’t try to coerce them to other types—it’s really simple to do in your own code. Your users will have full programming language to handle those tricky/rare/exceptional cases.</p>
+
+<p>Sometimes not doing stuff in DSL and leaving specific cases to users leads to less overall complexity.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>That’s more or less all I can think of right now. Designing DSLs is a fun and rewarding activity, but as with any design, it’s really hard to get right. I wish you luck on that tricky path, and let me know if it helps.</p>
+
+
+  <p class=footer>
+    <span>July 16, 2018</span>
+    
+
+    
+  </p>
+
+  <script>
+    document.querySelectorAll(".hoverable").forEach(function (e) {
+        e.onclick = function() { e.classList.toggle("clicked"); }
+    });
+  </script>
+
+  
+  <div class="about">
+    <div class="about_photo"></div>
+    <div class="about_inner">
+      <p>Hi!</p>
+      <p>I’m Nikita. Here I write about programming and UI design <a style="margin-left: 5px" class="btn-subscribe" href="/blog/how-to-subscribe/" target="_blank"><svg viewBox="0 0 800 800"><path d="M493 652H392c0-134-111-244-244-244V307c189 0 345 156 345 345zm71 0c0-228-188-416-416-416V132c285 0 520 235 520 520z"/><circle cx="219" cy="581" r="71"/></svg> Subscribe</a></p>
+      <p>I also create open-source stuff: Fira Code, AnyBar, DataScript and Rum. If you like what I do and want to get early access to my articles (along with other benefits), you should <a href="https://patreon.com/tonsky" target="_blank">support me on Patreon</a>.</p>
+    </div>
+  </div>
+  
+
+</article>
+
+
+<div class="preload"></div>
+
+</div>
+
+<script>
+  function updateFlashlight(e) {
+    var style = document.body.style;
+    style.backgroundPositionX = e.pageX - 250 + "px";
+    style.backgroundPositionY = e.pageY - 250 + "px";
+  }
+
+  document.querySelector(".dark_mode").onclick = function(e) {
+    var body = document.body;
+    body.classList.toggle("dark");
+    if (body.classList.contains("dark")) {
+      updateFlashlight(e);
+      ["mousemove", "touchstart", "touchmove", "touchend"].forEach(function(s) {
+        document.documentElement.addEventListener(s, updateFlashlight, false);
+      });
+    } else {
+      ["mousemove", "touchstart", "touchmove", "touchend"].forEach(function(s) {
+        document.documentElement.removeEventListener(s, updateFlashlight, false);
+      });
+    }
+  }
+</script>

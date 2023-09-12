@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en" prefix="og: http://ogp.me/ns#" xmlns:og="http://opengraphprotocol.org/schema/">
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
+  
+    <meta name="viewport" content="width=640" />
+  
+  <meta name="theme-color" content="#FDDB29">
+  <link href="/i/favicon.png" rel="icon" sizes="32x32">
+
+  <link href='/style.css?v=20201203' rel='stylesheet' type='text/css' />
+  <title>A shallow dive into DataScript internals @ tonsky.me</title>
+
+  <link href="/blog/atom.xml" rel="alternate" title="Nikita Prokopov’s blog" type="application/atom+xml" />
+
+  <meta name="author" content="Nikita Prokopov" />
+  
+  <meta property="og:title" content="A shallow dive into DataScript internals" />
+  <meta property="og:url" content="https://tonsky.me/blog/datascript-internals/" />
+  
+    <meta property="og:type" content="article" />
+
+    <meta property="article:published_time" content='2015-02-23' />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="A shallow dive into DataScript internals" />
+  
+
+  
+    <meta property="og:description" content="An overview of DataScript code base, what’s there and how it’s structured" />
+    <meta name="twitter:description" content="An overview of DataScript code base, what’s there and how it’s structured" />
+  
+
+  <meta property="og:site_name" content="tonsky.me" />
+  <meta property="article:author" content="https://www.facebook.com/nikitonsky" />
+  <meta property="profile:first_name" content="Nikita" />
+  <meta property="profile:last_name" content="Prokopov" />
+  <meta property="profile:username" content="tonsky" />
+  <meta property="profile:gender" content="male" />
+
+  <meta name="twitter:creator" content="@nikitonsky" />
+</head>
+<body>
+<div class="page ">
+
+<ul class=menu>
+  <li><a class="menu__item menu__item_inside" href="/">Blog</a></li>
+  <li><a class="menu__item" href="/talks/">Talks</a></li>
+  <li><a class="menu__item" href="/projects/">Projects</a></li>
+  <li><a class="menu__item" href="/design/">Logos</a></li>
+  <!-- <li><a class="menu__item" href="/consulting/">UX&nbsp;Consulting</a></li> -->
+  <li><a class="menu__item" href="/patrons/">Patrons</a></li>
+  <div class="spacer"></div>
+  <div class="dark_mode"></div>
+</ul>
+
+
+<article class="post">
+  <h1 class="title">A shallow dive into DataScript internals</h1>
+
+  <p></p>
+
+  <p>This is an overview of <a href="https://github.com/tonsky/datascript">DataScript code base</a>. Without going into much detail, it paints the overall picture of how code is structured, what parts it’s built of and what purpose they serve. If you’re interested in studying DataScript sources, this is a great place to start.</p>
+
+<p>For those who are using DataScript this post may help to get better understanding of machinery behind public APIs and make better use of them.</p>
+
+<h2 id="datoms">Datoms</h2>
+
+<p>Minimal piece of information in DataScript is Datom. It’s defined in <code class="language-plaintext highlighter-rouge">datascript.core</code> as</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(defrecord Datom [e a v tx added])
+</code></pre></div></div>
+
+<p>where <code class="language-plaintext highlighter-rouge">[e a v]</code> is entity, attribute and value, <code class="language-plaintext highlighter-rouge">tx</code> is a transaction id (integer) and <code class="language-plaintext highlighter-rouge">added</code> is a boolean flag to differentiate additions from retractions.</p>
+
+<p>Datom has <code class="language-plaintext highlighter-rouge">(-hash)</code> and <code class="language-plaintext highlighter-rouge">(-eqiv)</code> methods overloaded so only <nobr><code>[e a v]</code></nobr> take part in comparisons. It helps to guarantee that each datom can be added to the database only once.</p>
+
+<h2 id="db">DB</h2>
+
+<p>Database is just an immutable, persistent collection of datoms. It’s very much like a built-in ClojureScript data structure, e.g. set. Main operations supported by DB are:</p>
+
+<ul>
+  <li>Add a datom (similar to <code class="language-plaintext highlighter-rouge">conj</code>)</li>
+  <li>Retract a datom (similar to <code class="language-plaintext highlighter-rouge">disj</code>)</li>
+  <li>Search for range of datoms</li>
+</ul>
+
+<p>Both addition and retraction are implemented in <code class="language-plaintext highlighter-rouge">datascript.core/with-datom</code>. Searching is implemented as a part of <code class="language-plaintext highlighter-rouge">ISearch</code> protocol.</p>
+
+<p>DataScript DB contains only currently relevant datoms. There’s no history tracking at DB level. When datom is removed from a DB, there’s no trace of it anywhere. Retracted means gone.</p>
+
+<p>Internally DB contains three different indexes to help with various search patterns. Each index is a sorted set of datoms (it’s literally a set). They’re named after sort order: <code class="language-plaintext highlighter-rouge">EAVT</code>, <code class="language-plaintext highlighter-rouge">AEVT</code> and <code class="language-plaintext highlighter-rouge">AVET</code>. Every index contains all datoms of current DB, meaning all three indexes are the same set sorted differently. There’s no other datoms storage inside the DB besides indexes.</p>
+
+<p>DB is defined in <code class="language-plaintext highlighter-rouge">datascript.core</code> as</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(defrecord DB [schema
+               eavt aevt avet
+               max-eid
+               max-tx
+               rschema])
+</code></pre></div></div>
+
+<p>Besides indexes, there’s only schema (just a regular map) and some internal bookkeeping: max seen entity id, latest transaction id and reverse value-to-key schema map.</p>
+
+<h2 id="btset">BTSet</h2>
+
+<p>Each DataScript index is stored as <code class="language-plaintext highlighter-rouge">datascript.btset</code>. It’s an immutable, persistent implementation of B+ tree data structure. It’s a proper ClojureScript collection, with all protocols of <code class="language-plaintext highlighter-rouge">sorted-set</code> implemented.</p>
+
+<p><code class="language-plaintext highlighter-rouge">BTSet</code> was needed because DataScript does a lot of range scans over indexes. Due to usage of continuous js arrays as tree nodes, range scans over <code class="language-plaintext highlighter-rouge">BTSet</code> are ~3 times faster than over built-in <code class="language-plaintext highlighter-rouge">sorted-set</code> which is a Red-Black binary tree.</p>
+
+<p><code class="language-plaintext highlighter-rouge">BTSet</code> uses generative testing to validate its correctness: same operations are performed at <code class="language-plaintext highlighter-rouge">BTSet</code> and <code class="language-plaintext highlighter-rouge">sorted-set</code>, results are compared for equality (see <code class="language-plaintext highlighter-rouge">stresstest-...</code> in <code class="language-plaintext highlighter-rouge">datascript.test.btset</code>).</p>
+
+<h2 id="adding-data-to-db">Adding data to DB</h2>
+
+<p>DataScript has a lot of conventions about how to format data before adding it to the DB. Basically, you can provide vector of form <nobr><code>[op e a v]</code></nobr> or a map of form <nobr><code>{:db/id e, (a v)+}</code></nobr>. There’s also a lot of nuances like resolving temporary ids, calling <code class="language-plaintext highlighter-rouge">:db.fn/*</code> shortcuts, referencing current transaction id, using nested maps for components, understanding different attributes arity and reversing reverse references.</p>
+
+<p>Biggest part of <code class="language-plaintext highlighter-rouge">datascript.core</code>, starting from <code class="language-plaintext highlighter-rouge">(defrecord TxReport)</code>, is all about solving these problems. Main work happens in <code class="language-plaintext highlighter-rouge">transact-tx-data</code>, which uses recursion to reduce complexity of transaction data step-by-step, until it’s reduced to a set of plain datoms:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>entity map → op vector[s] → id resolution → datom[s]
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">transact-tx-data</code> loop also builds <code class="language-plaintext highlighter-rouge">TxReport</code> record along the way:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(defrecord TxReport [db-before
+                     db-after
+                     tx-data
+                     tempids
+                     tx-meta])
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">TxReport</code> is a log of everything that has happened during transaction. It stores temporary entity ids resolution table (<code class="language-plaintext highlighter-rouge">tempids</code>) and raw datoms which were used to modify DB (<code class="language-plaintext highlighter-rouge">tx-data</code>). Given <code class="language-plaintext highlighter-rouge">TxReport</code> and <code class="language-plaintext highlighter-rouge">db-before</code>, it’s trivial to replay transaction and calculate <code class="language-plaintext highlighter-rouge">db-after</code>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>db-before + tx-data = db-after
+</code></pre></div></div>
+
+<p><code class="language-plaintext highlighter-rouge">tx-data</code> is an end result of transaction data simplification, with all temporary and implicit ids allocated to actual entity ids, all maps expanded into vector forms, and all vectors converted to <code class="language-plaintext highlighter-rouge">Datom</code>s.</p>
+
+<p><code class="language-plaintext highlighter-rouge">TxReport</code> is also the only place where you can see datoms with <code class="language-plaintext highlighter-rouge">added == false</code> for datoms which were retracted.</p>
+
+<h2 id="entities">Entities</h2>
+
+<p>Entity is just a convenient interface to <code class="language-plaintext highlighter-rouge">EAVT</code> index. Basically this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(:person/name (d/entity db 1))
+</code></pre></div></div>
+
+<p>is translated to this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(first (d/datoms db :eavt 1 :person/name))
+</code></pre></div></div>
+
+<p>with some per-entity caching. Most of the namespace <code class="language-plaintext highlighter-rouge">datascript.impl.entity</code> is spent on implementing protocols to make entities look like normal ClojureScript maps.</p>
+
+<h2 id="queries">Queries</h2>
+
+<p>Query engine implements Datalog over DBs and collections. It is the most complicated part of DataScript so far.</p>
+
+<p>Query engine operates on relations. Relation is just a collection of tuples. E.g. this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>:where [?e :name ?v]
+</code></pre></div></div>
+
+<p>will be resolved by querying DB to following relation:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>R1 = {:symbols {?e 0 ?v 1}
+      :tuples  [#js [0 “Ivan”], #js [5 “Oleg”], ...]}
+</code></pre></div></div>
+
+<p>During query execution, <code class="language-plaintext highlighter-rouge">:where</code> is processed clause-by-clause. Relations which share no common variables are kept separate in a <code class="language-plaintext highlighter-rouge">context</code>, building a collection of relations. If <code class="language-plaintext highlighter-rouge">:where</code> looks like this:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>:where [?e :name ?v]
+       [?e2 :name ?v2]
+</code></pre></div></div>
+
+<p>then DataScript will create two separate relations:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>R1 = {:symbols {?e 0 ?v 1}
+      :tuples  [#js [0 “Ivan”], #js [5 “Oleg”], ...]}
+
+R2 = {:symbols {?e2 0 ?v2 1}
+      :tuples  [#js [0 “Ivan”], #js [5 “Oleg”], ...]}
+</code></pre></div></div>
+
+<p>Now what happens if we introduce third clause that implicitly joins first two relations by referring to the same variables? Let’s take <nobr><code>[?e :friend ?e2]</code></nobr>. DataScript will first resolve that clause to its own relation:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>R3 = {:symbols {?e 0 ?e2 1}
+      :tuples  [#js [0 5], #js [5 0], ...]}
+</code></pre></div></div>
+
+<p>Now context contains three relations, but they are not truly independent: they share common variables. This is forbidden, so at this point they will be reduced to a single relation. DataScript needs to hash-join latest relation (<code class="language-plaintext highlighter-rouge">R3</code>) with any conflicting relations there are. In our case, <code class="language-plaintext highlighter-rouge">R3</code> has intersection with both <code class="language-plaintext highlighter-rouge">R1</code> (by <nobr><code>?e</code></nobr>) and <code class="language-plaintext highlighter-rouge">R2</code> (by <nobr><code>?e2</code></nobr>), so what happens is we first do cartesian product of <code class="language-plaintext highlighter-rouge">R1</code> and <code class="language-plaintext highlighter-rouge">R2</code>, thus getting single relation to join with, then hash-join result with <code class="language-plaintext highlighter-rouge">R3</code> by <nobr><code>(?e ?e2)</code></nobr> compound key:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>R4 = (R1 × R2) `hash-join` R3
+</code></pre></div></div>
+
+<p>Then <code class="language-plaintext highlighter-rouge">R4</code> will replace <code class="language-plaintext highlighter-rouge">R1</code>, <code class="language-plaintext highlighter-rouge">R2</code> and <code class="language-plaintext highlighter-rouge">R3</code> in a context.</p>
+
+<p>Full algorithm:</p>
+
+<ol>
+  <li>Parse query (<code class="language-plaintext highlighter-rouge">datascript.parser</code>) and cache parse result (planned for 0.10.0). Most of the query validation happens at parsing stage.</li>
+  <li>Scan sources (<code class="language-plaintext highlighter-rouge">:in</code> clause) and transform them to relations. This will create initial set of relations which populate context. Constants are also resolved to relations, e.g. <code class="language-plaintext highlighter-rouge">:in ?a</code> → <code class="language-plaintext highlighter-rouge">{:symbols {?a 0}, :tuples [#js [val]]}</code></li>
+  <li>For each clause in <code class="language-plaintext highlighter-rouge">:where</code>, do this:
+    <ol>
+      <li>Try to resolve as much variables as possible using context so far and substitute them to clause (planned for 0.10.0)</li>
+      <li>Execute clause and get result as a relation. If clause is a rule call, there’s special inner loop for rule resolution here, but result is still a relation.</li>
+      <li>If resulting relation has intersection by variables with any existing relation, hash-join them together, fusing into one big relation</li>
+      <li>Put resulting relation into the context</li>
+      <li>Move onto the next clause</li>
+    </ol>
+  </li>
+  <li>Build result set based on <code class="language-plaintext highlighter-rouge">:find</code> and <code class="language-plaintext highlighter-rouge">:with</code> vars list: do cartesian product on all relevant relations, leave just vars that matter from them, collect them into a <code class="language-plaintext highlighter-rouge">set</code></li>
+  <li>If there’s some aggregation happening, do <code class="language-plaintext highlighter-rouge">group-by</code> and run aggregation functions</li>
+  <li>If <code class="language-plaintext highlighter-rouge">pull()</code> is used, call Pull API for each entity</li>
+  <li>If find specifications are used, do post-processing: unwrap inner tuples, take first element from a set, etc.</li>
+</ol>
+
+<p>Query engine is implemented in <code class="language-plaintext highlighter-rouge">datascript.query</code> and uses parser from <code class="language-plaintext highlighter-rouge">datascript.parser</code>.</p>
+
+<h2 id="pull-api">Pull API</h2>
+
+<p>Pull API is implemented in <code class="language-plaintext highlighter-rouge">datascript.pull-api</code> by <a href="https://github.com/dthume">David Thomas Hume</a>. It walks all entity ids, for each entity it walks all attributes from a pull pattern, and for each recursive attribute calls itself. It’s a recursive algorithm implemented as a state machine that emulates stack so it can handle unlimited recursion depth.</p>
+
+<p>There’s also <code class="language-plaintext highlighter-rouge">datascript.pull-parser</code> where pull pattern is parsed and validated.</p>
+
+<p>During implementation of DataScript pull pattern parser and query parser, we’ve helped Datomic team to fix couple of inaccuracies in their query grammar. This is why having alternative implementations is usually a good thing.</p>
+
+<h2 id="filtered-dbs">Filtered DBs</h2>
+
+<p>Given database <code class="language-plaintext highlighter-rouge">D</code> and predicate <code class="language-plaintext highlighter-rouge">P: datom, DB → boolean</code>, you can construct special view <code class="language-plaintext highlighter-rouge">F = (datascript/filter D P)</code> that will work like a regular database but for all needs (query, entity, pull, index access) will look like as if it only contains datoms that satisfy <code class="language-plaintext highlighter-rouge">P</code>.</p>
+
+<p>Filtered databases are implemented in <code class="language-plaintext highlighter-rouge">datascript.core</code> by just extending couple of protocols: <code class="language-plaintext highlighter-rouge">IDB</code>, <code class="language-plaintext highlighter-rouge">ISearch</code>, <code class="language-plaintext highlighter-rouge">IIndexAccess</code> — mostly by adding additional <code class="language-plaintext highlighter-rouge">filter</code> post-process step.</p>
+
+<p>For advanced uses it means that it’s quite easy to pretend to be a database: just implement these protocols and rest of DataScript code will work as expected.</p>
+
+<h2 id="database-mutation">Database mutation</h2>
+
+<p>Everything we’ve discussed so far works on top of immutable, persistent DB objects. There’s also a small piece of code to handle database mutations (as of 0.9.0, it’s literally 25 lines).</p>
+
+<p><code class="language-plaintext highlighter-rouge">datascript/create-conn</code> returns a new database object wrapped with an atom. There’s also a <code class="language-plaintext highlighter-rouge">listen!</code> machinery for listening for DB changes. It was added because regular atom watchers receive value-before and value-after, but database changes have more useful information: list of datoms added and temporary ids resolution table.</p>
+
+<p>DataScript “connection” is not a connection in any sense. I borrowed the term from Datomic, but now I’m thinking about changing it to <code class="language-plaintext highlighter-rouge">db-ref</code> or better, if only I could think of anything.</p>
+
+<h2 id="javascript-interop">JavaScript interop</h2>
+
+<p>Almost from the beginning DataScript has supported JavaScript interface. You include pre-compiled JS file (270k raw/~60k gzipped as of 0.9.0) and call <code class="language-plaintext highlighter-rouge">datascript.empty_db()</code>, <code class="language-plaintext highlighter-rouge">datascript.query()</code> and stuff.</p>
+
+<p>This was made possible by <code class="language-plaintext highlighter-rouge">datascript.js</code> facade: it converts data coming from JS into ClojureScript data structures, calls proper <code class="language-plaintext highlighter-rouge">datascript.*</code> APIs, converts results into JS form and returns them back to JS caller. Not the most effective way to do things, but the only one manageable without writing js-native DataScript’s evil twin. Even with such approach, some things have leaked into the main DataScript code: it has to take into account that attributes can be strings, for example. But for the most part JS interop is isolated.</p>
+
+<p>And JS interop is feature-full: everything you can do from CLJS, you can do from JS. Maybe not as well battle-tested, but nonetheless. See <code class="language-plaintext highlighter-rouge">test/js/tests.html</code> for how DataScript can be used from JS.</p>
+
+<h2 id="tests">Tests</h2>
+
+<p>DataScript does acceptance testing almost exclusively. Everything in <code class="language-plaintext highlighter-rouge">datascript.test.*</code> works with top-level interfaces of <code class="language-plaintext highlighter-rouge">datascript</code> and <code class="language-plaintext highlighter-rouge">datascript.core</code> namespaces. Exceptions are <code class="language-plaintext highlighter-rouge">datascript.test.btset</code> (generative tests of BTSet implementation) and <code class="language-plaintext highlighter-rouge">datascript.test.perf</code> (somewhat ad-hoc and messy performance tests of various parts of DataScript).</p>
+
+<p>Having just acceptance tests works because semantics and APIs are already defined and documented by Datomic team whom DataScript is following. APIs do not change often, so extensive tests suite (2.8k loc <code class="language-plaintext highlighter-rouge">test/</code> for 3k loc <code class="language-plaintext highlighter-rouge">src/</code>) is not a dead weight and requires little maintenance.</p>
+
+<p>Tests allowed me to change underlying implementation without rewriting a single test: I completely changed index implementation and inner DB structure once already and replaced query engine twice so far. It gives tremendous confidence to pull such refactorings without breaking anyone else’s code.</p>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>I didn’t know what to write in conclusion although I felt every post needs one. So here it is: have fun, enjoy your day.</p>
+
+
+  <p class=footer>
+    <span>February 23, 2015</span>
+    
+
+    
+  </p>
+
+  <script>
+    document.querySelectorAll(".hoverable").forEach(function (e) {
+        e.onclick = function() { e.classList.toggle("clicked"); }
+    });
+  </script>
+
+  
+  <div class="about">
+    <div class="about_photo"></div>
+    <div class="about_inner">
+      <p>Hi!</p>
+      <p>I’m Nikita. Here I write about programming and UI design <a style="margin-left: 5px" class="btn-subscribe" href="/blog/how-to-subscribe/" target="_blank"><svg viewBox="0 0 800 800"><path d="M493 652H392c0-134-111-244-244-244V307c189 0 345 156 345 345zm71 0c0-228-188-416-416-416V132c285 0 520 235 520 520z"/><circle cx="219" cy="581" r="71"/></svg> Subscribe</a></p>
+      <p>I also create open-source stuff: Fira Code, AnyBar, DataScript and Rum. If you like what I do and want to get early access to my articles (along with other benefits), you should <a href="https://patreon.com/tonsky" target="_blank">support me on Patreon</a>.</p>
+    </div>
+  </div>
+  
+
+</article>
+
+
+<div class="preload"></div>
+
+</div>
+
+<script>
+  function updateFlashlight(e) {
+    var style = document.body.style;
+    style.backgroundPositionX = e.pageX - 250 + "px";
+    style.backgroundPositionY = e.pageY - 250 + "px";
+  }
+
+  document.querySelector(".dark_mode").onclick = function(e) {
+    var body = document.body;
+    body.classList.toggle("dark");
+    if (body.classList.contains("dark")) {
+      updateFlashlight(e);
+      ["mousemove", "touchstart", "touchmove", "touchend"].forEach(function(s) {
+        document.documentElement.addEventListener(s, updateFlashlight, false);
+      });
+    } else {
+      ["mousemove", "touchstart", "touchmove", "touchend"].forEach(function(s) {
+        document.documentElement.removeEventListener(s, updateFlashlight, false);
+      });
+    }
+  }
+</script>

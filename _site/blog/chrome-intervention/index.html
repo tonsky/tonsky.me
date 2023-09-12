@@ -1,0 +1,277 @@
+<!doctype html>
+<html lang="en" prefix="og: http://ogp.me/ns#" xmlns:og="http://opengraphprotocol.org/schema/">
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
+  
+    <meta name="viewport" content="width=640" />
+  
+  <meta name="theme-color" content="#FDDB29">
+  <link href="/i/favicon.png" rel="icon" sizes="32x32">
+
+  <link href='/style.css?v=20201203' rel='stylesheet' type='text/css' />
+  <title>My web app died from performance bankruptcy @ tonsky.me</title>
+
+  <link href="/blog/atom.xml" rel="alternate" title="Nikita Prokopov’s blog" type="application/atom+xml" />
+
+  <meta name="author" content="Nikita Prokopov" />
+  
+  <meta property="og:title" content="My web app died from performance bankruptcy" />
+  <meta property="og:url" content="https://tonsky.me/blog/chrome-intervention/" />
+  
+    <meta property="og:type" content="article" />
+
+    <meta property="article:published_time" content='2017-11-05' />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="My web app died from performance bankruptcy" />
+  
+
+  
+    <meta property="og:description" content="Chrome team breaks existing web to make Chrome perform better" />
+    <meta name="twitter:description" content="Chrome team breaks existing web to make Chrome perform better" />
+  
+
+  <meta property="og:site_name" content="tonsky.me" />
+  <meta property="article:author" content="https://www.facebook.com/nikitonsky" />
+  <meta property="profile:first_name" content="Nikita" />
+  <meta property="profile:last_name" content="Prokopov" />
+  <meta property="profile:username" content="tonsky" />
+  <meta property="profile:gender" content="male" />
+
+  <meta name="twitter:creator" content="@nikitonsky" />
+</head>
+<body>
+<div class="page ">
+
+<ul class=menu>
+  <li><a class="menu__item menu__item_inside" href="/">Blog</a></li>
+  <li><a class="menu__item" href="/talks/">Talks</a></li>
+  <li><a class="menu__item" href="/projects/">Projects</a></li>
+  <li><a class="menu__item" href="/design/">Logos</a></li>
+  <!-- <li><a class="menu__item" href="/consulting/">UX&nbsp;Consulting</a></li> -->
+  <li><a class="menu__item" href="/patrons/">Patrons</a></li>
+  <div class="spacer"></div>
+  <div class="dark_mode"></div>
+</ul>
+
+
+<article class="post">
+  <h1 class="title">My web app died from performance bankruptcy</h1>
+
+  <p></p>
+
+  <p><em>TL;DR Chrome team breaks web to make Chrome perform better.</em></p>
+
+<p>There’s a widely-used piece of DOM API called <code class="language-plaintext highlighter-rouge">addEventListener</code>. Almost every web site or web app that does anything dynamic with JS probably depends on this method in some way.</p>
+
+<p>Up until 2016 the convention was that you just pass an event type, a callback and an optional “useCapture” boolean flag:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>target.addEventListener(type, listener[, useCapture]);
+</code></pre></div></div>
+
+<p>Then Google <a href="https://github.com/whatwg/dom/pull/82">came along</a> and decided that this API is not extensible enough (which is true). What if one wanted more options? Surely, there must be a map of options, not just a single positional boolean argument. To which, again, I can’t agree more. So they added a second form:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>addEventListener(type, listener[, useCapture]);
+addEventListener(type, listener[, options]);
+</code></pre></div></div>
+
+<p>Which means you can’t practically use the new form without feature detection. At all. Never ever. Old browsers can’t be made to understand <code class="language-plaintext highlighter-rouge">options</code> form. Period.</p>
+
+<p>But that’s fine. That’s all right. That’s why we have feature detection.</p>
+
+<h2 id="dom-apis-arent-meant-to-be-used">DOM APIs aren’t meant to be used</h2>
+
+<p>Ok, so there must be some sort of feature detection API accompanying this change, right? Well, if you thought so, you clearly have never worked with web APIs. Even though web developers are <em>supposed</em> to <em>always</em> use feature detection, they’re also supposed to rely on a complex, brittle and accidental effects to check for it.</p>
+
+<p>This is the code <a href="https://github.com/WICG/EventListenerOptions/issues/16">you’re supposed to be using</a>:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>var supportsPassive = false;
+try {
+  var opts = Object.defineProperty({}, 'passive', {
+    get: function() {
+      supportsPassive = true;
+    }
+  });
+  window.addEventListener("test", null, opts);
+} catch (e) {}
+</code></pre></div></div>
+
+<p>Basically, you’re constructing a special object with a side-effect-producing getter and hope for the browser to access it when you install a fake event listener. Surely, what could go wrong?</p>
+
+<p>To be fair, there’s <a href="https://github.com/whatwg/dom/issues/491">an open discussion</a> for adding better feature detection around this. But the timing is as messy as the API itself. If feature detection will ever be implemented, we’d have three browser classes:</p>
+
+<ul>
+  <li>the ones that don’t support <code class="language-plaintext highlighter-rouge">options</code> at all,</li>
+  <li>the ones that do support it but don’t support feature detection for it (so you’ll have to resort to the getter+fake event hack anyway),</li>
+  <li>and the ones that support both feature detection and the API.</li>
+</ul>
+
+<p>Think about it: a feature detection API that itself needs to be detected <nobr>¯\_(ツ)_/¯</nobr>.</p>
+
+<h2 id="making-chrome-fast">Making Chrome fast</h2>
+
+<p>But that’s not the end of the story. Chrome team proposed the API change to add <code class="language-plaintext highlighter-rouge">passive</code> option because it allowed them to speed up scrolling on mobile websites.</p>
+
+<p>The gist of it: if you mark <code class="language-plaintext highlighter-rouge">onscroll</code>/<code class="language-plaintext highlighter-rouge">ontouch</code> event listener as <code class="language-plaintext highlighter-rouge">passive</code>, Mobile Google can scroll your page faster (let’s not go into details, but that’s how things <em>are</em>). Old websites continue to work (slow, as before), and new websites have <em>an option</em> to be made faster at the cost of an additional feature check and one more option. It’s a win-win, right?</p>
+
+<p>Turned out, Google wasn’t concerned about your websites at all. It was more concerned about its own product performance, Google Chrome Mobile. That’s why on February 1, 2017, they made all top-level event listeners passive by default. They call it “<a href="https://developers.google.com/web/updates/2017/01/scrolling-intervention">an intervention</a>”.</p>
+
+<p>Now, this is a terrible thing to do. It’s very, very, very bad. Basically, Chrome broke half of user websites, the ones that were relying on touch/scroll events being cancellable, at the benefit of winning some performance for websites that were not yet aware of this optional optimization.</p>
+
+<p>This was <em>not</em> backward compatible change by any means. All websites and web apps that did any sort of draggable UI (sliders, maps, reorderable lists, even slide-in panels) were <em>affected</em> and essentially <em>broken</em> by this change.</p>
+
+<p>Yet, if things become faster, they can always praise Mobile Chrome for the improvement. And if something breaks, people would probably blame website anyways. RByers (a Google Team engineer who advocated for the intervention) <a href="https://github.com/WICG/interventions/issues/18#issuecomment-309058348">commented on Jun 16</a>:</p>
+
+<blockquote>
+  <p>Our data suggests we made the right trade-off for the web platform as a whole and for Chrome as a product. I understand that your perspective is the opposite and I’m sorry about that - I really wish there was a way to make everyone happy, that’s just not reality.</p>
+</blockquote>
+
+<p>Also, notice how harsh timeline on this update was. The <code class="language-plaintext highlighter-rouge">passive</code> option was released on June 1, 2016 (Chrome 51). Passive made default was out on February 1, 2017 (Chrome 56). That’s just 8 months! They couldn’t even agree on feature detection API in that time! Before June 2016 you didn’t even have an API for marking listeners passive! And just 8 months later your app is already silently broken and punished for not using new API that others browsers barely started to roll out!</p>
+
+<h2 id="excerpts-from-intervention-discussion">Excerpts from intervention discussion</h2>
+
+<p>RByers <a href="https://github.com/WICG/interventions/issues/18#issuecomment-249916777">commented on Sep 27, 2016</a>:</p>
+
+<blockquote>
+  <p>Of course we’d need some transition path over many years to avoid breaking the web too badly in order to get there.</p>
+</blockquote>
+
+<p>RByers <a href="https://bugs.chromium.org/p/chromium/issues/detail?id=639227#c27">commented on Feb 9</a>:</p>
+
+<blockquote>
+  <p>I’m deeply sorry for the frustration this has caused you. We’ve long tried the “opt-in” approach but have learned that on average developers don’t make the effort to opt-in to better performance.</p>
+</blockquote>
+
+<p>RByers <a href="https://github.com/WICG/interventions/issues/18#issuecomment-250315841">commented on Sep 29, 2016</a>:</p>
+
+<blockquote>
+  <p>Given the huge positive response <a href="https://www.youtube.com/watch?v=NPM6172J22g">that video</a> has gotten from users, we’re willing to accept a little bit of hacks / compat pain here.</p>
+</blockquote>
+
+<p>mixonic <a href="https://github.com/WICG/interventions/issues/18#issuecomment-279194353">commented on Feb 12</a>:</p>
+
+<blockquote>
+  <p>The video in question as 14k views and 36 “thumbs up”. I really, really hope this isn’t being used to make a decision about whether this intervention is appropriate.</p>
+</blockquote>
+
+<p>RByers <a href="https://github.com/WICG/interventions/issues/18#issuecomment-280532958">commented on Feb 17</a>:</p>
+
+<blockquote>
+  <p>We really don’t have more than anecdote (and our metrics) on the “support” side, and no precise way to quantify the breakage. I’d love to have a more quantifiable way to make these sorts of trade offs.</p>
+</blockquote>
+
+<p>RByers <a href="https://github.com/WICG/interventions/issues/18#issuecomment-279163417">commented on Feb 11</a>:</p>
+
+<blockquote>
+  <p>So far we’ve gotten a ton of feedback that users care about this.</p>
+</blockquote>
+
+<p>RByers linked to <a href="https://twitter.com/RickByers/status/719736672523407360">this tweet</a> with exactly 6 responses:</p>
+
+<blockquote>
+  <p><a href="https://twitter.com/adslaton/status/726094587056541699">adslaton</a>: thank you for the demo against our site. We will take a look at what you have documented and apply updates.</p>
+</blockquote>
+
+<blockquote>
+  <p><a href="https://twitter.com/adamdbradley/status/719739381704040448">adamdbradley</a>: how did you do that test to see the differences?</p>
+</blockquote>
+
+<blockquote>
+  <p><a href="https://twitter.com/jordwalke/status/720073223430217729">jordwalke</a>: I strongly, but super-respectfully suggest against this. It masks serious issues. I do not believe this is how the web wins.</p>
+</blockquote>
+
+<blockquote>
+  <p><a href="https://twitter.com/rickbiastwit/status/832399971026505729">rickbiastwit</a>: and it’s not cool to break tons of drag/drop, scroll/zoom browser default behaviour prevention only to achieve nearly nothing</p>
+</blockquote>
+
+<blockquote>
+  <p><a href="https://twitter.com/rickbiastwit/status/832399551847804928">rickbiastwit</a>: chrome scroll intervention demo is definitely misleading. I tried on top end devices, no perceivable difference, enabled or not.</p>
+</blockquote>
+
+<p>If you call it “a ton of positive feedback”, well, khm, you definitely see a reality in a different light.</p>
+
+<h2 id="a-moral">A moral</h2>
+
+<ul>
+  <li>Web APIs aren’t pretty.</li>
+  <li>There’s no “clean” way of using DOM APIs. Even freshly designed, freshly released features <em>require</em> you to rely on hacks for feature detection.</li>
+  <li>Libraries wouldn’t simply “abstract away” all the unpleasant details of the underlying experience. E.g. React still <a href="https://github.com/facebook/react/issues/6436">has no way</a> to force event listeners not being passive.</li>
+  <li>Making code work in older browsers is an easy task because older browsers do not change. Once hacks are implemented for them, they’ll continue to work forever.</li>
+  <li>Code that works for you right now might stop working in <em>future</em> browsers. Constant effort is required maintaining your code against changes browser vendors drop on you.</li>
+  <li>Breaking changes might happen pretty fast. Current version of Chrome is 62. Your code might being broken by the time Chrome 67 arrives. It almost certainly wouldn’t work in Chrome 100.</li>
+  <li>Browser vendors have their own agenda. It mostly includes making their browsers look fast, sometimes at the cost of your websites become broken.</li>
+</ul>
+
+<p>RByers <a href="https://github.com/WICG/interventions/issues/18#issuecomment-278658295">commented on Feb 9</a>:</p>
+
+<blockquote>
+  <p>But in Chrome we’re fundamentally unwilling to allow the mobile web to continue to die from performance bankruptcy. Other browsers are less aggressive, and people who prefer to be more conservative (preferring maximal compatibility over being part of moving the web forward aggressively) should prefer to use a more conservative browser.</p>
+</blockquote>
+
+<p>As a user, I certainly do not care about “being part of moving the web forward aggressively”. Why should I? I like my stuff working, not broken. Nobody ever wants it the other way around.</p>
+
+
+  <p class=footer>
+    <span>November 5, 2017</span>
+    
+
+    
+      <span class="separator">·</span>
+      <span>Discuss on</span>
+      
+        <a href="https://news.ycombinator.com/item?id=15634609" target="_blank">HackerNews</a>
+      
+      
+      
+        <a href="https://www.reddit.com/r/programming/comments/7b5hjg/my_web_app_died_from_performance_bankruptcy_tldr/" target="_blank">Reddit</a>
+      
+      
+    
+  </p>
+
+  <script>
+    document.querySelectorAll(".hoverable").forEach(function (e) {
+        e.onclick = function() { e.classList.toggle("clicked"); }
+    });
+  </script>
+
+  
+  <div class="about">
+    <div class="about_photo"></div>
+    <div class="about_inner">
+      <p>Hi!</p>
+      <p>I’m Nikita. Here I write about programming and UI design <a style="margin-left: 5px" class="btn-subscribe" href="/blog/how-to-subscribe/" target="_blank"><svg viewBox="0 0 800 800"><path d="M493 652H392c0-134-111-244-244-244V307c189 0 345 156 345 345zm71 0c0-228-188-416-416-416V132c285 0 520 235 520 520z"/><circle cx="219" cy="581" r="71"/></svg> Subscribe</a></p>
+      <p>I also create open-source stuff: Fira Code, AnyBar, DataScript and Rum. If you like what I do and want to get early access to my articles (along with other benefits), you should <a href="https://patreon.com/tonsky" target="_blank">support me on Patreon</a>.</p>
+    </div>
+  </div>
+  
+
+</article>
+
+
+<div class="preload"></div>
+
+</div>
+
+<script>
+  function updateFlashlight(e) {
+    var style = document.body.style;
+    style.backgroundPositionX = e.pageX - 250 + "px";
+    style.backgroundPositionY = e.pageY - 250 + "px";
+  }
+
+  document.querySelector(".dark_mode").onclick = function(e) {
+    var body = document.body;
+    body.classList.toggle("dark");
+    if (body.classList.contains("dark")) {
+      updateFlashlight(e);
+      ["mousemove", "touchstart", "touchmove", "touchend"].forEach(function(s) {
+        document.documentElement.addEventListener(s, updateFlashlight, false);
+      });
+    } else {
+      ["mousemove", "touchstart", "touchmove", "touchend"].forEach(function(s) {
+        document.documentElement.removeEventListener(s, updateFlashlight, false);
+      });
+    }
+  }
+</script>

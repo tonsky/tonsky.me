@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en" prefix="og: http://ogp.me/ns#" xmlns:og="http://opengraphprotocol.org/schema/">
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
+  
+    <meta name="viewport" content="width=640" />
+  
+  <meta name="theme-color" content="#FDDB29">
+  <link href="/i/favicon.png" rel="icon" sizes="32x32">
+
+  <link href='/style.css?v=20201203' rel='stylesheet' type='text/css' />
+  <title>Datomic as a Protocol @ tonsky.me</title>
+
+  <link href="/blog/atom.xml" rel="alternate" title="Nikita Prokopov’s blog" type="application/atom+xml" />
+
+  <meta name="author" content="Nikita Prokopov" />
+  
+  <meta property="og:title" content="Datomic as a Protocol" />
+  <meta property="og:url" content="https://tonsky.me/blog/datomic-as-protocol/" />
+  
+    <meta property="og:type" content="article" />
+
+    <meta property="article:published_time" content='2014-04-29' />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Datomic as a Protocol" />
+  
+
+  
+    <meta property="og:description" content="Datomic introduced a data structure model: entity-attribute-value store, transaction format, Datalog query language dialect. As you get familiar with it, you notice that this model has a lot of nice properties and is, in fact, more thought-out than it may appear at the first glance." />
+    <meta name="twitter:description" content="Datomic introduced a data structure model: entity-attribute-value store, transaction format, Datalog query language dialect. As you get familiar with it, you notice that this model has a lot of nice properties and is, in fact, more thought-out than it may appear at the first glance." />
+  
+
+  <meta property="og:site_name" content="tonsky.me" />
+  <meta property="article:author" content="https://www.facebook.com/nikitonsky" />
+  <meta property="profile:first_name" content="Nikita" />
+  <meta property="profile:last_name" content="Prokopov" />
+  <meta property="profile:username" content="tonsky" />
+  <meta property="profile:gender" content="male" />
+
+  <meta name="twitter:creator" content="@nikitonsky" />
+</head>
+<body>
+<div class="page ">
+
+<ul class=menu>
+  <li><a class="menu__item menu__item_inside" href="/">Blog</a></li>
+  <li><a class="menu__item" href="/talks/">Talks</a></li>
+  <li><a class="menu__item" href="/projects/">Projects</a></li>
+  <li><a class="menu__item" href="/design/">Logos</a></li>
+  <!-- <li><a class="menu__item" href="/consulting/">UX&nbsp;Consulting</a></li> -->
+  <li><a class="menu__item" href="/patrons/">Patrons</a></li>
+  <div class="spacer"></div>
+  <div class="dark_mode"></div>
+</ul>
+
+
+<article class="post">
+  <h1 class="title">Datomic as a Protocol</h1>
+
+  <p></p>
+
+  <p>Datomic introduced a data structure model: entity-attribute-value store, transaction format, Datalog query language dialect. As you get familiar with it, you notice that this model has a lot of nice properties and is, in fact, more thought-out than it may appear at the first glance.</p>
+
+<p>Data format is agile and multi-purpose. It works perfectly well with non-regular data, wide columns, a lot of rows, sparse data, graph data. It all can be efficiently stored and accessed.</p>
+
+<p>Since it’s a commercial database, it covers all sorts of use-cases real people face in real world while working with data. You can actually see how the Datomic team started small and added features to the data model as they felt need for them. In other words, the Datomic model is feature-full.</p>
+
+<p>Transactions are just data. In Clojure we’re <a href="http://www.infoq.com/presentations/Thinking-in-Data">used to data-oriented approach</a> and are well aware of its benefits. But there we have data representation not only for database itself, but also for transitions. Simple data structures work well at small scales and within the bounds of a single machine. If you have an atom, it’s easy to store and transfer its value. But when you do <code class="language-plaintext highlighter-rouge">(swap! atom inc)</code>, you cannot transfer that anywhere. You can transfer new value (and it’s totally ok while you can keep it small), but not the change. For dataset sizes up from few hundred kilobytes you start to feel need to transfer deltas instead of entire value. Datomic’s transaction report is a format that allows you to express that delta as a data structure. Benefits follow.</p>
+
+<p>Transaction format happens to match database format. Same exact queries can be run on both. Given a stream of all transactions going through your system, you can easily know when data you’re interested in changes. For example, you have a query that returns a list of items. To monitor for query result updates, you run same query over transaction’s data instead of entire DB and, when you get non-empty results, then some item has been changed, or new item has been added, or some item has been deleted. Note that we monitor not only for changes inside returned items, but for any changes <em>in a collection</em> of items that match or will match, once added, our query. And query doesn’t have to be simple <code class="language-plaintext highlighter-rouge">select * from table</code> query. It can include joins or filtering, and this property will still hold true. The ability to monitor query results’ relevance without querying entire database at each change is indispensable for reactive applications.</p>
+
+<p>Transaction format is reversible. You can easily build a transaction that reverts another transaction. It sure is a nice property to have. I was completely unaware of that before seeing <a href="https://gist.github.com/allgress/11348685">Dave Dixon’s gist</a>.</p>
+
+<p>Datomic model is compact and can be recreated from scratch. It opens the possibility for other languages to utilize same conventions and roll out alternate implementations. I love Rich’s work because he always spends extra time thinking how to reduce required development effort. If he happened, for example, to choose SQL for Datomic, we wouldn’t have any DataScript neither now nor in any foreseeable future. (and probably no Datomic either)</p>
+
+<p>I can easily imagine a distributed system where parts talk to each other via tx-reports and peers run Datalog queries over data and subscribe to database changes. The only big obstacle on our way there is, of course, lack of open-source implementation of Datomic’s basic parts like in-memory index and Datalog query engine. While Cognitect still hasn’t open-sourced these, I started <a href="https://github.com/tonsky/datascript">DataScript</a> to cover that breach for some time. I also see how open-source, lightweight library like DataScript may add value at server-side too, so there’s probably a Clojure version coming.</p>
+
+<p>Given all that, I believe that Datomic was more important as a format, protocol, standard, than as a particular implementation. It sure has a lot of potential, and, what’s more intriguing, not all of its potential is completely understood today. Maybe it’ll change Clojure development landscape to the better — once again.</p>
+
+
+  <p class=footer>
+    <span>April 29, 2014</span>
+    
+
+    
+  </p>
+
+  <script>
+    document.querySelectorAll(".hoverable").forEach(function (e) {
+        e.onclick = function() { e.classList.toggle("clicked"); }
+    });
+  </script>
+
+  
+  <div class="about">
+    <div class="about_photo"></div>
+    <div class="about_inner">
+      <p>Hi!</p>
+      <p>I’m Nikita. Here I write about programming and UI design <a style="margin-left: 5px" class="btn-subscribe" href="/blog/how-to-subscribe/" target="_blank"><svg viewBox="0 0 800 800"><path d="M493 652H392c0-134-111-244-244-244V307c189 0 345 156 345 345zm71 0c0-228-188-416-416-416V132c285 0 520 235 520 520z"/><circle cx="219" cy="581" r="71"/></svg> Subscribe</a></p>
+      <p>I also create open-source stuff: Fira Code, AnyBar, DataScript and Rum. If you like what I do and want to get early access to my articles (along with other benefits), you should <a href="https://patreon.com/tonsky" target="_blank">support me on Patreon</a>.</p>
+    </div>
+  </div>
+  
+
+</article>
+
+
+<div class="preload"></div>
+
+</div>
+
+<script>
+  function updateFlashlight(e) {
+    var style = document.body.style;
+    style.backgroundPositionX = e.pageX - 250 + "px";
+    style.backgroundPositionY = e.pageY - 250 + "px";
+  }
+
+  document.querySelector(".dark_mode").onclick = function(e) {
+    var body = document.body;
+    body.classList.toggle("dark");
+    if (body.classList.contains("dark")) {
+      updateFlashlight(e);
+      ["mousemove", "touchstart", "touchmove", "touchend"].forEach(function(s) {
+        document.documentElement.addEventListener(s, updateFlashlight, false);
+      });
+    } else {
+      ["mousemove", "touchstart", "touchmove", "touchend"].forEach(function(s) {
+        document.documentElement.removeEventListener(s, updateFlashlight, false);
+      });
+    }
+  }
+</script>

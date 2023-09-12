@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en" prefix="og: http://ogp.me/ns#" xmlns:og="http://opengraphprotocol.org/schema/">
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
+  
+    <meta name="viewport" content="width=640" />
+  
+  <meta name="theme-color" content="#FDDB29">
+  <link href="/i/favicon.png" rel="icon" sizes="32x32">
+
+  <link href='/style.css?v=20201203' rel='stylesheet' type='text/css' />
+  <title>Couple of DataScript resources @ tonsky.me</title>
+
+  <link href="/blog/atom.xml" rel="alternate" title="Nikita Prokopov’s blog" type="application/atom+xml" />
+
+  <meta name="author" content="Nikita Prokopov" />
+  
+  <meta property="og:title" content="Couple of DataScript resources" />
+  <meta property="og:url" content="https://tonsky.me/blog/datascript-resources/" />
+  
+    <meta property="og:type" content="article" />
+
+    <meta property="article:published_time" content='2014-12-18' />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Couple of DataScript resources" />
+  
+
+  
+    <meta property="og:description" content="Couple of new talks about DataScript" />
+    <meta name="twitter:description" content="Couple of new talks about DataScript" />
+  
+
+  <meta property="og:site_name" content="tonsky.me" />
+  <meta property="article:author" content="https://www.facebook.com/nikitonsky" />
+  <meta property="profile:first_name" content="Nikita" />
+  <meta property="profile:last_name" content="Prokopov" />
+  <meta property="profile:username" content="tonsky" />
+  <meta property="profile:gender" content="male" />
+
+  <meta name="twitter:creator" content="@nikitonsky" />
+</head>
+<body>
+<div class="page ">
+
+<ul class=menu>
+  <li><a class="menu__item menu__item_inside" href="/">Blog</a></li>
+  <li><a class="menu__item" href="/talks/">Talks</a></li>
+  <li><a class="menu__item" href="/projects/">Projects</a></li>
+  <li><a class="menu__item" href="/design/">Logos</a></li>
+  <!-- <li><a class="menu__item" href="/consulting/">UX&nbsp;Consulting</a></li> -->
+  <li><a class="menu__item" href="/patrons/">Patrons</a></li>
+  <div class="spacer"></div>
+  <div class="dark_mode"></div>
+</ul>
+
+
+<article class="post">
+  <h1 class="title">Couple of DataScript resources</h1>
+
+  <p></p>
+
+  <p>There’s couple of new resources available about DataScript.</p>
+
+<p>On December 4th I gave a talk at Clojure eXchange conference about motivation behind DataScript, a little bit about internals, and then about how DataScript can be used for application development. Beyond traditional SPAs, there were couple of examples of new kind of architectures that are trivial to execute given that DataScript exists.</p>
+
+<p>You can watch video of the talk <a href="https://skillsmatter.com/skillscasts/6038-datascript-for-web-development">at SkillsMatter website</a> (free, registration required) and check out slides:</p>
+
+<p style="margin: 20px -38px; height: 538px"><script async="" class="speakerdeck-embed" data-id="5ba8bad06862013296c3468088921707" data-ratio="1.33333333333333" src="//speakerdeck.com/assets/embed.js"></script></p>
+
+<p>Later this month I talked at ClojureScript NYC user group. During the webinar we developed ToDo application from scratch and touched, at least quickly, almost every aspect of DataScript. Here’s the agenda:</p>
+
+<ul>
+  <li>Create DB schema (multi-valued relations, references)</li>
+  <li>Add ability to create tasks (basic <code class="language-plaintext highlighter-rouge">transact!</code>)</li>
+  <li>Display list of tasks (basic query)</li>
+  <li>Display tags on tasks (multi-valued attrs)</li>
+  <li>Persist database to <code class="language-plaintext highlighter-rouge">localStorage</code> (serialization/deserialization)</li>
+  <li>Make tasks completable (transact functions)</li>
+  <li>Assign projects to tasks (entity navigation)</li>
+  <li>Display task count for projects (aggregate queries)</li>
+  <li>Display task count for inbox (“negate” query, query functions, query predicates)</li>
+  <li>Display “by month” grouping (custom fn call in a query)</li>
+  <li>Make left panel navigable (storing “view” app state in a db)</li>
+  <li>Add filter (implicit OR via rules and collection bindings)</li>
+</ul>
+
+<p>The recording:</p>
+
+<p style="margin: 20px -38px; height: 404px"><iframe src="//player.vimeo.com/video/114688970?byline=0&amp;portrait=0&amp;color=ff8c84" width="620" height="393" frameborder="0" webkitallowfullscreen="" mozallowfullscreen="" allowfullscreen=""></iframe></p>
+
+<p>After the webinar I fixed couple of bugs in ToDo repo (and in DataScript as well), added comments here and there explaining what’s going on and implemented couple of new features:</p>
+
+<ul>
+  <li>DB filtering</li>
+  <li>Serialization via transit-cljs</li>
+  <li>History tracking and undo/redo support</li>
+</ul>
+
+<p>DataScript-ToDo should be a good resource for learning DataScript and its applications in the wild. Source code is <a href="https://github.com/tonsky/datascript-todo/tree/gh-pages/src">on github</a>, live version here:</p>
+
+<p class="fig" style="margin: 20px -38px;"><a href="http://tonsky.me/datascript-todo/"><img src="datascript-todo.jpg" style="width: 620px; height: 455px:" /></a></p>
+
+<p>Stay tuned!</p>
+
+
+  <p class=footer>
+    <span>December 18, 2014</span>
+    
+
+    
+  </p>
+
+  <script>
+    document.querySelectorAll(".hoverable").forEach(function (e) {
+        e.onclick = function() { e.classList.toggle("clicked"); }
+    });
+  </script>
+
+  
+  <div class="about">
+    <div class="about_photo"></div>
+    <div class="about_inner">
+      <p>Hi!</p>
+      <p>I’m Nikita. Here I write about programming and UI design <a style="margin-left: 5px" class="btn-subscribe" href="/blog/how-to-subscribe/" target="_blank"><svg viewBox="0 0 800 800"><path d="M493 652H392c0-134-111-244-244-244V307c189 0 345 156 345 345zm71 0c0-228-188-416-416-416V132c285 0 520 235 520 520z"/><circle cx="219" cy="581" r="71"/></svg> Subscribe</a></p>
+      <p>I also create open-source stuff: Fira Code, AnyBar, DataScript and Rum. If you like what I do and want to get early access to my articles (along with other benefits), you should <a href="https://patreon.com/tonsky" target="_blank">support me on Patreon</a>.</p>
+    </div>
+  </div>
+  
+
+</article>
+
+
+<div class="preload"></div>
+
+</div>
+
+<script>
+  function updateFlashlight(e) {
+    var style = document.body.style;
+    style.backgroundPositionX = e.pageX - 250 + "px";
+    style.backgroundPositionY = e.pageY - 250 + "px";
+  }
+
+  document.querySelector(".dark_mode").onclick = function(e) {
+    var body = document.body;
+    body.classList.toggle("dark");
+    if (body.classList.contains("dark")) {
+      updateFlashlight(e);
+      ["mousemove", "touchstart", "touchmove", "touchend"].forEach(function(s) {
+        document.documentElement.addEventListener(s, updateFlashlight, false);
+      });
+    } else {
+      ["mousemove", "touchstart", "touchmove", "touchend"].forEach(function(s) {
+        document.documentElement.removeEventListener(s, updateFlashlight, false);
+      });
+    }
+  }
+</script>

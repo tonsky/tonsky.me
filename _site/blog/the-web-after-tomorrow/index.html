@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="en" prefix="og: http://ogp.me/ns#" xmlns:og="http://opengraphprotocol.org/schema/">
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
+  
+    <meta name="viewport" content="width=640" />
+  
+  <meta name="theme-color" content="#FDDB29">
+  <link href="/i/favicon.png" rel="icon" sizes="32x32">
+
+  <link href='/style.css?v=20201203' rel='stylesheet' type='text/css' />
+  <title>The Web After Tomorrow @ tonsky.me</title>
+
+  <link href="/blog/atom.xml" rel="alternate" title="Nikita Prokopov’s blog" type="application/atom+xml" />
+
+  <meta name="author" content="Nikita Prokopov" />
+  
+  <meta property="og:title" content="The Web After Tomorrow" />
+  <meta property="og:url" content="https://tonsky.me/blog/the-web-after-tomorrow/" />
+  
+    <meta property="og:type" content="article" />
+
+    <meta property="article:published_time" content='2015-06-23' />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="The Web After Tomorrow" />
+  
+
+  
+    <meta property="og:description" content="This post looks at what is missing from the current state-of-the-art web architectures, where they should be improved and what tools we have at hand for that." />
+    <meta name="twitter:description" content="This post looks at what is missing from the current state-of-the-art web architectures, where they should be improved and what tools we have at hand for that." />
+  
+
+  <meta property="og:site_name" content="tonsky.me" />
+  <meta property="article:author" content="https://www.facebook.com/nikitonsky" />
+  <meta property="profile:first_name" content="Nikita" />
+  <meta property="profile:last_name" content="Prokopov" />
+  <meta property="profile:username" content="tonsky" />
+  <meta property="profile:gender" content="male" />
+
+  <meta name="twitter:creator" content="@nikitonsky" />
+</head>
+<body>
+<div class="page ">
+
+<ul class=menu>
+  <li><a class="menu__item menu__item_inside" href="/">Blog</a></li>
+  <li><a class="menu__item" href="/talks/">Talks</a></li>
+  <li><a class="menu__item" href="/projects/">Projects</a></li>
+  <li><a class="menu__item" href="/design/">Logos</a></li>
+  <!-- <li><a class="menu__item" href="/consulting/">UX&nbsp;Consulting</a></li> -->
+  <li><a class="menu__item" href="/patrons/">Patrons</a></li>
+  <div class="spacer"></div>
+  <div class="dark_mode"></div>
+</ul>
+
+
+<article class="post">
+  <h1 class="title">The Web After Tomorrow</h1>
+
+  <p></p>
+
+  <p><em>Modern web does a good job of bringing you live, real-time web applications. Or does it? This post looks at what is missing from the current state-of-the-art web architectures, where they should be improved and what tools we have at hand for that.</em></p>
+
+<h2 id="server-not-required">Server not required</h2>
+
+<p>Traditional web architectures require DB, server and a browser, stitched together with RPC and REST calls:</p>
+
+<figure><img src="./tradition.png" /></figure>
+
+<p>But today’s JS is good at doing almost anything we traditionally expect from a server. JS can handle view logic (better than server ever could), JS has no problem talking to the DB, executing queries and parsing result sets.</p>
+
+<p>You probably had this feeling already, when you write server code only to proxy client’s demands for the DB and pass the results back. It feels stupid. It feels redundant. All these trends — isomorphic code, compile-to-js languages, node.js — come from a desire to run the same code in two places. That very goal is wrong. You don’t <em>want</em> to run same code in two places. You may <em>need to</em>, but only to deal with the consequences of bad (old) architecture. Running exactly the same validation twice wouldn’t make data more valid.</p>
+
+<p>UI apps used to talk directly to the DB. Then thin client was introduced; to support that, intermediate smart proxy, or server, was added to the web stack. Today clients are thick again, but we keep putting server in the middle. Just out of habit.</p>
+
+<figure><img src="./evolution.png" /></figure>
+
+<p>No, eventually DB will talk directly to the browser. Software may not be there yet, but it’s a matter of time. Until then, remember: it’s the server that is a generic component now, not the browser. Client logic is in control. JS gives orders, server/DB follows them.</p>
+
+<h2 id="always-late">Always late</h2>
+
+<p>Even though we can get rid of the server and handle everything in a browser, we’ll still be in the era of an ad-hoc, inconsistent, always-late web apps.</p>
+
+<p>Take a look at the main Facebook page:</p>
+
+<figure><img src="./facebook.png" /></figure>
+
+<p>If you keep this page open for a couple of minutes, you’ll notice that different parts of it have different age. Some are static, they never update unless you refresh the page. Some are updated almost instantly. Some are refreshed periodically. Even when you look at the same data piece (e.g. user name) across the page, it can look different in different places, depending on how long ago the component containing it was last updated. Facebook is a modern, cutting-edge web app, but even it is not real-time enough. Every Facebook page is stale and inconsistent almost all the time except for the couple of seconds right after page load. This is not about Facebook, of course, every other page of every other web application is stale, too. Despite the buzz, the real-time web has not landed yet.</p>
+
+<p>Some may argue if that needs to be fixed at all. I’m OK to refresh page once in a while. I don’t change user name that often. We love Facebook for the people and can bear couple of technology quirks.</p>
+
+<p>I agree. For vast majority of people, it might be not the most pressing problem at the moment. But what people are used to is always a bad measure. If people have learned to adapt to something does not imply we should stop looking for improvements. Looking into crazy and seems-to-be-unreachable places might still give us useful insights.</p>
+
+<p>Web technology stack was created under assumption that people are looking at rarely-changing, mostly static data. Generally it does a decent job of loading missing data pieces as you go. Throw in AJAX/WebSockets and periodical updates and best you’ll get is a web page stitched from the pieces of data at different stages of staleness. It’s expected. This result comes naturally from using HTTP, JS, SQL, REST the most natural way. To get beyond that, we need to forget what we’ve learned about them. We need to avoid short and well-known paths. We should not fear to do the unnatural things.</p>
+
+<p>What we actually want is not even a request-response protocol. At the high level we want to connect data source and a client as tight as possible, with the library taking care of all the negotiation details. These are the things we are interested in:</p>
+
+<ul>
+  <li>
+    <p>Consistent view of the data. What we’re looking at should be coherent at some point-in-time moment. We don’t want patchwork of static data at one place, slightly stale at another and fresh rare pieces all over the place. People percieve page as a whole, all at once. Consistency removes any possibility for contradictions in what people see, consistent app looks <em>sane</em> and builds trust.</p>
+  </li>
+  <li>
+    <p>Always fresh data. All data we see on the client should be relevant right now. Everything up to the tiniest detail. Ideally including all resources and even code that runs the app. If I upload a new userpic, I want it to be reloaded on all the screens where people might be seeing it at the moment. Even if it’s displayed in a one-second-long, self-disposing notification popup.</p>
+  </li>
+  <li>
+    <p>Instant response. UI should not wait until server confirms user’s actions. Effect of the action should be displayed immediately.</p>
+  </li>
+  <li>
+    <p>Handle network failures. Networks are not a reliable communication device, yet reliable protocols can be built on top of them. Network failures, lost packets, dropped connections, duplicates should not undermine our consistency guarantees.</p>
+  </li>
+  <li>
+    <p>Offline. Obviously data will not be up-to-date, but at least I should be able to do local modifications, then merge changes when I get back online.</p>
+  </li>
+  <li>
+    <p>No low-level connection management, retries, deduplication. These are tedious, error-prone details with subtle nuances. App developers should not handle these manually: they will always choose what’s easier or faster to implement, sacrificing user experience. Underlying library should take care of the details.</p>
+  </li>
+</ul>
+
+<p>These are all worthy goals irrespective of their technical feasibility. In the coming decades we might have, and we might have not see some of them studied, implemented or even becoming industry standard. We’ll probably see many failed and (I hope) some successful attempts to approach them. Nevertheless, the goals will stay the same.</p>
+
+<p>The rest of this post is a speculation on where to start the quest for the Holy Grail of the Web. I don’t have all the answers. And (spoiler alert) I don’t know how to make Facebook straight-out real-time. But we have to start somewhere.</p>
+
+<h2 id="the-quest-for-the-holy-grail-of-the-web">The Quest for the Holy Grail of the Web</h2>
+
+<p>This is the high-level overview of the problem as I see it:</p>
+
+<figure><img src="./filters.png" /></figure>
+
+<p>The big data source on the top is all the data we have in the project. Before reaching the client, it must come through two filters. First one is a security filter. It filters out all the data user is not authorized to see, leaving out just personal, shared and public rows. The second filter leaves only the parts user is interested in. For UI it means parts which are required to render current page.</p>
+
+<p>Everything that passes these two filters should be pushed to the client instantly, in real time. It is, by definition, everything client needs to render a page.</p>
+
+<p>There are two tricks here. First one is efficiency. Web pages are usually pretty complex, they may track hundreds of different objects, they may track results of complex queries, they may track aggregations. And we might have thousands of live clients connected at the same time.</p>
+
+<p>This is the most unexplored part of the Future Web landscape. You’re probably used to describe data needs in terms of queries. Query is a recipe to get the data from the storage. To get real-time, we need these queries to work the other way around. Client still defines its needs via query. This query might be used for initial data fetch, just as usual. The same query will then be used to filter whole-DB changelog and decide what parts of it server should push to which client. Fetch is about trying to get the data given the query. Push is about finding the affected subscriptions given the changed data.</p>
+
+<figure><img src="./subscriptions.png" /></figure>
+
+<p>What we need here is probably a new query language, something like reversible SQL. We need our hypothetical ReversibleQL to run efficiently in both directions. To get these properties, ReversibleQL would probably have to be much simpler and more limiting than SQL. Or it might be two different languages. I don’t know.  Meteor.js solves this problem by limiting subscriptions to documents and collections only. RethinkDB folks are trying to build <a href="http://rethinkdb.com/blog/realtime-web/">transparently reversible queries</a>, but they aren’t very chatty about internal details. I used to work in a startup that delivered real-time query results to power comments for ESPN, WWE, CNN, Scripps and Washington Post. I wouldn’t say it was a walk in the park, we had to build a custom infrastructure for that, but it was certainly doable on a scale of 50K RPS and varied, user-specified, non-trivial queries. We just need something open-source like that.</p>
+
+<p>The second catch is that filters and subscriptions change over time. This is not a performance problem (usually), but more of an organizational one. How do you track subscriptions? How to detect dead ones and how to collect garbage? On a client we can benefit from a insufficiently praised React feature: component lifecycles. By listening for <code class="language-plaintext highlighter-rouge">didMount</code> and <code class="language-plaintext highlighter-rouge">willUnmount</code> we can reliably track when components (and their subscriptions) come and go. That way we always know exactly what our visitor is looking at. On a server, though, it’s just timeouts, refcounting, periodic cleaning and careful coding. No rocket science here.</p>
+
+<p>While we’re still in “DB to client” data flow, let’s talk reliability. Real-time is fine, but reliable real-time is even finer. There’s little point in pushing data changes if you can underdeliver some of them: the outcome wouldn’t be that great without consistency. A single DELETE lost from changefeed during reconnect (with no integrity validation) might lead to the catastrophic UI glitches. Reordering is out of question too, for the same reasons. This is a territory of distributed databases here, where browser plays the role of one of the peers. For example, DB could provide a strongly consistent event log, and <nobr>DB-client</nobr> synchronization protocol can take advantage of that. Or we might choose eventual consistency, CRDTs and anti-entropy measures. Anyway, distributed computing is pretty crowded these days, let’s assume we know how to do it well. Browser is not traditionally viewed as a peer (CouchDB is moving in that direction though), but in fact it doesn’t change a thing. Only this time netsplits are more than real — they are everyday routine.</p>
+
+<p>Now we’ve talked about listening for the changes, but not about initiating them. Of course, every local action should be captured, transformed into a change/delta, put into some sort of a queue and sent to the server in the background. Easy even with the current web stack.</p>
+
+<p>Missing spots here are lag compensation and offline work. Nothing beats unresponsive input in the amount of annoyance and frustration it causes. The Net is so slow we should compensate for the roundtrip even if person is online and has a good connection. That’s why we display effects of all user actions immediately, <em>before</em> sending them to the server.</p>
+
+<p>Offline is a special case of lag compensation where lag is infinite. Offline mode should look just like a normal app without real-time updates. No need to treat it any different: we just embrace that deltas queue could grow indefinitely and make process of making local changes sustainable.</p>
+
+<p>Centralized, application-wide state management is crucial here. I cannot imagine how something like this could be implemented ad-hoc, on a per-variable basis. But if you treat all your app state like some kind of storage (e.g. Relay storage, nested immutable dictionary or DataScript DB), you can implement synchronization on a system level. You would also need explicit change management to send deltas over network, track them, conserve in local storage and apply them to the local state.</p>
+
+<h2 id="pragmatic-disenchantment">Pragmatic disenchantment</h2>
+
+<p>This is more of a “get you into the right mode of thinking” post. I don’t know any apps based on such architecture, I don’t even have a proof-of-concept example. There’s no ready-made framework to take off the shelf. Two years ago you would even have had a bad time assembling such a thing by yourself because there were no software with required properties.</p>
+
+<p>These days it’s not that grim though:</p>
+
+<ul>
+  <li>
+    <p>We have RethinkDB aiming at the same goal, but lacking client-side storage and reliable pushes.</p>
+  </li>
+  <li>
+    <p>We have Relay which has local storage and lag compensation, but no real-time pushes from the server (they are thinking about adding them in the future).</p>
+  </li>
+  <li>
+    <p>Meteor.js gets closer of them all: it solves discussed problem for a simple case of small unordered collections of JSON documents. It has latency compensation, local storage, server push, subscriptions, server data filtering. I can’t find any information about consistency and reliability guarantees of their <a href="https://atmospherejs.com/meteor/ddp">DDP protocol</a> or how well server push scales with the number of subscriptions.</p>
+  </li>
+</ul>
+
+<p>I personally see a great opportunity in using Clojure, Datomic and DataScript to build such a system:</p>
+
+<figure><img src="./architecture.png" /></figure>
+
+<ul>
+  <li>
+    <p>Datomic is a general-purpose DB which also maintains a log of all transactions. Monotonic transaction ids make reliable syncing an easy task (log replication).</p>
+  </li>
+  <li>
+    <p>Datomic has reactive transactions queue which is part of a public API, meaning efficient reactive pushes without polling or replication log parsing.</p>
+  </li>
+  <li>
+    <p>Datomic has RDF-like data model (datom = entity, attribute, value) which is at a great granularity level for security and subscription filters. Datom is the smallest piece of information that could be synchronized, and that’s exactly what Datomic DB is made of.</p>
+  </li>
+  <li>
+    <p>On a client we have DataScript which mimics Datomic API, so essentially it’s the same database, with the same data model, and the two work very well together.</p>
+  </li>
+  <li>
+    <p>Datomic and DataScript have serializable <a href="http://tonsky.me/blog/datomic-as-protocol/">transaction format</a>, no need to invent anything ad-hoc to represent the deltas.</p>
+  </li>
+  <li>
+    <p>DataScript is immutable, meaning we can keep local changes, apply/retract them, reorder, throw away and build temporary local databases on the fly. This property is very basic for DataScript because of its immutable nature, meaning there are no hidden limitations or partial support for some sort of changes.</p>
+  </li>
+  <li>
+    <p>Reactive UI is simple over DataScript with top-down React render. If your UI is big and complex and needs granular updates based on what have changed in a DB, it’s also pretty straightforward, although there is no ready-made library for that at the moment.</p>
+  </li>
+  <li>
+    <p>Subscription language is the biggest missing piece of this stack. Datomic and DataScript speak Datalog which is very powerful language, but it is hard to reverse efficiently. If you have very high volume of the transactions going through your DB, for each of them you’ll have to determine which clients should get an update. Running a Datalog query per client is not an option.</p>
+  </li>
+</ul>
+
+<h2 id="conclusion">Conclusion</h2>
+
+<p>The web is only as good as current generation of tools for building it are. The right tools come from the right goals. As I see it, eventually web will work by the fully reactive principles. This post lays out the map of unsolved problems and discusses possible approaches to them.</p>
+
+
+  <p class=footer>
+    <span>June 23, 2015</span>
+    
+
+    
+      <span class="separator">·</span>
+      <span>Discuss on</span>
+      
+        <a href="https://news.ycombinator.com/item?id=9765780" target="_blank">HackerNews</a>
+      
+      
+      
+      
+    
+  </p>
+
+  <script>
+    document.querySelectorAll(".hoverable").forEach(function (e) {
+        e.onclick = function() { e.classList.toggle("clicked"); }
+    });
+  </script>
+
+  
+  <div class="about">
+    <div class="about_photo"></div>
+    <div class="about_inner">
+      <p>Hi!</p>
+      <p>I’m Nikita. Here I write about programming and UI design <a style="margin-left: 5px" class="btn-subscribe" href="/blog/how-to-subscribe/" target="_blank"><svg viewBox="0 0 800 800"><path d="M493 652H392c0-134-111-244-244-244V307c189 0 345 156 345 345zm71 0c0-228-188-416-416-416V132c285 0 520 235 520 520z"/><circle cx="219" cy="581" r="71"/></svg> Subscribe</a></p>
+      <p>I also create open-source stuff: Fira Code, AnyBar, DataScript and Rum. If you like what I do and want to get early access to my articles (along with other benefits), you should <a href="https://patreon.com/tonsky" target="_blank">support me on Patreon</a>.</p>
+    </div>
+  </div>
+  
+
+</article>
+
+
+<div class="preload"></div>
+
+</div>
+
+<script>
+  function updateFlashlight(e) {
+    var style = document.body.style;
+    style.backgroundPositionX = e.pageX - 250 + "px";
+    style.backgroundPositionY = e.pageY - 250 + "px";
+  }
+
+  document.querySelector(".dark_mode").onclick = function(e) {
+    var body = document.body;
+    body.classList.toggle("dark");
+    if (body.classList.contains("dark")) {
+      updateFlashlight(e);
+      ["mousemove", "touchstart", "touchmove", "touchend"].forEach(function(s) {
+        document.documentElement.addEventListener(s, updateFlashlight, false);
+      });
+    } else {
+      ["mousemove", "touchstart", "touchmove", "touchend"].forEach(function(s) {
+        document.documentElement.removeEventListener(s, updateFlashlight, false);
+      });
+    }
+  }
+</script>

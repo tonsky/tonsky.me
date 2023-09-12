@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en" prefix="og: http://ogp.me/ns#" xmlns:og="http://opengraphprotocol.org/schema/">
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
+  
+    <meta name="viewport" content="width=640" />
+  
+  <meta name="theme-color" content="#FDDB29">
+  <link href="/i/favicon.png" rel="icon" sizes="32x32">
+
+  <link href='/style.css?v=20201203' rel='stylesheet' type='text/css' />
+  <title>Cognitect, please stop adding alpha to your namespaces @ tonsky.me</title>
+
+  <link href="/blog/atom.xml" rel="alternate" title="Nikita Prokopov’s blog" type="application/atom+xml" />
+
+  <meta name="author" content="Nikita Prokopov" />
+  
+  <meta property="og:title" content="Cognitect, please stop adding alpha to your namespaces" />
+  <meta property="og:url" content="https://tonsky.me/blog/alpha/" />
+  
+    <meta property="og:type" content="article" />
+
+    <meta property="article:published_time" content='2020-07-31' />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Cognitect, please stop adding alpha to your namespaces" />
+  
+
+  
+    <meta property="og:description" content="Why putting alpha in your project name does more harm than good" />
+    <meta name="twitter:description" content="Why putting alpha in your project name does more harm than good" />
+  
+
+  <meta property="og:site_name" content="tonsky.me" />
+  <meta property="article:author" content="https://www.facebook.com/nikitonsky" />
+  <meta property="profile:first_name" content="Nikita" />
+  <meta property="profile:last_name" content="Prokopov" />
+  <meta property="profile:username" content="tonsky" />
+  <meta property="profile:gender" content="male" />
+
+  <meta name="twitter:creator" content="@nikitonsky" />
+</head>
+<body>
+<div class="page ">
+
+<ul class=menu>
+  <li><a class="menu__item menu__item_inside" href="/">Blog</a></li>
+  <li><a class="menu__item" href="/talks/">Talks</a></li>
+  <li><a class="menu__item" href="/projects/">Projects</a></li>
+  <li><a class="menu__item" href="/design/">Logos</a></li>
+  <!-- <li><a class="menu__item" href="/consulting/">UX&nbsp;Consulting</a></li> -->
+  <li><a class="menu__item" href="/patrons/">Patrons</a></li>
+  <div class="spacer"></div>
+  <div class="dark_mode"></div>
+</ul>
+
+
+<article class="post">
+  <h1 class="title">Cognitect, please stop adding alpha to your namespaces</h1>
+
+  <p></p>
+
+  <p>After <a href="https://www.youtube.com/watch?v=oyLBGkS5ICk">Spec-ulation talk</a> Cognitect started putting <code class="language-plaintext highlighter-rouge">alpha</code> in the namespaces and library names they produce. Specifically, <code class="language-plaintext highlighter-rouge">spec.alpha</code>, <code class="language-plaintext highlighter-rouge">alpha.spec</code>, <code class="language-plaintext highlighter-rouge">core.specs.alpha</code> (yes, they are all different libraries) and <code class="language-plaintext highlighter-rouge">tools.deps.alpha</code>. I think this practice does not solve any problems AND introduces unnecessary complications. In this post I hope to show why it is, hoping that nobody will follow Cognitect on this.</p>
+
+<h1 id="why">Why?</h1>
+
+<p>The idea, as I understand it, was simple: breaking changes are bad, we shouldn’t be doing them, at the same time, how are we supposed to be doing breaking changes now? The answer was to create a separate namespace while things are in flux, change it all you want, and when things are finally stable, rename both the library and the namespace, removing the <code class="language-plaintext highlighter-rouge">alpha</code> part, and ask everyone use a library as if it was something completely new.</p>
+
+<h1 id="the-good">The good</h1>
+
+<p>The good part of this solution, I think, was the idea that as long as you change namespace and library names, you introduce no conflict. The biggest problem of dependency hell is not breaking changes per se (just don’t upgrade until you are ready, right?). The problem happens when two of your dependencies transitively depend on different versions of the same library and those are incompatible. Since they both want to be, for example, <code class="language-plaintext highlighter-rouge">clojure.spec</code>, and runtime can only load one under that name, you must pick one, effectively breaking expectations for one of your libraries.</p>
+
+<figure>
+    <img src="./conflict.jpg" />
+</figure>
+
+<p>BUT if one of them would call itself <code class="language-plaintext highlighter-rouge">clojure.spec</code> and other would be <code class="language-plaintext highlighter-rouge">clojure.spec.alpha</code>, there would be no problem of them coexisting. Voilà! Conflict avoided, at the expense of slight runtime code repetition.</p>
+
+<figure>
+    <img src="./no_conflict.jpg" />
+</figure>
+
+<p>Moreover, Clojure is probably one of the few languages on the planet that can really pull a trick like this off simply because library and module interactions in Clojure mostly happen via standard maps and vectors, not custom library-defined types. If you try to load the same library under two different names in Java, pretty soon you’ll be facing something like <code class="language-plaintext highlighter-rouge">ClassCastException: Expected Request, got: Request</code>.</p>
+
+<h1 id="the-bad">The bad</h1>
+
+<p>Now to the problems. I expected the idea of adding <code class="language-plaintext highlighter-rouge">alpha</code> was to discourage people from using the library until it’s final. Well, I don’t think it works as simple as that. If I need some functionality and your library provides it but has an <code class="language-plaintext highlighter-rouge">alpha</code> label, what am I supposed to do? Wait multiple years until it’s promoted? Clone it and put it on Clojars under a different name? Not write my software at all? I don’t think so. In my experience, you only bring in a library if you really, really, really (and I mean—REALLY) need some problem solved. At that point, you don’t care what version or status the library has, because the alternative is just to stop doing what you were doing completely. The bottom line is: you put software out, if people find it useful, they will use it. No matter the label. Remember Gmail Beta? Beta label was de facto a joke.</p>
+
+<p>The next problem is that <code class="language-plaintext highlighter-rouge">alpha</code> status does not really solve any problems people might have with dependencies. It legitimizes them in the eyes of the maintainer, frees them from responsibility, but from the user’s point of view, the problems are still there. Someone might still depend on two different <code class="language-plaintext highlighter-rouge">alpha</code> versions and they still might conflict. The only thing that IS different is that maintainer now has saved themselves a right to say “it’s not my problem” if that happens.</p>
+
+<p>The third problem is, there is usually no good point to graduate. How do you know that project is finalized and no future breaking changes will be needed? You don’t! Last time I checked, nobody can really tell the future. You might publish the perfect version the first time, everyone starts using it, you wait a couple of years and… what? Remove alpha, forcing a breaking change on everyone, without changing a line of code? Or you publish an alpha, work on it a little, everyone seems happy. How long are you supposed to wait before you make it final and remove the alpha? A month? A year? Three years? And what happens if you remove the alpha and then MUST make a breaking change?</p>
+
+<p>The fourth problem is not really related to the <code class="language-plaintext highlighter-rouge">alpha</code> approach per se, but to where it is used. One place is <code class="language-plaintext highlighter-rouge">clojure.spec</code>, which Clojure itself depends on. So essentially Clojure <em>forces</em> a particular version of alpha software on everyone programming in Clojure. Does it give Clojure itself an alpha status? I don’t know. The other project is <code class="language-plaintext highlighter-rouge">tools.deps.alpha</code>, which is a basis for the <code class="language-plaintext highlighter-rouge">clj</code> command-line utility and <code class="language-plaintext highlighter-rouge">deps.edn</code> dependency resolution, both being official ways to run Clojure projects and <a href="https://clojure.org/reference/deps_and_cli">promoted on the clojure.org</a> site itself. If you insist on it being alpha and experimental, is it a good idea to teach it to newcomers?</p>
+
+<h1 id="alternative">Alternative</h1>
+
+<p>What do I propose? Simple! Release the first version as e.g. <code class="language-plaintext highlighter-rouge">clojure.spec</code>. You can write ALPHA and DO NOT USE all over README if it makes you sleep better at night. Then, when you introduce a breaking change or decide to start over, just release a new namespace and a new artifact. For example, call it <code class="language-plaintext highlighter-rouge">clojure.spec2</code> (but please, not <code class="language-plaintext highlighter-rouge">clojure.spec.2</code>, more than two levels of nesting are… hard to work with). In the future, maybe even if it has been super-stable for years, a need for another breaking change might appear. Well, just bump it again to <code class="language-plaintext highlighter-rouge">clojure.spec3</code>! And so on.</p>
+
+<p>Upsides:</p>
+
+<ul>
+  <li>do not need to predict the future,</li>
+  <li>avoid dependency conflict even for alpha users,</li>
+  <li>don’t be stuck in alpha forever.</li>
+</ul>
+
+<p>Downsides:</p>
+
+<ul>
+  <li>Same as with the <code class="language-plaintext highlighter-rouge">alpha</code> approach.</li>
+</ul>
+
+<p>I wish such an approach was incorporated deeply in Maven and Clojure itself, that two major versions could co-exist freely and you specify the major version on import. Until then, just giving them different names works too.</p>
+
+<h1 id="conclusion">Conclusion</h1>
+
+<p>I love Clojure, I really like Cognitect (even though it’s a division of Nubank these days) as the maintainers of it, I think they are doing a great job and I am eternally grateful for it. I mean no disrespect and hope that what I wrote up above sounds rational and calls to reason only, and could be incorporated into the future Clojure projects they release to a great effect. I believe we all can benefit from it.</p>
+
+<p>And if you are not working on Clojure itself, I hope my post will warn you off from using this suboptimal practice.</p>
+
+<p>Thanks for reading, and see you next time!</p>
+
+
+  <p class=footer>
+    <span>July 31, 2020</span>
+    
+
+    
+  </p>
+
+  <script>
+    document.querySelectorAll(".hoverable").forEach(function (e) {
+        e.onclick = function() { e.classList.toggle("clicked"); }
+    });
+  </script>
+
+  
+  <div class="about">
+    <div class="about_photo"></div>
+    <div class="about_inner">
+      <p>Hi!</p>
+      <p>I’m Nikita. Here I write about programming and UI design <a style="margin-left: 5px" class="btn-subscribe" href="/blog/how-to-subscribe/" target="_blank"><svg viewBox="0 0 800 800"><path d="M493 652H392c0-134-111-244-244-244V307c189 0 345 156 345 345zm71 0c0-228-188-416-416-416V132c285 0 520 235 520 520z"/><circle cx="219" cy="581" r="71"/></svg> Subscribe</a></p>
+      <p>I also create open-source stuff: Fira Code, AnyBar, DataScript and Rum. If you like what I do and want to get early access to my articles (along with other benefits), you should <a href="https://patreon.com/tonsky" target="_blank">support me on Patreon</a>.</p>
+    </div>
+  </div>
+  
+
+</article>
+
+
+<div class="preload"></div>
+
+</div>
+
+<script>
+  function updateFlashlight(e) {
+    var style = document.body.style;
+    style.backgroundPositionX = e.pageX - 250 + "px";
+    style.backgroundPositionY = e.pageY - 250 + "px";
+  }
+
+  document.querySelector(".dark_mode").onclick = function(e) {
+    var body = document.body;
+    body.classList.toggle("dark");
+    if (body.classList.contains("dark")) {
+      updateFlashlight(e);
+      ["mousemove", "touchstart", "touchmove", "touchend"].forEach(function(s) {
+        document.documentElement.addEventListener(s, updateFlashlight, false);
+      });
+    } else {
+      ["mousemove", "touchstart", "touchmove", "touchend"].forEach(function(s) {
+        document.documentElement.removeEventListener(s, updateFlashlight, false);
+      });
+    }
+  }
+</script>

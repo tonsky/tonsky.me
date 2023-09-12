@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en" prefix="og: http://ogp.me/ns#" xmlns:og="http://opengraphprotocol.org/schema/">
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
+  
+    <meta name="viewport" content="width=640" />
+  
+  <meta name="theme-color" content="#FDDB29">
+  <link href="/i/favicon.png" rel="icon" sizes="32x32">
+
+  <link href='/style.css?v=20201203' rel='stylesheet' type='text/css' />
+  <title>Another powered-by-DataScript example @ tonsky.me</title>
+
+  <link href="/blog/atom.xml" rel="alternate" title="Nikita Prokopov’s blog" type="application/atom+xml" />
+
+  <meta name="author" content="Nikita Prokopov" />
+  
+  <meta property="og:title" content="Another powered-by-DataScript example" />
+  <meta property="og:url" content="https://tonsky.me/blog/acha-acha/" />
+  
+    <meta property="og:type" content="article" />
+
+    <meta property="article:published_time" content='2014-10-06' />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Another powered-by-DataScript example" />
+  
+
+  
+    <meta property="og:description" content="Git Achievements application built around DataScript" />
+    <meta name="twitter:description" content="Git Achievements application built around DataScript" />
+  
+
+  <meta property="og:site_name" content="tonsky.me" />
+  <meta property="article:author" content="https://www.facebook.com/nikitonsky" />
+  <meta property="profile:first_name" content="Nikita" />
+  <meta property="profile:last_name" content="Prokopov" />
+  <meta property="profile:username" content="tonsky" />
+  <meta property="profile:gender" content="male" />
+
+  <meta name="twitter:creator" content="@nikitonsky" />
+</head>
+<body>
+<div class="page ">
+
+<ul class=menu>
+  <li><a class="menu__item menu__item_inside" href="/">Blog</a></li>
+  <li><a class="menu__item" href="/talks/">Talks</a></li>
+  <li><a class="menu__item" href="/projects/">Projects</a></li>
+  <li><a class="menu__item" href="/design/">Logos</a></li>
+  <!-- <li><a class="menu__item" href="/consulting/">UX&nbsp;Consulting</a></li> -->
+  <li><a class="menu__item" href="/patrons/">Patrons</a></li>
+  <div class="spacer"></div>
+  <div class="dark_mode"></div>
+</ul>
+
+
+<article class="post">
+  <h1 class="title">Another powered-by-DataScript example</h1>
+
+  <p></p>
+
+  <p>Last weekend my friends and I built Acha-Acha — a Git Achievements web app for <a href="https://clojurecup.com/#/apps/acha">ClojureCup hackathon</a>. It’s the most clojure-y application I’ve ever written: we used Clojure, core.async, transducers, http-kit, Transit, ClojureScript, sablono, and DataScript — of course. (plus React and JGit from non-clojure stack). My part was UI development, and DataScript helped a lot.</p>
+
+<p><a href="http://acha-acha.co" style="border: none; "><img src="acha.jpg" style="width: 523px; height: 403px;" /></a></p>
+
+<p>Acha-Acha follows the idea of a dumb but persistent server and smart ephemeral client: all data is loaded via single fetch on a page load and everything else is handled by a client. It’s literally everything, including page navigations, data sorting, filtering, aggregating: server just sends every fact it’s aware of, and client deduces lists, totals and sums from raw data on the fly. For example, on index page there’s achievement count on each user’s badge: it’s not stored in a database, but calculated on a client from a raw achievements list (equivalent of <code class="language-plaintext highlighter-rouge">select count group by</code>).</p>
+
+<p style="text-align: center"><img src="aggregations.png" style="width: 345px; height: 291px" /></p>
+
+<p>Once app is loaded, you can go to any page and there’ll be not a single ajax call for that. Each page is just a couple of queries to already fetched DB. Doing zero ajax calls is wickedly fast, much faster than talking to server, even very good one.</p>
+
+<p>There’s no “RESTful” server API, of course — just one endpoint (<code class="language-plaintext highlighter-rouge">/api/db/</code>) that dumps everything. We can probably generate response once and serve it from disk via Nginx, it’s not dynamic at all.</p>
+
+<p>Actually, we’ve added some dynamism after the contest: list of new achievements, new users and new repos are delivered to the browser when someone adds new repo or old one gets updated. Here’s all the code (literally, there’s not a line more) that handles all server pushes:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>(let [socket (js/WebSocket. url)]
+  (set! (.-onmessage socket)
+        (fn [event]
+          (let [tx-data (read-transit (.-data event))]
+            (d/transact! conn tx-data)))))
+</code></pre></div></div>
+
+<p>This little snippet is everything you need to magically transform a fully static web app to a fully dynamic one. On any page, wherever you are, you’ll see up-to-date information and all the changes in real-time. If a user gets awarded, you’ll see the new achievement popping up on user’s page, on index page you’ll see how his medal’s counter gets advanced, and on repo’s page you’ll see his avatar being added to the achievements list. Amazing thing is that there’s no code to support any of this. There’s just one listener that puts everything it sees to the database.</p>
+
+<p>It wouldn’t be possible without React, of course. Where DataScript gives you simplicity with “just put everything to the DB”, React gives you simplicity with “just take the DB and render everything from it”. In Acha-Acha, every page is always rendered from scratch, including data queries for everything it needs; we don’t even have Om/Quiescent style optimisations of <code class="language-plaintext highlighter-rouge">shouldComponentUpdate</code> — and still, it’s quite performant and perfectly useful.</p>
+
+<p>Speaking of performance — we haven’t implemented any limits for main page, we aren’t even truncating list of users and just render everybody. I presumed that my browser will start suffering after 10th repository added, but real-world experience was much more positive. We’ve seen up to ~50K datoms kept in the DB, main time spent on initial DB population, working fast after that (speaking of which, I found a good potential to speed up initial bulk import ~5-10 times in DataScript). 26K datoms were inserted in ~800ms, not that lethal, especially after I’ve added progress bar (not in the deployed version yet). Again, 26K datoms is for ~30 repos and ~1200 users, much bigger than typical app will probably need to load at once. Still faster that GMail though :)</p>
+
+<p>Another huge performance revelation was Transit. It’s a serialization format that keeps all your Clojure data structures intact (persistent maps/vectors/sets/lists, keywords, dates — yes, we send dates as-is, totally transparent and very handy) and still performs on par with browser’s built-in <code class="language-plaintext highlighter-rouge">JSON.parse</code>. Here’s totally unscientific comparison of deserialization speeds:</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>json              8.338ms   1006 Kb
+transit          14.228ms    950 Kb
+json + js-&gt;clj  213.135ms   1006 Kb
+edn             358.302ms   1055 Kb
+</code></pre></div></div>
+
+<p class="fig">(in our case, 1Mb of data corresponds to those 50K datoms, if I remember correctly)</p>
+
+<p>Overall experience from using DataScript was very smooth and it performed with dignity in tough conditions of limited time and unexpected performance demands (e.g. each page re-rendering is a couple of queries and <em>a lot</em> of entities lookups over a database that contains every fact about everything). It leads to an architecture that is quick to develop and requires very little effort to achieve outstanding results.</p>
+
+<p>Now about fun stuff.</p>
+
+<p>You can check out live version at <a href="http://acha-acha.co">acha-acha.co</a>. Everything is still not smooth enough<sup id="fnref:1" role="doc-noteref"><a href="#fn:1" class="footnote" rel="footnote">1</a></sup> — beware. Please do not abuse it, as we’re still not prepared for real-world SaaS.</p>
+
+<p>We also have the source code available <a href="https://github.com/someteam/acha">at github</a>. It was updated with most urgent patches, including real-time page updates, missing images, better repo handling, progress-bar, etc.</p>
+
+<p>And we have <a href="https://github.com/someteam/acha/releases">portable version</a>. It’s totally autonomous, only prerequisite is Java. It’s for private network setups, when you want to play with achievements but don’t want to share your secret code with us. Feel free to. <a href="https://github.com/someteam/acha/blob/master/README.md">Instructions</a>.</p>
+
+<p>As for the achievements themselves, we’ve implemented just about ⅓ of what we’ve planned. Much more to come.</p>
+
+<p><img src="tease.png" style="width: 498px; height: 57px;" /></p>
+
+<div class="footnotes-br"></div>
+<div class="footnotes" role="doc-endnotes">
+  <ol>
+    <li id="fn:1" role="doc-endnote">
+      <p>Except for pixel art, which is far more than I could dream of. It’s remarkable. <a href="#fnref:1" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+
+
+  <p class=footer>
+    <span>October 6, 2014</span>
+    
+
+    
+  </p>
+
+  <script>
+    document.querySelectorAll(".hoverable").forEach(function (e) {
+        e.onclick = function() { e.classList.toggle("clicked"); }
+    });
+  </script>
+
+  
+  <div class="about">
+    <div class="about_photo"></div>
+    <div class="about_inner">
+      <p>Hi!</p>
+      <p>I’m Nikita. Here I write about programming and UI design <a style="margin-left: 5px" class="btn-subscribe" href="/blog/how-to-subscribe/" target="_blank"><svg viewBox="0 0 800 800"><path d="M493 652H392c0-134-111-244-244-244V307c189 0 345 156 345 345zm71 0c0-228-188-416-416-416V132c285 0 520 235 520 520z"/><circle cx="219" cy="581" r="71"/></svg> Subscribe</a></p>
+      <p>I also create open-source stuff: Fira Code, AnyBar, DataScript and Rum. If you like what I do and want to get early access to my articles (along with other benefits), you should <a href="https://patreon.com/tonsky" target="_blank">support me on Patreon</a>.</p>
+    </div>
+  </div>
+  
+
+</article>
+
+
+<div class="preload"></div>
+
+</div>
+
+<script>
+  function updateFlashlight(e) {
+    var style = document.body.style;
+    style.backgroundPositionX = e.pageX - 250 + "px";
+    style.backgroundPositionY = e.pageY - 250 + "px";
+  }
+
+  document.querySelector(".dark_mode").onclick = function(e) {
+    var body = document.body;
+    body.classList.toggle("dark");
+    if (body.classList.contains("dark")) {
+      updateFlashlight(e);
+      ["mousemove", "touchstart", "touchmove", "touchend"].forEach(function(s) {
+        document.documentElement.addEventListener(s, updateFlashlight, false);
+      });
+    } else {
+      ["mousemove", "touchstart", "touchmove", "touchend"].forEach(function(s) {
+        document.documentElement.removeEventListener(s, updateFlashlight, false);
+      });
+    }
+  }
+</script>

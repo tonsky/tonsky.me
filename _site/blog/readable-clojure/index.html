@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en" prefix="og: http://ogp.me/ns#" xmlns:og="http://opengraphprotocol.org/schema/">
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
+  
+    <meta name="viewport" content="width=640" />
+  
+  <meta name="theme-color" content="#FDDB29">
+  <link href="/i/favicon.png" rel="icon" sizes="32x32">
+
+  <link href='/style.css?v=20201203' rel='stylesheet' type='text/css' />
+  <title>Readable Clojure @ tonsky.me</title>
+
+  <link href="/blog/atom.xml" rel="alternate" title="Nikita Prokopov’s blog" type="application/atom+xml" />
+
+  <meta name="author" content="Nikita Prokopov" />
+  
+  <meta property="og:title" content="Readable Clojure" />
+  <meta property="og:url" content="https://tonsky.me/blog/readable-clojure/" />
+  
+    <meta property="og:type" content="article" />
+
+    <meta property="article:published_time" content='2017-05-24' />
+
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:title" content="Readable Clojure" />
+  
+
+  
+    <meta property="og:description" content="Some advices to writing Clojure code" />
+    <meta name="twitter:description" content="Some advices to writing Clojure code" />
+  
+
+  <meta property="og:site_name" content="tonsky.me" />
+  <meta property="article:author" content="https://www.facebook.com/nikitonsky" />
+  <meta property="profile:first_name" content="Nikita" />
+  <meta property="profile:last_name" content="Prokopov" />
+  <meta property="profile:username" content="tonsky" />
+  <meta property="profile:gender" content="male" />
+
+  <meta name="twitter:creator" content="@nikitonsky" />
+</head>
+<body>
+<div class="page ">
+
+<ul class=menu>
+  <li><a class="menu__item menu__item_inside" href="/">Blog</a></li>
+  <li><a class="menu__item" href="/talks/">Talks</a></li>
+  <li><a class="menu__item" href="/projects/">Projects</a></li>
+  <li><a class="menu__item" href="/design/">Logos</a></li>
+  <!-- <li><a class="menu__item" href="/consulting/">UX&nbsp;Consulting</a></li> -->
+  <li><a class="menu__item" href="/patrons/">Patrons</a></li>
+  <div class="spacer"></div>
+  <div class="dark_mode"></div>
+</ul>
+
+
+<article class="post">
+  <h1 class="title">Readable Clojure</h1>
+
+  <p></p>
+
+  <style>
+	.osx { height: 371px; }
+	.osx > img { border-radius: 5px; }
+</style>
+
+<p>This is how you can make Clojure code more pleasant to work with:</p>
+
+<ul>
+  <li><a href="#dont-use-use">Don’t use “use”</a></li>
+  <li><a href="#use-consistent-unique-namespace-aliases">Use consistent, unique namespace aliases</a></li>
+  <li><a href="#use-long-namespace-aliases">Use long namespace aliases</a></li>
+  <li><a href="#choose-readabilityover-compactness">Choose readability over compactness</a></li>
+  <li><a href="#dont-rely-on-implicit-nil-to-false-coercion">Don’t rely on implicit nil-to-false coercion</a></li>
+  <li><a href="#avoid-higher-order-functions">Avoid higher-order functions</a></li>
+  <li><a href="#dont-spare-names">Don’t spare names</a></li>
+  <li><a href="#dont-use-firstsecondnth-to-unpack-tuples">Don’t use first/second/nth to unpack tuples</a></li>
+  <li><a href="#dont-fall-for-expanded-opts">Don’t fall for expanded opts</a></li>
+  <li><a href="#use--as-prefix-for-references">Use * as prefix for references</a></li>
+  <li><a href="#align-let-bindings-in-two-columns">Align let bindings in two columns</a></li>
+  <li><a href="#use-two-empty-lines-between-top-level-forms">Use two empty lines between top-level forms</a></li>
+</ul>
+
+<h2 id="dont-use-use">Don’t use “use”</h2>
+
+<p>And don’t <code class="language-plaintext highlighter-rouge">:refer</code> anything either. Every var you bring from another namespace should have a namespace qualifier. Makes it easier to track vars to their source.</p>
+
+<figure class="osx"><img src="use.gif" /></figure>
+
+<p>You’ll also save yourself from name collisions down the way.</p>
+
+<h2 id="use-consistent-unique-namespace-aliases">Use consistent, unique namespace aliases</h2>
+
+<p>If you gave namespace an alias, stick to it. Don’t require</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[clojure.string :as str]
+</code></pre></div></div>
+
+<p>in one file but</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[clojure.string :as string]
+</code></pre></div></div>
+
+<p>in another.</p>
+
+<p>That way you’ll be able to actually remember your aliases. Oh, and <code class="language-plaintext highlighter-rouge">grep</code> starts to work.</p>
+
+<figure class="osx"><img src="aliases_1.gif" /></figure>
+
+<p>Keep aliases unique too. If <code class="language-plaintext highlighter-rouge">d/entity</code> could mean both <code class="language-plaintext highlighter-rouge">datomic.api/entity</code> or <code class="language-plaintext highlighter-rouge">datascript.core/entity</code>, you lose all the benefits of this rule.</p>
+
+<figure class="osx"><img src="aliases_2.gif" /></figure>
+
+<h2 id="use-long-namespace-aliases">Use long namespace aliases</h2>
+
+<p>Aliases should be readable on their own. Therefore</p>
+
+<ul>
+  <li>don’t use single-letter aliases,</li>
+  <li>don’t be clever or inventive,</li>
+  <li>when shortening, only remove the most obvious parts (company prefix, project name, <code class="language-plaintext highlighter-rouge">clojure.*</code>, <code class="language-plaintext highlighter-rouge">core</code> suffix etc),</li>
+  <li>leave everything else intact:</li>
+</ul>
+
+<figure class="osx"><img src="long_aliases.gif" /></figure>
+
+<p>Now you can read your code starting from any place and don’t have to remember what maps to what. Compare</p>
+
+<figure class="osx"><img src="short_aliases_1.gif" /></figure>
+
+<p>with</p>
+
+<figure class="osx"><img src="short_aliases_2.gif" /></figure>
+
+<p>The former looks terser, but it’s hard to tell what’s going on. The latter is a bit longer but immediately communicates which systems are in play.</p>
+
+<p>Another benefit: you’ll naturally tend to use aliases less often if they are long and clumsy, so long aliases will force you to organize your code better.</p>
+
+<h2 id="choose-readabilityover-compactness">Choose readability over compactness</h2>
+
+<p>Clojure has a plethora of ways to write dense code. Don’t use them just because they are there. Always put readability and code clarity first. Sometimes it means even going against Clojure idioms.</p>
+
+<p>An example. To understand this piece of code you need to know that <code class="language-plaintext highlighter-rouge">possible-states</code> is a set:</p>
+
+<figure class="osx"><img src="set_1.gif" /></figure>
+
+<p>By contrast, to understand following code you don’t need any context:</p>
+
+<figure class="osx"><img src="set_2.gif" /></figure>
+
+<p>Also, notice how the latter reads almost like plain English.</p>
+
+<p>My (incomplete) set of personal rules:</p>
+
+<ul>
+  <li>use <code class="language-plaintext highlighter-rouge">contains?</code> instead of using sets as functions,</li>
+  <li>use <code class="language-plaintext highlighter-rouge">get</code> instead of using map as a function,</li>
+  <li>prefer <code class="language-plaintext highlighter-rouge">(not (empty? coll))</code> over <code class="language-plaintext highlighter-rouge">(seq coll)</code>,</li>
+  <li>explicitly check for <code class="language-plaintext highlighter-rouge">nil?</code>/<code class="language-plaintext highlighter-rouge">some?</code> (more on that below).</li>
+</ul>
+
+<h2 id="dont-rely-on-implicit-nil-to-false-coercion">Don’t rely on implicit nil-to-false coercion</h2>
+
+<p>Unfortunately, Clojure mixes two very different domains: nil/existence checking and boolean operations. As a result, you have to constantly guess author’s intents because they’re not expressed explicitly in the code.</p>
+
+<p>I advise using real boolean expressions and predicates in all boolean contexts. Explicit checks are easier to read and communicate intent better. Compare implicit</p>
+
+<figure class="osx"><img src="nil_1.gif" /></figure>
+
+<p>and explicit</p>
+
+<figure class="osx"><img src="nil_2.gif" /></figure>
+
+<p>The more serious reason is that nil-as-false idiom fails when you want <code class="language-plaintext highlighter-rouge">false</code> to be a possible value.</p>
+
+<figure class="osx"><img src="nil_3.gif" /></figure>
+
+<p>Problems like this are common when working with boolean attributes/parameters and default values.</p>
+
+<p>Some advice to follow:</p>
+
+<ul>
+  <li>wrap plain objects with <code class="language-plaintext highlighter-rouge">some?</code> in <code class="language-plaintext highlighter-rouge">when</code>/<code class="language-plaintext highlighter-rouge">if</code>,</li>
+  <li>prefer <code class="language-plaintext highlighter-rouge">when-some</code>/<code class="language-plaintext highlighter-rouge">if-some</code> over <code class="language-plaintext highlighter-rouge">when-let</code>/<code class="language-plaintext highlighter-rouge">if-let</code>,</li>
+  <li>be careful with <code class="language-plaintext highlighter-rouge">or</code> when choosing a first non-nil value,</li>
+  <li>for <code class="language-plaintext highlighter-rouge">filter</code>/<code class="language-plaintext highlighter-rouge">remove</code> predicates, provide proper boolean values through <code class="language-plaintext highlighter-rouge">some?</code>/<code class="language-plaintext highlighter-rouge">nil?</code>.</li>
+</ul>
+
+<h2 id="avoid-higher-order-functions">Avoid higher-order functions</h2>
+
+<p>I found code that builds functions with <code class="language-plaintext highlighter-rouge">comp</code>, <code class="language-plaintext highlighter-rouge">partial</code>, <code class="language-plaintext highlighter-rouge">complement</code>, <code class="language-plaintext highlighter-rouge">every-pred</code>, <code class="language-plaintext highlighter-rouge">some-fn</code> to be hard to read. Mainly because it <em>looks different</em> from the normal function calls: no parens, application order is different, you can’t see arguments.</p>
+
+<p>It requires effort to figure out what exactly will happen:</p>
+
+<figure class="osx"><img src="fn_1.gif" /></figure>
+
+<p>Even as experienced Clojure programmer I haven’t developed a skill to parse such structures easily.</p>
+
+<p>What I find easy to read, though, is anonymous function syntax. It looks exactly like a normal function call, you can see where parameters go, what’s applied after what — it’s instantly familiar:</p>
+
+<figure class="osx"><img src="fn_2.gif" /></figure>
+
+<h2 id="dont-spare-names">Don’t spare names</h2>
+
+<p>Some facilities in Clojure (threading macros, anonymous functions, destructuring, higher-order functions) were designed to let you skip <em>names</em>:</p>
+
+<figure class="osx"><img src="names_1.gif" /></figure>
+
+<p>This is great but sometimes impedes readability. Without names, you are forced to keep all the intermediate results in your head.</p>
+
+<p>To avoid that, add meaningful names where they could be omitted:</p>
+
+<figure class="osx"><img src="names_2.gif" /></figure>
+
+<p>You <em>can</em> omit names in threading macros (<code class="language-plaintext highlighter-rouge">-&gt;</code>, <code class="language-plaintext highlighter-rouge">-&gt;&gt;</code> etc) but only if object/objects passed through do not change their type. Most cases of filtering, removing, modifying elements in a collection are fine.</p>
+
+<p>E.g. here because it’s still users all the way until the end, intermediate names can be omitted:</p>
+
+<figure class="osx"><img src="names_3.gif" /></figure>
+
+<h2 id="dont-use-firstsecondnth-to-unpack-tuples">Don’t use first/second/nth to unpack tuples</h2>
+
+<p>Although this works:</p>
+
+<figure class="osx"><img src="tuples_1.gif" /></figure>
+
+<p>you’re missing an opportunity to use destructuring to</p>
+
+<ul>
+  <li>improve readability,</li>
+  <li>assign names to tuple elements</li>
+  <li>and show the shape of the data:</li>
+</ul>
+
+<figure class="osx"><img src="tuples_2.gif" /></figure>
+
+<h2 id="dont-fall-for-expanded-opts">Don’t fall for expanded opts</h2>
+
+<p>The expanded opts idiom does only two things:</p>
+
+<ul>
+  <li>it is extremely cool,</li>
+  <li>and it saves you two curly brackets at the call site.</li>
+</ul>
+
+<figure class="osx"><img src="opts_1.gif" /></figure>
+
+<p>The downsides are much more serious. <code class="language-plaintext highlighter-rouge">start</code> will be extremely painful to call if you construct map of options dynamically or if you need to do it through <code class="language-plaintext highlighter-rouge">apply</code>:</p>
+
+<figure class="osx"><img src="opts_2.gif" /></figure>
+
+<p>Because of that, I recommend to always accept options as a map:</p>
+
+<figure class="osx"><img src="opts_3.gif" /></figure>
+
+<h2 id="use--as-prefix-for-references">Use * as prefix for references</h2>
+
+<p>References and their content are different, so they need different names. At the same time, they are not <em>that</em> different to invent unique combination of names each time.</p>
+
+<p>I suggest simple convention: prepend <code class="language-plaintext highlighter-rouge">*</code> (star) to reference names.</p>
+
+<figure class="osx"><img src="refs.gif" /></figure>
+
+<p>The star was chosen because it resembles C/C++ pointers.</p>
+
+<h2 id="align-let-bindings-in-two-columns">Align let bindings in two columns</h2>
+
+<p>Compare this:</p>
+
+<figure class="osx"><img src="let_1.gif" /></figure>
+
+<p>to this:</p>
+
+<figure class="osx"><img src="let_2.gif" /></figure>
+
+<p>I do it by hand, which I consider to be a small price for readability boost that big. I hope your autoformatter can live with that.</p>
+
+<h2 id="use-two-empty-lines-between-top-level-forms">Use two empty lines between top-level forms</h2>
+
+<p>Put two empty lines between functions. It’ll give them more space to breathe.</p>
+
+<figure class="osx" style="height: 750px"><img src="space.gif" /></figure>
+
+<p>Seems unimportant, but trust me: once you try it, you’ll never want to go back.</p>
+
+
+
+  <p class=footer>
+    <span>May 24, 2017</span>
+    
+
+    
+      <span class="separator">·</span>
+      <span>Discuss on</span>
+      
+        <a href="https://news.ycombinator.com/item?id=14413872" target="_blank">HackerNews</a>
+      
+      
+      
+        <a href="https://www.reddit.com/r/Clojure/comments/6d3w8i/readable_clojure/" target="_blank">Reddit</a>
+      
+      
+    
+  </p>
+
+  <script>
+    document.querySelectorAll(".hoverable").forEach(function (e) {
+        e.onclick = function() { e.classList.toggle("clicked"); }
+    });
+  </script>
+
+  
+  <div class="about">
+    <div class="about_photo"></div>
+    <div class="about_inner">
+      <p>Hi!</p>
+      <p>I’m Nikita. Here I write about programming and UI design <a style="margin-left: 5px" class="btn-subscribe" href="/blog/how-to-subscribe/" target="_blank"><svg viewBox="0 0 800 800"><path d="M493 652H392c0-134-111-244-244-244V307c189 0 345 156 345 345zm71 0c0-228-188-416-416-416V132c285 0 520 235 520 520z"/><circle cx="219" cy="581" r="71"/></svg> Subscribe</a></p>
+      <p>I also create open-source stuff: Fira Code, AnyBar, DataScript and Rum. If you like what I do and want to get early access to my articles (along with other benefits), you should <a href="https://patreon.com/tonsky" target="_blank">support me on Patreon</a>.</p>
+    </div>
+  </div>
+  
+
+</article>
+
+
+<div class="preload"></div>
+
+</div>
+
+<script>
+  function updateFlashlight(e) {
+    var style = document.body.style;
+    style.backgroundPositionX = e.pageX - 250 + "px";
+    style.backgroundPositionY = e.pageY - 250 + "px";
+  }
+
+  document.querySelector(".dark_mode").onclick = function(e) {
+    var body = document.body;
+    body.classList.toggle("dark");
+    if (body.classList.contains("dark")) {
+      updateFlashlight(e);
+      ["mousemove", "touchstart", "touchmove", "touchend"].forEach(function(s) {
+        document.documentElement.addEventListener(s, updateFlashlight, false);
+      });
+    } else {
+      ["mousemove", "touchstart", "touchmove", "touchend"].forEach(function(s) {
+        document.documentElement.removeEventListener(s, updateFlashlight, false);
+      });
+    }
+  }
+</script>

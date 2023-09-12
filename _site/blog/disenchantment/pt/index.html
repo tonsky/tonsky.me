@@ -1,0 +1,308 @@
+<!doctype html>
+<html lang="en" prefix="og: http://ogp.me/ns#" xmlns:og="http://opengraphprotocol.org/schema/">
+<head>
+  <meta http-equiv="content-type" content="text/html;charset=UTF-8"/>
+  
+    <meta name="viewport" content="width=640" />
+  
+  <meta name="theme-color" content="#FDDB29">
+  <link href="/i/favicon.png" rel="icon" sizes="32x32">
+
+  <link href='/style.css?v=20201203' rel='stylesheet' type='text/css' />
+  <title>O Desencanto do Software @ tonsky.me</title>
+
+  <link href="/blog/atom.xml" rel="alternate" title="Nikita Prokopov’s blog" type="application/atom+xml" />
+
+  <meta name="author" content="Nikita Prokopov" />
+  
+  <meta property="og:title" content="O Desencanto do Software" />
+  <meta property="og:url" content="https://tonsky.me/blog/disenchantment/pt/" />
+  
+
+  
+
+  <meta property="og:site_name" content="tonsky.me" />
+  <meta property="article:author" content="https://www.facebook.com/nikitonsky" />
+  <meta property="profile:first_name" content="Nikita" />
+  <meta property="profile:last_name" content="Prokopov" />
+  <meta property="profile:username" content="tonsky" />
+  <meta property="profile:gender" content="male" />
+
+  <meta name="twitter:creator" content="@nikitonsky" />
+</head>
+<body>
+<div class="page ">
+
+<ul class=menu>
+  <li><a class="menu__item menu__item_inside" href="/">Blog</a></li>
+  <li><a class="menu__item" href="/talks/">Talks</a></li>
+  <li><a class="menu__item" href="/projects/">Projects</a></li>
+  <li><a class="menu__item" href="/design/">Logos</a></li>
+  <!-- <li><a class="menu__item" href="/consulting/">UX&nbsp;Consulting</a></li> -->
+  <li><a class="menu__item" href="/patrons/">Patrons</a></li>
+  <div class="spacer"></div>
+  <div class="dark_mode"></div>
+</ul>
+
+
+<article class="post">
+  <h1 class="title">O Desencanto do Software</h1>
+
+  <p></p>
+
+  <p><em>Translated by <a href="https://twitter.com/brunojppb">Bruno Paulino</a> <a href="..">from English</a></em></p>
+
+<p>Eu tenho programado por 15 anos. Recentemente nossa industria tem perdido o cuidado com eficiência, simplicidade e exelência. Isso começou a me incomodar ao ponto de me deixar depressivo com minha própria carreira e a área de TI como um todo.</p>
+
+<p>Carros modernos funcionam, digamos assim, a 98% do que é fisicamente possível com o atual design do motor. Prédios modernos utilizam apenas o material necessário para funcionar e serem adequadamente seguros para as condições que foram projetados. Todos os planos convergem para uma ótima forma/tamanho/carga e basicamente são bem parecidos.</p>
+
+<p>Apenas em software é normal que um programa rode a 1% ou ate mesmo a 0.01% de sua capacidade máxima e as pessoas parecem tranquilas quanto a isso. As vezes essas mesmas pessoas se mostram orgulhosas de quanto ineficiente seu software é, ainda dizendo “porque se preocupar, computadores são rápidos pra caramba”:</p>
+
+<blockquote>
+  <p><a href="https://twitter.com/tveastman/status/1039002300600147968">@tveastman:</a> Eu tenho um programa em Python que rodo todo dia e ele demora 1.5 segundos. Eu gastei 6 horas reescrevendo em Rust e agora ele roda em 0.006 segundos. Essa melhoria na eficiência significa que eu receberei meu tempo de volta em 41 anos e 24 dias :-)</p>
+</blockquote>
+
+<p>Você provavelmente ja ouviu o mantra: “O tempo do programador é mais caro que o tempo do computador”. O que isso significa é que estamos desperdiçando computadores em uma escala absurda. Você compraria um carro se ele consumisse 100 litros por 100 quilômetros? e 1000 litros por 100 quilômetros? Estamos fazendo isso com computadores o tempo todo.</p>
+
+<figure><a href="https://xkcd.com/2021/"><img src="../software_development_2x.gif" height="440" /></a></figure>
+
+<h2 id="tudo-é-muito-lento">Tudo é muito lento</h2>
+
+<p>Olhe em volta: Nosso computadores portáteis são milhares de vezes mais poderosos que os que levaram o homem a lua. Mesmo assim, algumas páginas web sofrem para manter um scroll de 60fps no mais moderno Macbook Pro. Eu consigo jogar em alta resolução, assistir videos em 4K porém não consigo rolar uma página web? Como isso é aceitável?</p>
+
+<p>Google Inbox, um web app criado pelo Google, rodando no Chrome também desenvolvido pelo Google, <a href="https://twitter.com/nikitonsky/statuses/968882438024941568">demora 13 segundos para abrir um email de tamanho moderado.</a></p>
+
+<figure><video autoplay="" muted="" loop="" preload="auto" playsinline="" controls=""><source src="../inbox.mp4" type="video/mp4" /></video></figure>
+
+<p>O app também anima caixas vazias ao invés de mostrar o conteúdo do email, porque essa é a única forma de animar coisas na web com uma performance decente. Não, performance decente não significa 60fps, significa “tão rápido quanto uma página web pode ser”. Não posso esperar para ver o que a comunidade web vai dizer quando monitores 120Hz se tornarem comuns. As coisas mal conseguem rodar a 60Hz agora.</p>
+
+<p>Windows 10 demora 30 minutos para atualizar. O que poderia justificar toda essa demora? Todo esse tempo é suficiente para formatar meu Disco SSD, baixar um build do zero e instalar 5 vezes seguidas.</p>
+
+<figure><img src="../windows_update.gif" height="435" /></figure>
+
+<blockquote>
+  <p><a href="https://pavelfatin.com/typing-with-pleasure/">Pavel Fatin</a>: Digitar em um editor é um processo relativamente simples, mesmo computadores 286 eram capazes de fornecer uma experiência decente.</p>
+</blockquote>
+
+<p>Editores de texto modernos possuem uma latência maior que Emacs com já 42 anos de idade. Editores de texto! o que poderia ser mais simples? Em cada tecla prescionada, tudo que você tem que fazer é atualizar pequenas regiões na tela e parece que editores modernos não conseguem fazer em 16 milissegundos. É muito, muito tempo. Jogos 3D preenchem a tela inteira com milhões de polígonos nos mesmo 16 milissegundos e ainda processa inputs, recalculam o mundo e carregam e descarregam recursos dinamicamente. Como isso é possível?</p>
+
+<p>Como uma modinha global, nós não estamos desenvolvendo software mais rápidos com mais funcionalidades. Nós estamos desenvolvendo hardware mais poderosos que rodam software mais lentos com as mesmas funcionalidades. Tudo funciona muito abaixo da velocidade possível. Já se perguntou porque seu smartphone demora entre 30 e 60 segundos para inicializar? Por que não pode inicializar em 1 segundo? Não existem limitações físicas para justificar isso. Eu adoraria ver os limites serem alcançados e explorados, utilizando toda performance disponível para fazer algo significativo.</p>
+
+<h2 id="tudo-é-gigaaaaante">Tudo é gigaaaaante</h2>
+
+<p>Aplicações web poderiam rodar 10 vezes mais rápido se você simplemente bloquear as propagandas. Google implora para que todo mundo pare de atirar no próprio pé com sua iniciativa chamada AMP (Accelerated Mobile Pages) - Uma solução tecnológica para um problema que não precisa de nem uma tecnologia, apenas um pouco de senso comum. Se removermos o desnecessário, a web se tornaria incrivelmente rápida. Quão inteligente você precisa ser para entender isso?</p>
+
+<p>O sistema Android sozinho <a href="https://grumpy.website/post/0Oz1lDOq5">usa mais de 6GB</a>. Apenas pense por um minuto o quanto gigante esse número é. O que tem dentro desse sistema? Filmes em HD? Creio que seja basicamente código: Kernel e drivers. Algumas Strings e recursos também, claro. Porém não pode ser tão grande assim. Quantos drivers você precisa para um smartphone?</p>
+
+<figure><img src="../android_storage.jpg" height="489" /></figure>
+
+<p>O Windows 95 tem 30MB. Hoje temos páginas web mais pesadas que isso! Windows 10 tem 4GB, o que justifica ser 113 vezes maior? Funcionalmente, eles são basicamente o mesmo. Sim, nós temos Cortana, porém eu não acredito que isso justifique os 3970 MB a mais. De qualquer forma, o que o Windows 10 for, o Android realmente precisa ser 150% disso?</p>
+
+<p>O app de teclado do Google consome 150MB. Isso é serio que um app que renderezida 30 teclas na tela é mais complexo que todo o Windows 95? Google app, que é basicamente um pacote incluíndo Google Web Search, é 350MB! Google Play Services, o qual eu não uso (Eu não compro livros, música ou vídeos lá) - 300MB que apenas existem lá e que eu não posso deletar.</p>
+
+<figure><img src="../apps_storage.gif" height="480" /></figure>
+
+<p>Depois de tudo isso, eu fico com 1GB para minhas fotos depois que instalo os apps essenciais(mídias sociais, chats, mapas, taxi, bancos e etc). E isso não inclue nem um jogos ou música! Lembra de um tempo que um Sistema Operacional com todos os dados e aplicativos cabiam em um disquete?</p>
+
+<p>Seu app para tarefas é provavelmente escrito em Electron, o qual <a href="https://josephg.com/blog/electron-is-flash-for-the-desktop/">contém drivers para controle de Xbox 360</a>, pode renderizar gráficos 3D, tocar áudio e tirar fotos com sua camera.</p>
+
+<figure><img src="../slack_memory.jpg" height="388" /></figure>
+
+<p>Uma simples aplicação de chat é visivelmente pesada, consumindo muita memória e tempo de carregamento. Sim, você tem que contar o Slack como uma aplicação que consome muitos recursos. Um chat e um simples editor de texto deveriam ser considerados as aplicações mais leves existente no mundo. Bem-vindo a 2018.</p>
+
+<p>Pelo menos funciona, você pode dizer. Bom, maior não significa melhor. Maior significa que alguém perdeu o controle. Maior significa que nós não sabemos o que está acontecendo. Maior significa mais débito em complexidade, em performance e em consistência. Isso não é a norma e não deve se tornar a norma. Aplicativos gigantes deveriam ser um sinal vermelho. Deveriam significar “Fuja o mais rápido que puder”.</p>
+
+<h2 id="tudo-apodrece">Tudo Apodrece</h2>
+
+<p>Um smartphone Android com 16GB era perfeitamente funcional 3 anos atrás. Hoje, com a versão 8.1 do Android, esses mesmos smartphones são praticamente inutilizáveis, porque cada app se tornou pelo menos 2 vezes maior sem nenhum motivo aparente. Sem nenhuma funcionalidade nova. Não são mais rápidos ou mais otimizados. Eles não parecem diferente. Eles apenas… aumentam de tamanho?</p>
+
+<p>O iPhone 4S foi lançado com o iOS 5, porém mal consegue rodar o iOS 9. E não é porque o iOS 9 é muito mais superior. São  praticamente a mesma coisa. Porém, o novo hardware é mais rápido, então eles fizeram o software mais lento. Não se preocupe, você agora tem novas funcionalidades como… rodar os mesmos apps com a mesma velocidade! Não consigo entender.</p>
+
+<p>iOS 11 deixou de suportar apps em 32-bit. Isso significa que se desenvolvedor não estiver lançando atualizações durante o lançamento do iOS 11 ou se não quiser atualizar um app que está rodando perfeitamente, chances são grandes de você nunca mais ver esse app.</p>
+
+<blockquote>
+  <p><a href="https://twitter.com/jckarter/statuses/1017071794245623808">@jckarter</a>: Um programa DOS pode rodar sem nenhuma modificação em praticamente qualquer computador feito desde os anos 80. Um app javascript provavelmente quebrará com a próxima atualização do Chrome.</p>
+</blockquote>
+
+<p>Páginas web atuais provelmente <a href="http://tonsky.me/blog/chrome-intervention/">não serão compatíveis com nenhum navegador web daqui a 10 anos</a>(Talvés até antes).</p>
+
+<p>“Consome tudo que você tem apenas para se manter no lugar”. Porém, qual o sentido disso? Eu talvés goste de comprar um novo smartphone ou um novo MacBook, porém apenas para poder rodar os mesmos aplicativos que se tornaram devagar?</p>
+
+<p>Eu acho que nós podemos e devemos fazer melhor que isso. Todo mundo está ocupado construindo alguma coisa agora, hoje, raramente para o amanhã. Seria muito legal se tudo isso que construimos durasse mais um pouco.</p>
+
+<h2 id="pior-é-melhor">Pior é Melhor</h2>
+
+<p>Ninguem entende nada nesse ponto. Nem querem entender. Nós apenas jogamos coisas feitas pela metade no mercado, esperamos pelo melhor e ainda chamos isso de “saberia da startup”.</p>
+
+<p>Páginas web pedem para você atualizar se algo sair errado. Quem tem tempo para verificar o que aconteceu?</p>
+
+<figure><img src="../reload.jpg" height="185" /></figure>
+
+<p>Todo aplicativo web produz constantemente erros javascript aleatórios, até mesmo em navegadores compatíveis.</p>
+
+<p>A arquitetura página web/banco de dados SQL é feita baseada na premissa (assim espera-se) quem ninguém toque nos dados enquanto você olha na página renderizada.</p>
+
+<p>A maioria dos aplicativos colaborativos implementam “o melhor esforço”  e tem vários cenários comuns onde eles perdem dados. Já viu essa menssagem “qual versão manter?”. Eu digo, o nível ficou tão baixo que os usuários ficariam felizes se pelo menos eles tivessem uma messagem dessas.</p>
+
+<figure><img src="../icloud_conflict.jpg" height="468" /></figure>
+
+<p>E no meu mundo onde um app fala “Eu vou destruir parte de seu trabalho, no entanto você pode escolher que parte perder” isso não é okay.</p>
+
+<p>Linux mata processos por padrão. E ainda assim é o sistema operacional para servidores mais popular.</p>
+
+<p>Todo dispositivo que tenho, falha muitas vezes de um forma ou de outra. Meu monitor Dell precisa de um hard reset de tempos em tempos só porque tem software rodando lá. Airdrop? Você é um sortudo se ele detectar seu dispositivo. Bluetooth? A especificação é tão complexa que a grande parte dos dispositivos <a href="https://thewirecutter.com/blog/understanding-bluetooth-pairing-problems/">não se comunicam entre si</a> e <a href="http://time.com/4358533/bluetooth-fix-how/">resets periódicos são a melhor forma de consertar.</a></p>
+
+<figure><img src="../plz_connect.jpg" height="450" /></figure>
+
+<p>E eu não estou nem considerando IoT(Internet Of Things). Tudo funciona tão mal que eu não sei nem o que acrescentar aqui.</p>
+
+<p>Eu quero ser orgulhoso do meu trabalho. Quero entregar coisas funcionando, sólidas e estáveis. Para isso, nós precisamos entender o que estamos construindo, de ponta a ponta, e isso é impossível de fazer em sistemas gigantes com engenharia desnecessária.</p>
+
+<h2 id="a-bagunça-é-a-mesma-na-programação">A bagunça é a mesma na programação</h2>
+
+<p>Apenas parece que ninguém está interesado em construir coisas de qualidade, rápidas, eficiente, duradouras. Mesmo quando soluções eficientes tem funcionado por décadas, nós ainda esbarramos nos mesmos problemas: Gerenciamente de pacotes, systemas de build, compiladores, design de linguagens, IDEs.</p>
+
+<p>Sistemas de build não são mais confiáveis e geralmente precisamos excluir tudo, apesar de toda a informação para invalidação existir lá. Nada nos impede de fazer com que o processo de build seja confiável, previsível e 100% reproduzível. Apenas ninguem pensa que é importante. NPM está na situação de “as vezes funciona” tem alguns anos já.</p>
+
+<blockquote>
+  <p><a href="https://twitter.com/przemyslawdabek/status/940547268729606145">@przemyslawdabek</a>: Para mim, rm -rf node_modules é um comando indispensável no meu workflow durante desenvolvimento de aplicações Node.js e Javascript.</p>
+</blockquote>
+
+<p>E tempo de compilação? Ninguem pensa que o compilador funciona por minutos ou até por horas é um problema. O que acontece com “A hora do programador é mais importante”? Quase todos os compiladores, pré e pós-processadores, adicionam muito mais tempo em seu processo de build sem nem uma justificativa.</p>
+
+<figure><a href="https://xkcd.com/303/" target="_blank"><img src="../compiling.gif" height="360" /></a></figure>
+
+<p>Você pode esperar que programadores geralmente tomam decisões racionais, ainda assim, as vezes eles fazem totalmente o contrário. Por exemplo, escolhendo usar Hadoop, <a href="https://www.chrisstucchio.com/blog/2013/hadoop_hatred.html">mesmo quando é mais devagar que rodar a mesma tarefa em um único desktop.</a></p>
+
+<p>Machine Learning e “AI” transformaram software em “achismos” no tempo em que computadores não são nem confiáveis o suficiente.</p>
+
+<blockquote>
+  <p><a href="https://twitter.com/freetonik/status/1039826129190875136">@rakhim</a>: Quando um app ou serviço é descrito como “Feito com AI” ou “Baseado em ML”, eu leio “imprevisivo, não confiável e impossível de entender seu comportamento”. Eu tento evitar “AI” porque eu quero que computadores façam exatamente o oposto: “previsível, confiável e que eu possa entender”.</p>
+</blockquote>
+
+<p>Nós colocamos uma máquina virtual dentro do Linux, e depois colocamos o Docker dentro de máquinas virtuais, simplesmente porque ninguém foi capaz de limpar a bagunça da maioria dos programas, linguagens e o ambiente que isso produz. Nós cobrimos a bagunça com um pano, apenas para não ter que lidar com isso. “Único binário” ainda é a maior jogada de marketing da linguagem Go, por exemplo. Sem bagunça == sucesso.</p>
+
+<figure><a href="https://xkcd.com/1987/" target="_blank"><img src="../python_environment_2x.gif" height="594" /></a></figure>
+
+<p>E as dependências? Desenvolvedores geralmente adicionam “pacotes completos” para resolver os mais simples dos problemas sem considerar os custos. E essas dependências trazem outras dependências. Você termina com uma árvore que se parece com algo como uma história de terror(gigante e cheia de conflitos) e uma comédia (Não tem motivo para incluí-las, <a href="https://medium.com/@jdan/i-peeked-into-my-node-modules-directory-and-you-wont-believe-what-happened-next-b89f63d21558">más mesmo assim nós adicionamos</a>).</p>
+
+<figure><img src="../dependencies.gif" height="440" /></figure>
+
+<p>Programas não podem funcionar por anos sem reiniciar de tempos em tempos. As vezes <a href="https://docs.gitlab.com/ee/administration/operations/unicorn.html#unicorn-worker-killer">alguns dias é pedir muito.</a> Coisas aleatórias acontecem e ninguém sabe o porque.</p>
+
+<p>O que é pior, ninguém tem tempo para parar e descobrir o que está acontecendo. Por que se preocupar se você pode comprar a solução? Rode outra instância AWS, reinicie o processo, destrua e restaure o banco de dados. Escreva um watchdog que reiniciará o aplicativo quebrado a cada 20 minutos. Inclua os mesmos recursos <a href="https://blog.timac.org/2017/0410-analysis-of-the-facebook-app-for-ios-v-87-0/">várias vezes, gere o zip e envie.</a> Mova rápido e não conserte.</p>
+
+<p>Isso não é engenharia. É Apenas preguiça de programar. Engenharia é entender performance, estrutura e os limites do que você está construindo, profundamente. Combinar coisas escritas de qualquer forma com mais coisas escritas de qualquer forma vai totalmente contra esse princípio. Para progredir, nós precisamos entender o que e porque estamos fazendo.</p>
+
+<h2 id="nós-estamos-presos-com-isso">Nós estamos presos com isso</h2>
+
+<p>Então tudo é apenas uma montanha de coisas feitas pela metade por cima de outras coisas escritas de qualquer forma que mal funcionam. E isso fica só crescendo e aumentando a complexidade, diminuindo qualquer chance para mudança.</p>
+
+<p>Para ter um ecosistema saudável, você precisa voltar e revisitar. Você precisa, ocasionalmente, jogar coisas fora e substituir por coisas melhores.</p>
+
+<figure><img src="../design_process.jpg" height="657" /></figure>
+
+<p>Mas quem tem tempo para isso? Nós não temos visto novos Kernels de sistemas operacionais em 25 anos. São simplesmente muito complexos para simplesmente serem reescritos agora. Navegadores são tão cheios de casos isolados que ninguem nem se atreve a escrever uma engine de layout do zero.</p>
+
+<p>A definição de hoje para progresso é jogar mais lenha na fogueira:</p>
+
+<blockquote>
+  <p><a href="https://twitter.com/sahrizv/status/1018184792611827712">@sahrizv</a>: 2014 - Nós precisamos adaptar #microservices para resolver todos os problemas com monolitos.
+2016 - Nós precisamos adotar #docker para resolver todos os nossos problemas com microservices
+2018 - Nós precisamos adotar #kubernetes para resolver nossos problemas com docker</p>
+</blockquote>
+
+<p>Ou reinventar a roda:</p>
+
+<blockquote>
+  <p><a href="https://twitter.com/dr_c0d3/status/1040092903052378112">@dr_c0d3</a>: 2000: Escrever centenas de linhas de XML para “declarativamente” configurar servlets e EJBs.
+2018 - Escrever centenas de linhas de YAML para “declarativamente” configurar seus microservices.
+Pelo menos XML possuia schemas…</p>
+</blockquote>
+
+<p>Nós estamos presos com o que temos e ninguém virá nos salvar.</p>
+
+<h2 id="business-não-ligam">Business não ligam</h2>
+
+<p>Bem como os usuários. Eles apenas aprenderam a usar o que nós construímos. Nós (engenheiros) falamos que todo app Android precisa de 350MB? Okay, eles viverão com isso. Nós falamos que não podemos entregar uma rolagem flúida? Okay, eles viverão com um smartphone lento. Nós falamos “Se não funcionar, reset”? Eles irão resetar. Afinal de contas, eles não tem escolha.</p>
+
+<p>Também não existe competição. Todo mundo está construindo algum produto lento, gigante e não confiável. Pulos em qualidade que acontecem raramente trazem uma vantagem competitiva (iPhone/iOS vs outros smartphones, Chrome vs outros navegadores) que força todo mundo a se reagrupar, porém não por muito tempo.</p>
+
+<p>Isso mostra que é a nossa missão como engenheiros de mostrar ao mundo o que é possível com os computadores atuais em termos de performance, confabilidade, qualidade e usabilidade. Se nós nos preocuparmos, as pessoas irão aprender. E não existem outras pessoas, a não ser nós mesmos, para mostrá-los que isso é possível. Se apenas nos preocuparmos.</p>
+
+<h2 id="nem-tudo-está-perdido">Nem tudo está perdido</h2>
+
+<p>Existem alguns pontos de esperança indicando que melhorar coisas state-of-the-art não é impossível.</p>
+
+<p>O trabalho que <a href="https://twitter.com/mjpt777">Martin Thompson</a> vem fazendo (<a href="https://github.com/LMAX-Exchange/disruptor">LMAX Disruptor</a>, <a href="https://github.com/real-logic/simple-binary-encoding">SBE</a>, <a href="https://github.com/real-logic/aeron">Aeron</a>) é de se admirar. simples e eficiente.</p>
+
+<p><a href="https://github.com/google/xi-editor">Xi editor</a> por Ralph Levien parece ser construido com os princípios corretos em mente.</p>
+
+<p><a href="https://www.youtube.com/user/jblow888">Jonathan Blow</a> tem uma linguagem que ele mesmo desenvolveu para o seu game que compila 500k linhas por segundo em seu laptop. Isso é uma compilação fria, sem cache intermediário e sem build incrementais.</p>
+
+<p>Você não precisa ser um gênio para escrever programas rápidos. Não existe mágica. A única coisa necessária é não escrever seus programas sobre uma pilha de lixo que são muitas dessas ferramentas modernas.</p>
+
+<h2 id="manifesto-para-um-mundo-melhor">Manifesto para um mundo melhor</h2>
+
+<p>Eu quero ver o progresso. Eu quero mudança. Eu quero ver state-of-the-art em engenharia de software melhorar e não só ficar parado no tempo. Eu não quero reinventar a mesma coisa toda vez, geralmente maior e menos performática. Eu quero algo que eu possa acreditar, um propósito válido. Um futuro melhor do que temos hoje e eu quero uma comunidade de engenheiros que compartilham dessa visão.</p>
+
+<p>O que temos hoje não é progresso. Nós mal atingimos os objetivos de negócio usando ferramentas pobres. Nós estamos travados no mesmo local e ninguém quer se mover. Não é nem um lugar legal, é gigante e ineficiente. Nós simplesmente nos acostumamos.</p>
+
+<p>Então eu quero falar em voz alta: Onde estamos hojé é estúpido. Como engenheiros, nós podemos e devemos fazer melhor. Nós podemos ter melhores ferramentas, nós podemos construir apps melhores, mais rápidos, mais previsíveis, mais confiáveis, usando menos recursos(milhares de vezes menos!). Nós precisamos entender profundamente o que estamos fazendo e o porque. Nós precisamos entregar: Segurança, previsíbilidade e a melhor qualidade possível. Nós podemos e devemos ter orgulho de nosso trabalho. Não apenas “dar o que temos”.</p>
+
+<p>Eu espero que não esteja sozinho nisso. Eu espero que tenha pessoas ai fora que queiram fazer a mesma coisa. Eu ficaria muito feliz se, pelo menos, nós começarmos a discutir sobre como a situação atual na indústria de software é ruim e depois talvés descobrir como sair desse estado.</p>
+
+
+  <p class=footer>
+    <span></span>
+    
+
+    
+  </p>
+
+  <script>
+    document.querySelectorAll(".hoverable").forEach(function (e) {
+        e.onclick = function() { e.classList.toggle("clicked"); }
+    });
+  </script>
+
+  
+  <div class="about">
+    <div class="about_photo"></div>
+    <div class="about_inner">
+      <p>Hi!</p>
+      <p>I’m Nikita. Here I write about programming and UI design <a style="margin-left: 5px" class="btn-subscribe" href="/blog/how-to-subscribe/" target="_blank"><svg viewBox="0 0 800 800"><path d="M493 652H392c0-134-111-244-244-244V307c189 0 345 156 345 345zm71 0c0-228-188-416-416-416V132c285 0 520 235 520 520z"/><circle cx="219" cy="581" r="71"/></svg> Subscribe</a></p>
+      <p>I also create open-source stuff: Fira Code, AnyBar, DataScript and Rum. If you like what I do and want to get early access to my articles (along with other benefits), you should <a href="https://patreon.com/tonsky" target="_blank">support me on Patreon</a>.</p>
+    </div>
+  </div>
+  
+
+</article>
+
+
+<div class="preload"></div>
+
+</div>
+
+<script>
+  function updateFlashlight(e) {
+    var style = document.body.style;
+    style.backgroundPositionX = e.pageX - 250 + "px";
+    style.backgroundPositionY = e.pageY - 250 + "px";
+  }
+
+  document.querySelector(".dark_mode").onclick = function(e) {
+    var body = document.body;
+    body.classList.toggle("dark");
+    if (body.classList.contains("dark")) {
+      updateFlashlight(e);
+      ["mousemove", "touchstart", "touchmove", "touchend"].forEach(function(s) {
+        document.documentElement.addEventListener(s, updateFlashlight, false);
+      });
+    } else {
+      ["mousemove", "touchstart", "touchmove", "touchend"].forEach(function(s) {
+        document.documentElement.removeEventListener(s, updateFlashlight, false);
+      });
+    }
+  }
+</script>
