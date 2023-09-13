@@ -9,7 +9,9 @@
     [ring.util.io :as ring-io]
     [ring.util.mime-type :as ring-mime]
     [ring.util.time :as ring-time]
-    [site.parser :as parser])
+    [site.parser :as parser]
+    [site.render :as render]
+    [site.templates :as templates])
   (:import
     [java.io File]))
 
@@ -38,28 +40,33 @@
 
 (def app
   (->
-    (router/router
+    (fn [req]
+      {:status  404
+       :headers {"Content-type" "text/plain; charset=UTF-8"}
+       :body    (str "Path '" (:uri req) "' not found")})
+    (wrap-files "_site")
+    (wrap-files "site")
+    (router/wrap-routes
       (router/routes
         "GET /blog/*" [id]
-        {:status  200
-         :headers {"Content-type" "text/html; charset=UTF-8"}
-         :body    (-> (str "blog/" id "/index.md")
-                    slurp
-                    parser/parse
-                    parser/transform
-                    parser/page
-                    parser/render)}
+        (let [file (io/file (str "site/blog/" id "/index.md"))]
+          (when (.exists file)
+            {:status  200
+             :headers {"Content-type" "text/html; charset=UTF-8"}
+             :body    (-> (slurp file)
+                        parser/parse
+                        parser/transform
+                        (assoc 
+                          :url (str "/blog/" id "/")
+                          :categories #{:blog})
+                        templates/post
+                        templates/default
+                        :content
+                        render/render)}))
         
         "GET /about" []
         {:status 301
-         :headers {"Location" "/projects/"}}
-        
-        "GET /**" [path]
-        {:status  404
-         :headers {"Content-type" "text/plain; charset=UTF-8"}
-         :body    (str "Path '" path "' not found")}))
-    (wrap-files "_site")
-    (wrap-files "site")
+         :headers {"Location" "/projects/"}}))
     wrap-decode-uri
     ring-head/wrap-head))
 

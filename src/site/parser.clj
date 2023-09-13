@@ -5,7 +5,12 @@
 
 (def parse
   (instaparse/parser
-    "<root>     = (<#'\n+'> | block)+
+    "<root>       = meta? (<#'\n+'> | block)+
+     
+     meta         = <#'--- *\n'> meta-item* <#'--- *\n'>
+     meta-item    = meta-key <#' *: *'> (<'\\''> meta-value <'\\''> | <'\"'> meta-value <'\"'> | meta-value) <'\n'>
+     <meta-key>   = #'[a-zA-Z0-9_\\-\n]+'
+     <meta-value> = #'[^\"\n]*'
      
      <block>    = h1 / h2 / h3 / h4 / ul / ol / code-block / blockquote / p
      h1         = <'#'> <#' +'> inline
@@ -44,8 +49,6 @@
      <void-tag>         = #'< *' void-tag-name #' [^>]+'? '>'
      <void-tag-name>    = 'area' | 'base' | 'br' | 'col' | 'embed' | 'hr' | 'img' | 'input' | 'link' | 'meta' | 'param' | 'source' | 'track' | 'wbr'"))
 
-; [ ] Parse post metadata
-
 (defn transform-code-block [& args]
   (let [[lang content]
         (if (vector? (first args))
@@ -72,74 +75,15 @@
    :oli        #(vector :li %&)
    :code-block transform-code-block
    :link       transform-link
-   :img        transform-img})
+   :img        transform-img
+   :meta-item  #(vector (keyword %1) %2)
+   :meta       #(into {} %&)})
 
 (defn transform [tree]
-  (instaparse/transform transforms tree))
+  (let [content (instaparse/transform transforms tree)
+        [meta content] (if (map? (first content))
+                         [(first content) (next content)]
+                         [nil content])]
+    (assoc meta :content content)))
 
-(defn escape ^String [^String s]
-  (-> s
-    (str/replace "&"  "&amp;")
-    (str/replace "<"  "&lt;")
-    (str/replace ">"  "&gt;")
-    (str/replace "\"" "&quot;")
-    (str/replace "'"  "&#x27;")))
-
-(defn render
-  ([tree]
-   (let [sb (StringBuilder.)]
-     (render sb "" tree)
-     (str "<!doctype html>\n" sb)))
-  ([^StringBuilder sb ^String indent tree]
-   (cond
-     (string? tree)
-     (.append sb (escape tree))
-     
-     (and (vector? tree) (= :raw-html (first tree)))
-     (.append sb ^String (str/join (next tree)))
-     
-     (vector? tree)
-     (let [[tag & rest] tree
-           [attrs rest] (if (map? (first rest))
-                          [(first rest) (next rest)]
-                          [nil rest])
-           newline? (not (#{:a :img :em :strong :code} tag))
-           nested?  (#{:html :body :div :ul :ol :blockquote} tag)]
-       (when newline?
-         (.append sb indent))
-       (.append sb "<")
-       (.append sb (name tag))
-       (doseq [[k v] attrs]
-         (.append sb " ")
-         (.append sb (name k))
-         (.append sb "=\"")
-         (.append sb (escape v))
-         (.append sb "\""))
-       (if (seq rest)
-         (do
-           (.append sb ">")
-           (when nested?
-             (.append sb "\n"))
-           (render sb (str indent "  ") rest)
-           (when nested?
-             (.append sb indent))
-           (.append sb "</")
-           (.append sb (name tag))
-           (.append sb ">")
-           (when newline?
-             (.append sb "\n")))
-         (.append sb " />")))
-     
-     (sequential? tree)
-     (doseq [form tree]
-       (render sb indent form)))))
-
-(defn page [tree]
-  [:html {:lang "en", :prefix "og: http://ogp.me/ns#", :xmlns:og "http://opengraphprotocol.org/schema/"}
-   [:head
-    [:meta {:http-equiv "content-type" :content "text/html;charset=UTF-8"}]
-    [:link {:href "/style.css", :rel "stylesheet", :type "text/css"}]]
-   [:body
-    [:div {:class "page"}
-     [:article {:class "post"}
-      tree]]]])
+; (transform (parse (slurp "site/blog/unicode/index.md")))
