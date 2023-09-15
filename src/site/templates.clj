@@ -1,9 +1,14 @@
 (ns site.templates
   (:require
-    [clojure.string :as str])
+    [clojure.edn :as edn]
+    [clojure.java.io :as io]
+    [clojure.string :as str]
+    [clojure.walk :as walk]
+    [site.core :as core]
+    [site.parser :as parser])
   (:import
-    [java.time LocalDate]
-    [java.time.format DateTimeFormatter]))
+    [java.io File]
+    [java.time LocalDate]))
 
 (defn default [page]
   (assoc page :content
@@ -97,8 +102,8 @@
         
         ;; date
         [:span (-> (:published page)
-                 (parse-date  "u-M-d")
-                 (format-date "MMMM d, uuuu"))]
+                 (core/parse-date  "u-M-d")
+                 (core/format-date "MMMM d, uuuu"))]
         
         ;; related
         (when-some [related-url (:related_url page)]
@@ -127,9 +132,9 @@
                 [:a {:href reddit2 :target "_blank"} "More Reddit"]))))]
        
        [:script
-        "document.querySelectorAll('.hoverable').forEach(function (e) {
-           e.onclick = function() { e.classList.toggle('clicked'); }
-         });"]
+        #ml "document.querySelectorAll('.hoverable').forEach(function (e) {
+               e.onclick = function() { e.classList.toggle('clicked'); }
+             });"]
        
        [:div {:class "about"}
         [:div {:class "about_photo"}]
@@ -140,3 +145,30 @@
          [:p "I also create open-source stuff: Fira Code, AnyBar, DataScript and Rum. If you like what I do and want to get early access to my articles (along with other benefits), you should "
           [:raw-html "<a href='https://patreon.com/tonsky' target='_blank'>support me on Patreon</a>"]
           "."]]]])))
+
+(def image-dimensions
+  (core/memoize-by
+    #(.lastModified ^File %)
+    (fn [^File file]
+      (-> (core/sh "convert" (.getPath file) "-ping" "-format" "[%w,%h]" "info:")
+        :out
+        edn/read-string))))
+
+(defn add-image-dimensions [page dir]
+  (update page :content
+    #(walk/postwalk 
+       (fn [form]
+         (or
+           (when (and (vector? form) (= :img (first form)))
+             (let [attrs (second form)
+                   src   (:src attrs)
+                   file  (io/file dir src)]
+               (when (.exists file)
+                 (let [modified (.lastModified file)
+                       [w h]    (image-dimensions file)]
+                   [:img (assoc attrs
+                           :src    (str src "?modified=" modified)
+                           :width  w
+                           :height h)]))))
+           form))
+       %)))

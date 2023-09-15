@@ -87,7 +87,7 @@ h1 + h2 { margin: -0.75em 0 0.9em; }
 .title { font-size: 2.5em; line-height: 50px; margin: 1.5em 0 0.75em 0; }
 
 p > img, .fig, figure { margin: 2em 0; }
-img { max-width: 100%; }
+img { max-width: 100%; height: auto; }
 
 .fig, figure { text-align: center; font-size: 12px; line-height: 20px; font-style: italic; }
 @media (min-width: 600px) {

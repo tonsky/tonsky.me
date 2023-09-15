@@ -9,6 +9,7 @@
     [ring.util.io :as ring-io]
     [ring.util.mime-type :as ring-mime]
     [ring.util.time :as ring-time]
+    [site.core :as core]
     [site.parser :as parser]
     [site.render :as render]
     [site.templates :as templates])
@@ -49,7 +50,8 @@
     (router/wrap-routes
       (router/routes
         "GET /blog/*" [id]
-        (let [file (io/file (str "site/blog/" id "/index.md"))]
+        (let [dir  (io/file (str "site/blog/" id))
+              file (io/file dir "index.md")]
           (when (.exists file)
             {:status  200
              :headers {"Content-type" "text/html; charset=UTF-8"}
@@ -59,6 +61,7 @@
                         (assoc 
                           :url (str "/blog/" id "/")
                           :categories #{:blog})
+                        (templates/add-image-dimensions dir)
                         templates/post
                         templates/default
                         :content

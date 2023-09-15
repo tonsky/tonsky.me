@@ -1,5 +1,6 @@
 (ns site.parser-test
   (:require
+    [site.core :as core]
     [site.parser :as parser]
     [clojure.test :as test :refer [is are deftest testing]]))
 
@@ -93,6 +94,28 @@
                
                > quote"))))
 
+(deftest test-figure
+  (is (= [[:p "Image:"]
+          [:figure "image.JpEg"]
+          [:p "More text"]]
+        (parser/parse
+          #ml "Image:
+               
+               image.JpEg
+               
+               More text")))
+  
+  (is (= [[:p "Image:"]
+          [:figure "image.JpEg" "caption with spaces"]
+          [:p "More text"]]
+        (parser/parse
+          #ml "Image:
+               
+               image.JpEg
+               caption with spaces
+               
+               More text"))))
+
 (deftest test-inlines
   (is (= [[:p "And " [:em "this"] " or " [:strong "this"] " or " [:code "this"]]]
         (parser/parse "And *this* or **this** or `this`")))
@@ -113,10 +136,10 @@
         (parser/parse "And ___2*3___")))
   
   (is (= [[:p "Some " [:code "inline"] " code"]]
-    (parser/parse "Some `inline` code")))
+        (parser/parse "Some `inline` code")))
   
   (is (= [[:p "Some " [:code "escape \\` in code"] " code"]]
-    (parser/parse "Some `escape \\` in code` code"))))
+        (parser/parse "Some `escape \\` in code` code"))))
 
 (deftest test-links
   (is (= [[:p "This "
