@@ -27,19 +27,6 @@
        (println (str "#p" (position) " " '~form " => (" (- (System/currentTimeMillis) t#) " ms) " res#)))
      res#))
 
-(defn ml [s]
-  (assert (string? s))
-  (let [lines  (str/split-lines s)
-        prefix (->> lines
-                 next
-                 (remove str/blank?)
-                 (map #(count (second (re-matches #"( *).*" %))))
-                 (reduce min))]
-    (str/join "\n"
-      (cons
-        (first lines)
-        (map #(if (str/blank? %) "" (subs % prefix)) (next lines))))))
-
 (def *reloaded
   (atom #{}))
 
@@ -53,15 +40,20 @@
   (reset! *reloaded #{})
   (let [res (ns/refresh)]
     (if (= :ok res)
-      (mount/start)
+      (do
+        ((requiring-resolve 'site.core/apply-args) *command-line-args*)
+        (mount/start))
       (do
         (.printStackTrace ^Throwable res)
         (throw res))))
   (str "Ready – " (count @*reloaded) " ns" (when (> (count @*reloaded) 1) "es")))
 
-(defn -main [& {:as args}]
+(defn -main [& args]
+  (alter-var-root #'*command-line-args* (constantly args))
+  (require 'site.core)
   (reload)
-  (let [port (parse-long (get args "--port" "5555"))]
+  (let [args (apply array-map args)
+        port (parse-long (get args "--repl-port" "5555"))]
     (server/start-server
       {:name          "repl"
        :port          port

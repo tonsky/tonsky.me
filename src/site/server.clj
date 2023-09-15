@@ -70,23 +70,19 @@
     wrap-decode-uri
     ring-head/wrap-head))
 
-(def *server-opts
-  (atom
-    {:legacy-return-value? false
-     :port 8080}))
-
 (mount/defstate server
   :start
-  (let [opts   @*server-opts
+  (let [opts   {:legacy-return-value? false
+                :ip   core/server-ip
+                :port core/server-port}
         server (http/run-server app opts)]
-    (println "Started HTTP server on port" (:port opts))
+    (println "Started HTTP server on" (str (:ip opts) ":" (:port opts)))
     server)
   :stop
   (do
     (http/server-stop! server)
     (println "Stopped HTTP server")))
 
-(defn -main [& {:as args}]
-  (when-some [port (args "--port")]
-    (swap! *server-opts assoc :port (parse-long port)))
+(defn -main [& args]
+  (core/apply-args args)
   (mount/start))
