@@ -49,6 +49,14 @@
     (wrap-files "site")
     (router/wrap-routes
       (router/routes
+        "GET /" []
+        {:status  200
+         :headers {"Content-type" "text/html; charset=UTF-8"}
+         :body    (-> (templates/index)
+                    templates/default
+                    :content
+                    render/render)}
+        
         "GET /blog/*" [id]
         (let [dir  (io/file (str "site/blog/" id))
               file (io/file dir "index.md")]

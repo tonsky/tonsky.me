@@ -48,37 +48,117 @@
        (:content page)
        [:div {:class "preload"}]]
       [:script
-       "function updateFlashlight(e) {
-          var style = document.body.style;
-          style.backgroundPositionX = e.pageX - 250 + 'px';
-          style.backgroundPositionY = e.pageY - 250 + 'px';
-        }
+       #ml "function updateFlashlight(e) {
+              var style = document.body.style;
+              style.backgroundPositionX = e.pageX - 250 + 'px';
+              style.backgroundPositionY = e.pageY - 250 + 'px';
+            }
+            
+            document.querySelector('.dark_mode').onclick = function(e) {
+              var body = document.body;
+              body.classList.toggle('dark');
+              if (body.classList.contains('dark')) {
+                updateFlashlight(e);
+                ['mousemove', 'touchstart', 'touchmove', 'touchend'].forEach(function(s) {
+                  document.documentElement.addEventListener(s, updateFlashlight, false);
+                });
+              } else {
+                ['mousemove', 'touchstart', 'touchmove', 'touchend'].forEach(function(s) {
+                  document.documentElement.removeEventListener(s, updateFlashlight, false);
+                });
+              }
+            }"]]]))
+
+(def list-files
+  (core/memoize-by
+    #(.lastModified (io/file %))
+    #(.listFiles (io/file %))))
+
+(def parsed-md
+  (core/memoize-by
+    #(.lastModified (io/file %))
+    #(-> (io/file %)
+       slurp
+       parser/parse
+       parser/transform)))
+
+(defn old-posts []
+  (for [^File file (list-files "_site/_posts")
+        :let  [name (.getName file)
+               [_ date slug] (re-matches #"(\d{4}-\d{2}-\d{2})-(.+)\.md" name)]
+        :when (and date slug)
+        :let  [parsed (parsed-md file)]]
+    {:title     (:title parsed)
+     :published (when-not (:draft parsed)
+                  (core/parse-date date "u-M-d"))
+     :uri       (str "/blog/" slug "/")
+     :starred   (:starred parsed)}))
+
+(defn new-posts []
+  (for [^File dir (list-files "site/blog")
+        :when (.isDirectory dir)
+        :let [parsed (parsed-md (io/file dir "index.md"))]]
+    {:title     (:title parsed)
+     :published (core/parse-date (:published parsed) "u-M-d")
+     :uri       (str "/blog/" (.getName dir) "/")
+     :starred   (:starred parsed)}))
+
+(defn index []
+  (let [posts     (concat (old-posts) (new-posts))
+        drafts    (filterv #(nil? (:published %)) posts)
+        published (->> posts
+                    (filter :published)
+                    (group-by #(.getYear ^LocalDate (:published %)))
+                    (core/rsort-by first)
+                    (mapv (fn [[year posts]]
+                            [year (core/rsort-by :published posts)])))]
+    {:title "Blog"
+     :url   "/"
+     :content
+     (list
+       ;; menu
+       [:ul {:class "menu"}
+        [:li [:a {:class "menu__item menu__item_selected" :href "/"} "Blog"]]
+        [:li [:a {:class "menu__item" :href "/talks/"} "Talks"]]
+        [:li [:a {:class "menu__item" :href "/projects/"} "Projects"]]
+        [:li [:a {:class "menu__item" :href "/design/"} "Logos"]]
+        [:li [:a {:class "menu__item" :href "/patrons/"} "Patrons"]]
+        [:div {:class "spacer"}]
+        [:div {:class "dark_mode"}]]
+       
+       [:div {:class "post"}
         
-        document.querySelector('.dark_mode').onclick = function(e) {
-          var body = document.body;
-          body.classList.toggle('dark');
-          if (body.classList.contains('dark')) {
-            updateFlashlight(e);
-            ['mousemove', 'touchstart', 'touchmove', 'touchend'].forEach(function(s) {
-              document.documentElement.addEventListener(s, updateFlashlight, false);
-            });
-          } else {
-            ['mousemove', 'touchstart', 'touchmove', 'touchend'].forEach(function(s) {
-              document.documentElement.removeEventListener(s, updateFlashlight, false);
-            });
-          }
-        }"]]]))
-
-(defn parse-date [s format]
-  (when s
-    (LocalDate/parse
-      s
-      (DateTimeFormatter/ofPattern format))))
-
-(defn format-date [^LocalDate date format]
-  (when date
-    (.format date
-      (DateTimeFormatter/ofPattern format))))
+        ;; about
+        [:div {:class "about"}
+         [:div {:class "about_photo"}]
+         [:div {:class "about_inner"}
+          [:p "Hi!"]
+          [:p "I’m Nikita. Here I write about programming and UI design "
+           [:raw-html "<a style='margin-left: 5px' class='btn-subscribe' href='/blog/how-to-subscribe/' target='_blank'><svg viewBox='0 0 800 800'><path d='M493 652H392c0-134-111-244-244-244V307c189 0 345 156 345 345zm71 0c0-228-188-416-416-416V132c285 0 520 235 520 520z'/><circle cx='219' cy='581' r='71'/></svg> Subscribe</a>"]]
+          [:p "I also create open-source stuff: Fira Code, AnyBar, DataScript and Rum. If you like what I do and want to get early access to my articles (along with other benefits), you should "
+           [:raw-html "<a href='https://patreon.com/tonsky' target='_blank'>support me on Patreon</a>"]
+           "."]]]
+        
+        ;; drafts
+        (when (and core/dev? (not-empty drafts))
+          (list
+            [:h1 "Drafts"]
+            (for [post drafts]
+              [:p
+               [:a {:href (:uri post)} (:title post)]])))
+       
+        ;; posts
+        (for [[year posts] published]
+          (list
+            [:h1 (str year)]
+            (for [post posts]
+              [:p
+               (when (:starred post)
+                 [:span {:class "starred"} "★"])
+               [:a {:href (:uri post)} (:title post)]
+               [:span {:class "date"}
+                (core/format-date (:published post) "M/d")]])))
+        ])}))
 
 (defn post [page]
   (assoc page :content
