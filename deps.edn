@@ -1,6 +1,6 @@
 {:deps
  {instaparse/instaparse              {:mvn/version "1.4.12"}
-  io.github.tonsky/clj-simple-router {:local/root "/Users/tonsky/ws/clj-simple-router"}
+  io.github.tonsky/clj-simple-router {:mvn/version "0.1.0"}
   http-kit/http-kit                  {:mvn/version "2.7.0"}
   mount/mount                        {:mvn/version "0.1.17"}
   org.clojure/clojure                {:mvn/version "1.11.1"}

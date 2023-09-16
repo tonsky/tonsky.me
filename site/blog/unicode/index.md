@@ -3,6 +3,18 @@ title: "The Absolute Minimum Every Software Developer Must Know About Unicode in
 summary: "Modern extension to classic 2003 article by Joel Spolsky"
 ---
 
+- no reason not to use utf-8
+- Unicode is 21 bits
+- Unicode is 10% filled
+- utf-16 is still in use
+- UTF-32 will not help you
+- UTF-32 is useless
+- only measures are byte length and extended grapheme clusters length
+- Unicode is locale-dependent
+- Unicode is updated once/twice a year
+- Many ways to do it
+- There is a library for it
+
 20 years ago [Joel Spolsky wrote](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/):
 
 > There Ain’t No Such Thing As Plain Text.

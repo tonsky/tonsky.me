@@ -8,7 +8,7 @@
 
 (ns/disable-reload!)
 
-(ns/set-refresh-dirs "src" "dev" "test" "/Users/tonsky/ws/clj-simple-router/src")
+(ns/set-refresh-dirs "src" "dev" "test")
 
 (def lock
   (Object.))

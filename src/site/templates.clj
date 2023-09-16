@@ -8,7 +8,7 @@
     [site.parser :as parser])
   (:import
     [java.io File]
-    [java.time LocalDate]))
+    [java.time LocalDate ZoneId]))
 
 (defn default [page]
   (assoc page :content
@@ -105,9 +105,13 @@
 
 (defn index []
   (let [posts     (concat (old-posts) (new-posts))
-        drafts    (filterv #(nil? (:published %)) posts)
+        today     (LocalDate/now (ZoneId/of "UTC"))
+        draft?    #(or
+                     (nil? (:published %))
+                     (pos? (compare (:published %) today)))
+        drafts    (filterv draft? posts)
         published (->> posts
-                    (filter :published)
+                    (remove draft?)
                     (group-by #(.getYear ^LocalDate (:published %)))
                     (core/rsort-by first)
                     (mapv (fn [[year posts]]
@@ -145,7 +149,10 @@
             [:h1 "Drafts"]
             (for [post drafts]
               [:p
-               [:a {:href (:uri post)} (:title post)]])))
+               [:a {:href (:uri post)} (:title post)]
+               (when-some [published (:published post)]
+                 [:span {:class "date"}
+                   (core/format-date published "M/d")])])))
        
         ;; posts
         (for [[year posts] published]
