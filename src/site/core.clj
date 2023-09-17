@@ -6,7 +6,8 @@
     [clojure.string :as str])
   (:import
     [java.time LocalDate ZoneId]
-    [java.time.format DateTimeFormatter]))
+    [java.time.format DateTimeFormatter]
+    [java.time.temporal TemporalAccessor]))
 
 (def server-ip
   "localhost")
@@ -108,11 +109,12 @@
       s
       (DateTimeFormatter/ofPattern format))))
 
-(defn format-temporal [ta format]
+(defn format-temporal [^TemporalAccessor ta format]
   (when ta
-    (-> (DateTimeFormatter/ofPattern format)
-      (.withZone UTC)
-      (.format ^TemporalAccessor ta))))
+    (let [^DateTimeFormatter format (cond-> format
+                                      (string? format) DateTimeFormatter/ofPattern)
+          format (.withZone format UTC)]
+      (.format format ta))))
 
 (defn rsort-by [keyfn xs]
   (sort-by keyfn #(compare %2 %1) xs))

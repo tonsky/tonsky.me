@@ -155,17 +155,23 @@
                          [nil content])]
     (assoc meta :content (doall content))))
 
+(def just-parse
+  (core/memoize-by
+    #(.lastModified ^File %)
+    (fn [path]
+      (parse (slurp (io/file path))))))
+
 (def parse-md
   (core/memoize-by
-    #(.lastModified (io/file %))
+    (fn [path]
+      (transduce (map #(.lastModified ^File %)) max 0 (-> path io/file .getParentFile file-seq)))
     (fn [path]
       (let [file   (io/file path)
             name   (.getName file)
             [_ id] (re-matches #"(.*)\.md" name)]
         (binding [*dir* (.getParentFile file)]
           (-> file
-            slurp
-            parse
+            just-parse
             transform
             (assoc 
               :url (str "/blog/" id "/")

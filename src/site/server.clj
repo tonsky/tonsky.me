@@ -5,6 +5,7 @@
     [mount.core :as mount]
     [org.httpkit.server :as http]
     [ring.middleware.head :as ring-head]
+    [ring.middleware.not-modified :as ring-modified]
     [ring.util.codec :as ring-codec]
     [ring.util.io :as ring-io]
     [ring.util.mime-type :as ring-mime]
@@ -17,7 +18,9 @@
     [site.parser :as parser]
     [site.render :as render])
   (:import
-    [java.io File]))
+    [java.io File]
+    [java.time Instant]
+    [java.time.format DateTimeFormatter]))
 
 (defn find-file ^File [path]
   (let [file ^File (io/file path)]
@@ -42,6 +45,39 @@
   (fn [req]
     (handler (update req :uri ring-codec/url-decode))))
 
+(defn cached-by-files [req resp files body-fn]
+  (let [modified  (transduce (map #(.lastModified ^File %)) max 0 files)
+        formatted (-> modified
+                    (Instant/ofEpochMilli)
+                    (core/format-temporal DateTimeFormatter/RFC_1123_DATE_TIME))
+        etag     (str \" (-> modified (Long/toString 16)) \")
+        resp     (merge-with merge
+                   {:status  200
+                    :headers {"Last-Modified" formatted
+                              "ETag"          etag
+                              "Cache-Control" "no-cache"}}
+                   resp)]
+    (if (#'ring-modified/cached-response? req resp)
+      (assoc resp
+        :status 304
+        :headers {"Content-Length" 0}
+        :body nil)
+      (assoc resp
+        :body (body-fn)))))
+
+(defn post [req]
+  (let [[id] (:path-params req)
+        dir  (io/file (str "site/blog/" id))
+        file (io/file dir "index.md")]
+    (when (.exists file)
+      (cached-by-files req {:headers {"Content-Type" "text/html; charset=UTF-8"}}
+        (file-seq dir)
+        #(-> (parser/parse-md file)
+           post/post
+           default/default
+           :content
+           render/render-html)))))
+
 (def app
   (->
     (fn [req]
@@ -53,29 +89,20 @@
     (router/wrap-routes
       (router/routes
         "GET /" []
-        {:status  200
-         :headers {"Content-Type" "text/html; charset=UTF-8"}
-         :body    (-> (index/index)
-                    default/default
-                    :content
-                    render/render-html)}
+        (cached-by-files req {:headers {"Content-Type" "text/html; charset=UTF-8"}}
+          (file-seq (io/file "site"))
+          #(-> (index/index)
+             default/default
+             :content
+             render/render-html))
         
         "GET /blog/atom.xml" []
-        {:status  200
-         :headers {"Content-Type" "application/atom+xml; charset=UTF-8"}
-         :body    (render/render-xml (atom/feed))}
+        (cached-by-files req {:headers {"Content-Type" "application/atom+xml; charset=UTF-8"}}
+          (file-seq (io/file "site"))
+          #(render/render-xml (atom/feed)))
         
-        "GET /blog/*" [id]
-        (let [dir  (io/file (str "site/blog/" id))
-              file (io/file dir "index.md")]
-          (when (.exists file)
-            {:status  200
-             :headers {"Content-Type" "text/html; charset=UTF-8"}
-             :body    (-> (parser/parse-md file)
-                        post/post
-                        default/default
-                        :content
-                        render/render-html)}))
+        "GET /blog/*" req
+        (post req)
         
         "GET /about" []
         {:status 301
