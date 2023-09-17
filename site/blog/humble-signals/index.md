@@ -3,6 +3,7 @@ layout: post
 title: "Humble Chronicles: Managing State with Signals"
 category: blog
 summary: "An experiment of using incremental computations for managing state in Humble UI"
+published: 2023-05-18
 hackernews_id: 35973151
 ---
 
@@ -67,7 +68,7 @@ The appeal of signals is that, when data changes, only the necessary minimum of 
 
 I was particularly interested in using signals for Humble UI because they provide stable references. Let’s say you have a tabbed interface that has a checkbox that enables a text field:
 
-<figure><img src="./ui.png"></figure>
+ui.png
 
 Now, our state might look somewhat like this:
 
@@ -124,17 +125,13 @@ The actual details don’t matter, but the point is: there’s a default theme a
 
 If you pass `font-ui` as an argument to every component, it will create a false dependency for every intermediate container that it passes through. When the time for the update comes, the whole UI will be re-created:
 
-<figure>
-  <img src="./drilling1.png">
-</figure>
+drilling1.png
 
 In a perfect world, though, `font-ui` change should only affect components that _actually use_ that font. E.g. it shouldn’t affect paddings, backgrounds, or scrolls, but should affect labels and paragraphs.
 
 Well, incremental computation solves this problem beautifully! If you make your default font a signal, then only components that _actually read it_ will subscribe to its changes:
 
-<figure>
-  <img src="./drilling2.png">
-</figure>
+drilling2.png
 
 On the other hand, how often do you change fonts in the entire app? Should it really be optimized? The question of whether this use case is important remains open. 
 
@@ -223,9 +220,7 @@ We implement a mixed push/pull model: recalculating values is lazy (not done unt
 
 Or for us visual thinkers:
 
-<figure>
-  <img src="./lazyness.png">
-</figure>
+lazyness.png
 
 For details, see [Reactively algorithm description](https://dev.to/modderme123/super-charging-fine-grained-reactive-performance-47ph#reactively).
 
@@ -248,9 +243,7 @@ An effect is a signal that watches when it gets marked `:check` (something down 
 
 This is exactly what we need to schedule re-renders. We put an effect as a downstream dependency on every signal that was read during the last `draw`. That means we’ll create an explicit dependency for everything that affected the final picture one way or another.
 
-<figure>
-  <img src="./rendering1.png">
-</figure>
+rendering1.png
 
 Then, when any of the sources change _and_ the redraw effect is actually a downstream dependency on it, we’ll trigger a new redraw.
 
@@ -270,9 +263,7 @@ Now imagine we lose a reference to the label. Irresponsible, I know, but things 
 
 Well, due to the nature of signals, they actually keep references to both upstream (for re-calculation) and downstream (for invalidation) dependencies. Meaning, the previous version of the signal will still be referenced from `*object` along with the new one:
 
-<figure>
-  <img src="./dangling_signal.png">
-</figure>
+dangling_signal.png
 
 We can introduce `dispose` method that could be called to unregister itself from upstream, but nobody can guarantee that users will call that in time. It’s so easy to accidentally lose a reference in a garbage-collected language!
 
@@ -280,15 +271,11 @@ And this is what I am struggling with. The signal network _has_ to be dynamic. M
 
 A common solution is to make downstream references weak. That means, if we lost all references to the dependant signal (`label` on the picture below), it will eventually be garbage collected.
 
-<figure>
-  <img src="./weak_ref.png">
-</figure>
+weak_ref.png
 
 What I don’t like about that solution (that we use anyways in the prototype) is that until GC is called, those unnecessary dependencies still hang around and take resources e.g. during downstream invalidation.
 
-<figure>
-  <img src="./weak_invalidation.png">
-</figure>
+weak_invalidation.png
 
 One idea is to dispose of signals explicitly when their component unmounts. It works for some signals, but not in general. Consider this:
 
@@ -375,9 +362,7 @@ Working with an incremental framework breaks both imperative and functional intu
 
 Imagine we want to render a TODO from very simple EDN data:
 
-<figure>
-  <img src="./gotcha_1.png" style="max-width: 300px;">
-</figure>
+gotcha_1@2x.png
 
 We might write something like this:
 
@@ -413,9 +398,7 @@ Ambrose Bonnaire-Sergeant has pointed out that Reagent and CljFX solve this by p
 
 Imagine you have a UI like this:
 
-<figure>
-  <img src="./gotcha_2.png" style="max-width: 300px;">
-</figure>
+gotcha_2@2x.png
 
 You have a signal that is hooked up to your text field and a button that converts it into a label:
 
@@ -604,11 +587,7 @@ After some massaging, I was able to build incremental TodoMVC that keeps the sta
 
 Here’s a video:
 
-<figure>
-  <video autoplay="" muted="" loop="" preload="auto" playsinline="" controls>
-    <source src="./demo.mp4" type="video/mp4">
-  </video>
-</figure>
+demo.mp4
 
 The magenta outline means that the component was just created and is rendered for the first time.
 
@@ -636,11 +615,7 @@ So the label could stay the same while the text it displays changes. Not necessa
 
 Then it would be highlighted on the toggle:
 
-<figure>
-  <video autoplay="" muted="" loop="" preload="auto" playsinline="" controls>
-    <source src="./demo2.mp4" type="video/mp4">
-  </video>
-</figure>
+demo2.mp4
 
 ## It feels very satisfying
 
@@ -650,11 +625,7 @@ Then it would be highlighted on the toggle:
 
 I made UI scale, padding, and button fill color signals and when I change them necessary parts of UI are updated:
 
-<figure>
-  <video autoplay="" muted="" loop="" preload="auto" playsinline="" controls>
-    <source src="./demo3.mp4" type="video/mp4">
-  </video>
-</figure>
+demo3.mp4
 
 This feels very satisfying, too: knowing that you made the dependency very explicit and very precise, not the hacky “let’s just reset everything just in case” way. And it requires no special setup, it “just works”.
 

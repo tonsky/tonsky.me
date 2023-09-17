@@ -106,7 +106,8 @@
                More text")))
   
   (is (= [[:p "Image:"]
-          [:figure "image.JpEg" "caption with spaces"]
+          [:figure "image.JpEg"
+           [:figcaption "caption with spaces"]]
           [:p "More text"]]
         (parser/parse
           #ml "Image:
@@ -114,7 +115,43 @@
                image.JpEg
                caption with spaces
                
-               More text"))))
+               More text")))
+  
+  (is (= [[:figure "image.jpg"]]
+        (parser/parse "image.jpg")))
+  
+  (is (= [[:figure "image.jpg"
+           [:figlink "https://a.com"]]]
+        (parser/parse "image.jpg https://a.com")))
+  
+  (is (= [[:figure "image.jpg"
+           [:figalt "alt text"]]]
+        (parser/parse "image.jpg alt text")))
+  
+  (is (= [[:figure "image.jpg"
+           [:figcaption "caption"]]]
+        (parser/parse "image.jpg\ncaption")))
+  
+  (is (= [[:figure "image.jpg"
+           [:figlink "https://a.com"]
+           [:figalt "alt text"]]]
+        (parser/parse "image.jpg https://a.com alt text")))
+  
+  (is (= [[:figure "image.jpg"
+           [:figlink "https://a.com"]
+           [:figcaption "caption"]]]
+        (parser/parse "image.jpg https://a.com\ncaption")))
+    
+  (is (= [[:figure "image.jpg"
+           [:figalt "alt text"]
+           [:figcaption "caption"]]]
+        (parser/parse "image.jpg alt text\ncaption")))
+  
+  (is (= [[:figure "image.jpg"
+           [:figlink "https://a.com"]
+           [:figalt "alt text"]
+           [:figcaption "caption"]]]
+        (parser/parse "image.jpg https://a.com alt text\ncaption"))))
 
 (deftest test-inlines
   (is (= [[:p "And " [:em "this"] " or " [:strong "this"] " or " [:code "this"]]]

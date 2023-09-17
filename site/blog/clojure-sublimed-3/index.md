@@ -3,6 +3,7 @@ layout: post
 title: "Adventures in REPL implementation"
 category: blog
 summary: "Writing Clojure REPL plugin for Sublime Text"
+published: 2023-03-09
 ---
 
 It’s a strange thing to announce, but I wrote [Clojure plugin for Sublime Text](https://github.com/tonsky/Clojure-Sublimed). [Again](https://tonsky.me/blog/sublime-clojure/).
@@ -21,7 +22,7 @@ In a nutshell, REPL consists of three parts: client, server, and communication p
 
 Here’s an architectural diagram for you:
 
-<figure><img src="./architecture.webp"></figure>
+architecture.webp
 
 # REPL Client
 
@@ -35,11 +36,11 @@ When you go to a file and eval something there, you want it to be run in the con
 
 The level of understanding is non-trivial: there could be multiple namespace declarations, not necessarily at the top of the file:
 
-<figure><img src="./ns_switching.webp"></figure>
+ns_switching.webp
 
 The declaration itself could be complex, too, containing comments and/or meta tokens before the actual name:
 
-<figure><img src="./complex_ns.webp"></figure>
+complex_ns.webp
 
 ## Problem 2: Form boundaries
 
@@ -47,7 +48,7 @@ I want a shortcut that evals “the topmost form” around my cursor. To do so, 
 
 Notice how I don’t explicitly “select” what I want to evaluate. Instead, REPL client finds form boundary for me:
 
-<figure><video autoplay="" muted="" loop="" preload="auto" playsinline="" controls><source src="./form_boundaries.mp4" type="video/mp4"></video></figure>
+form_boundaries.mp4
 
 This is tricky, too. For the very least, you can count parens, but even then you’d have to be aware of strings.
 
@@ -61,13 +62,13 @@ All of this requires a really deep understanding of Clojure syntax.
 
 Clojure Sublimed originally started when I wasn’t happy with what happened when I press “Enter” in Clojure file. Cursor would go to the wrong place, and I (subjectively) was spending too much time correcting it, so I decided to fix that once and for all.
 
-<figure><video autoplay="" muted="" loop="" preload="auto" playsinline="" controls><source src="./indent.mp4" type="video/mp4"></video></figure>
+indent.mp4
 
 Indentation is not really a REPL concern, but it’s another part of Clojure Sublimed that requires a model of Clojure code.
 
 Indentation logic re-applied to the whole file is formatting, so I got this one for free (both follow [Better Clojure formatting](https://tonsky.me/blog/clojurefmt/) rules).
 
-<figure><video autoplay="" muted="" loop="" preload="auto" playsinline="" controls><source src="./format.mp4" type="video/mp4"></video></figure>
+format.mp4
 
 Finally, there’s a question of pretty printing, which is basically indentation + deciding where to put line breaks. Normally this would be done on Clojure side, but doing it on a client has clear advantages:
 
@@ -75,10 +76,8 @@ Finally, there’s a question of pretty printing, which is basically indentation
 - it works for every Clojure REPL the same,
 - it can adjust for your current editor configuration instead of some arbitrary server-side number like 80 characters.
 
-<figure>
-    <img src="./pretty_print.webp">
-    Wrapping on current window width
-</figure>
+pretty_print.webp
+Wrapping on current window width
 
 Another upside is that I can adjust pretty-printing rules to my liking, of course.
 
@@ -92,7 +91,7 @@ I was put off by that task for a long time because it felt enormous. In the firs
 
 And, in fact, it turned out not to be all that bad! Clojure, like any Lisp, _is_ relatively easy to parse. This is the entire grammar:
 
-<figure><img src="./grammar.webp"></figure>
+grammar.webp
 
 Full source at [GitHub](https://github.com/tonsky/Clojure-Sublimed/blob/master/cs_parser.py).
 
@@ -120,11 +119,11 @@ Parsing also requires _a lot_ of tests to get everything right and to avoid regr
 
 I ended up copying test syntax from tree-sitter.
 
-<figure><img src="./test.webp"></figure>
+test.webp
 
 Test runner just compares the actual result with the expected one string-wise and if they are different, reports an error in a nice to comprehend table:
 
-<figure><img src="./failed_test.webp"></figure>
+failed_test.webp
 
 Having this early on saved me a ton of time and I am 100% happy I made that investment.
 
@@ -146,7 +145,7 @@ We did accept some invalid programs as valid, but that’s okay for our use case
 
 One funny thing happened during testing: I noticed that sometimes the parser was becoming ultra-slow on moderately-sized files. Like, seconds instead of milliseconds. That means I had quadratic behavior somewhere.
 
-<figure><img src="./algorithm.webp" style="max-width: 540px"></figure>
+algorithm@2x.webp
 
 And that was indeed the case. The first version of the parser, roughly, was parsing parens/brackets/braces like this:
 
@@ -191,7 +190,7 @@ Yes, EDN is the simplest thing for Clojure users. But what about the rest of the
 
 This is what `clojure.core.server/repl` does. Basically, it’s the same interactive experience as with command-line REPL, but over a socket:
 
-<figure><video autoplay="" muted="" loop="" preload="auto" playsinline="" controls><source src="./socket_repl.mp4" type="video/mp4"></video></figure>
+socket_repl.mp4
 
 Not machine-friendly at all.
 
@@ -199,7 +198,7 @@ Not machine-friendly at all.
 
 Type in forms, receive EDN-formatted output. `clojure.core.server/io-prepl` does that:
 
-<figure><img src="./prepl.webp"></figure>
+prepl.webp
 
 Half machine-friendly and you have to be able to parse EDN.
 
@@ -234,7 +233,7 @@ value  = int / list / dict / string
 
 And here are some actual messages when communicating with nREPL server:
 
-<figure><img src="./nrepl.webp"></figure>
+nrepl.webp
  
 Bencode is not supported out of the box by either Python or Clojure, but implementation easily fits in 200 LoC.
 
@@ -256,7 +255,7 @@ A lucky coincidence saved me here. Remember the first part where I was writing C
 
 This is what my upgraded Socket Server REPL looks like on the wire:
 
-<figure><img src="./socket_sublime.webp"></figure>
+socket_sublime.webp
 
 Yes, it looks like nREPL over EDN.
 
@@ -280,7 +279,7 @@ EDN doesn’t exactly forbid newlines, though, so let’s hope they won’t sudd
 
 Finally, the third and final part of our architecture: the server. When I only started learning about Clojure and Lisps, I imagined that REPL is literally that:
 
-<figure><img src="./repl_naive.webp"></figure>
+repl_naive.webp
 
 Because of that ignorance, it was hard for me to understand why there are different REPL implementations and why you need to “implement” REPL at all.
 
@@ -290,7 +289,7 @@ Let’s go from the simplest case to more complex ones.
 
 Funny enough, the function I showed you above works:
 
-<figure><video autoplay="" muted="" loop="" preload="auto" playsinline="" controls><source src="./repl_naive.mp4" type="video/mp4"></video></figure>
+repl_naive.mp4
 
 It’s very fragile, though: it’ll die on the first exception.
 
@@ -304,23 +303,23 @@ It works essentially the same, but does a little bit of extra work for you:
 
 First and most notably, it prints a command prompt that displays the current namespace:
 
-<figure><img src="./repl_main_prompt.webp"></figure>
+repl_main_prompt.webp
 
 Which you can actually customize to your liking:
 
-<figure><img src="./repl_main_custom_prompt.webp"></figure>
+repl_main_custom_prompt.webp
 
 Then, it catches and prints exceptions, so your REPL doesn’t die when you make a mistake:
 
-<figure><img src="./repl_main_exception.webp"></figure>
+repl_main_exception.webp
 
 It also stores the last calculated values in special `*1`..`*3` dynamic vars and the last exception in `*e`. These variables do not exist outside of REPL:
 
-<figure><img src="./repl_main_dynamic.webp"></figure>
+repl_main_dynamic.webp
 
 Another convenience that default REPL does is requiring some stuff from `clojure.repl` and `clojure.pprint`:
 
-<figure><img src="./repl_main_requires.webp"></figure>
+repl_main_requires.webp
 
 Were you wondering where `(doc)` in REPL comes from? Now you know.
 
@@ -340,7 +339,7 @@ If it prints to stdout of the process, you won’t see it in your REPL. It’ll 
 
 So what Server REPL does is it redefines `*in*`/`*out*`/`*err*` to socket streams instead of process’s stdout and sends to you what _you_ print over the network. Everybody gets their own stdout!
 
-<figure><video autoplay="" muted="" loop="" preload="auto" playsinline="" controls><source src="./repl_server_stdout.mp4" type="video/mp4"></video></figure>
+repl_server_stdout.mp4
 
 Really tricky stuff to figure out, but essential to understand if you consider yourself an advanced Clojure REPL user.
 
@@ -350,7 +349,7 @@ The rest is the same. Server REPL literally calls into `main/repl` after rebindi
 
 pREPL is Clojure team’s answer to nREPL and critique that Clojure Socket REPL is not machine-friendly. It’s basically `server/repl` but with EDN-formatted output:
 
-<figure><img src="./prepl.webp"></figure>
+prepl.webp
 
 pREPL consumes raw Clojure forms but outputs EDN-structured data.
 
@@ -385,11 +384,11 @@ Since nREPL is extensible, one can extend it to do even more. That’s what the 
 
 - Formating stack traces in a Clojure-aware way and sending them back with errors:
 
-<figure><img src="./cs_repl_stacktrace.webp"></figure>
+cs_repl_stacktrace.webp
 
 - Parallel evaluation and execution time:
 
-<figure><video autoplay="" muted="" loop="" preload="auto" playsinline="" controls><source src="./cs_repl_parallel.mp4" type="video/mp4"></video></figure>
+cs_repl_parallel.mp4
 
 It worked well for me for 1.5 years, but still, you know, nREPL dependency, startup time, NIH syndrome. I wanted to give REPL a shot on my own.
 
@@ -401,11 +400,11 @@ This is called “upgrading” your REPL and that’s how Christophe Grand’s U
 
 In our case, it looks like this. First, we send a lot of Clojure code (unformatted, because machine doesn’t care):
 
-<figure><img src="./socket_snd.webp"></figure>
+socket_snd.webp
 
 Then, we receive this:
 
-<figure><img src="./socket_rcv.webp"></figure>
+socket_rcv.webp
 
 Which basically means “Yes, I’ve heard you”.
 
@@ -413,7 +412,7 @@ This is all happening inside basic `server/repl`. It looks messy because it was 
 
 At this point, we’re ready to “upgrade” our REPL. This is how we do it:
 
-<figure><img src="./socket_started.webp"></figure>
+socket_started.webp
 
 `(repl)` is a function we defined in our initial payload. `{"tag" "started"}` is the first message of our own protocol. I really, really, really hope here that it will not be messed up by other output (printing in Socket Server is not synchronized, and everyone who worked with Clojure REPL in the terminal knows how often it messes up your output).
 
@@ -425,11 +424,11 @@ Our upgraded Clojure Sublimed REPL does all the same basic stuff that nREPL does
 
 nREPL eval-buffer:
 
-<figure><img src="./nrepl_batch_eval.webp"></figure>
+nrepl_batch_eval.webp
 
 Clojure Sublimed eval-buffer:
 
-<figure><img src="./cs_repl_batch_eval.webp"></figure>
+cs_repl_batch_eval.webp
 
 Under the hood, though, it’s a completely new REPL. It sits on top of Socket Server, yes, but it has its own evaluation model and its own protocol. It’s clean, minimal, fast to load, and works much better with Clojure Sublimed client than nREPL.
 
@@ -460,7 +459,7 @@ So, Clojure Sublimed v3 is out there. To sum up the major differences:
 
 As always, you can get the new version in [Package Control](https://packagecontrol.io/packages/Clojure%20Sublimed) or on Github:
 
-<figure><a href="https://github.com/tonsky/Clojure-Sublimed"><img src="./banner.webp"></a></figure>
+banner.webp https://github.com/tonsky/Clojure-Sublimed
 
 Let me know what you think! Issues are open :) And happy Clojur-ing!
 

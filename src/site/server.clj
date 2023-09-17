@@ -10,9 +10,12 @@
     [ring.util.mime-type :as ring-mime]
     [ring.util.time :as ring-time]
     [site.core :as core]
+    [site.pages.atom :as atom]
+    [site.pages.default :as default]
+    [site.pages.index :as index]
+    [site.pages.post :as post]
     [site.parser :as parser]
-    [site.render :as render]
-    [site.templates :as templates])
+    [site.render :as render])
   (:import
     [java.io File]))
 
@@ -43,7 +46,7 @@
   (->
     (fn [req]
       {:status  404
-       :headers {"Content-type" "text/plain; charset=UTF-8"}
+       :headers {"Content-Type" "text/plain; charset=UTF-8"}
        :body    (str "Path '" (:uri req) "' not found")})
     (wrap-files "_site")
     (wrap-files "site")
@@ -51,29 +54,28 @@
       (router/routes
         "GET /" []
         {:status  200
-         :headers {"Content-type" "text/html; charset=UTF-8"}
-         :body    (-> (templates/index)
-                    templates/default
+         :headers {"Content-Type" "text/html; charset=UTF-8"}
+         :body    (-> (index/index)
+                    default/default
                     :content
-                    render/render)}
+                    render/render-html)}
+        
+        "GET /blog/atom.xml" []
+        {:status  200
+         :headers {"Content-Type" "application/atom+xml; charset=UTF-8"}
+         :body    (render/render-xml (atom/feed))}
         
         "GET /blog/*" [id]
         (let [dir  (io/file (str "site/blog/" id))
               file (io/file dir "index.md")]
           (when (.exists file)
             {:status  200
-             :headers {"Content-type" "text/html; charset=UTF-8"}
-             :body    (-> (slurp file)
-                        parser/parse
-                        parser/transform
-                        (assoc 
-                          :url (str "/blog/" id "/")
-                          :categories #{:blog})
-                        (templates/add-image-dimensions dir)
-                        templates/post
-                        templates/default
+             :headers {"Content-Type" "text/html; charset=UTF-8"}
+             :body    (-> (parser/parse-md file)
+                        post/post
+                        default/default
                         :content
-                        render/render)}))
+                        render/render-html)}))
         
         "GET /about" []
         {:status 301

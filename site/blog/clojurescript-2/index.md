@@ -3,6 +3,7 @@ layout: post
 title: "A case for ClojureScript 2.0"
 category: blog
 summary: "Innocent early design decision that led to a disaster years later"
+published: 2023-06-26
 reddit_url: "https://www.reddit.com/r/Clojure/comments/14jfs48/comment/jplxjm3/"
 ---
 

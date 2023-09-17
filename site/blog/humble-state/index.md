@@ -3,6 +3,7 @@ layout: post
 title: "Humble Chronicles: State Management"
 category: blog
 summary: "Search for the best state management solution for Humble UI"
+published: 2023-04-29
 ---
 
 Recently I’ve been trying to improve state management and component API in Humble UI. For that, I’ve tried to read and compile all the possible known approaches and synthesize something from them.
@@ -19,7 +20,7 @@ The problem with that approach is code duplication: you have to define both how 
 
 Nevertheless, OOUIs show great performance, a very straightforward programming model and are widely used everywhere.
 
-<figure><img src="./delphi.png"></figure>
+delphi.png
 
 # Humble UI — current state
 
@@ -50,7 +51,7 @@ I mean, theoretically, sure, I could add something like `setChildren` and the li
 
 But wait! — you’d say. I’ve certainly seen Humble UI apps modifying themselves!
 
-<figure><video autoplay="" muted="" loop="" preload="auto" playsinline="" controls><source src="./todomvc.mp4" type="video/mp4"></video></figure>
+todomvc.mp4
 
 And you’ll be right. There’s a special type of component, `dynamic`, that doesn’t have a fixed list of children. Instead, it takes a function that generates and caches them based on its inputs. When inputs change, old children are thrown away and new ones are generated.
 
@@ -209,7 +210,7 @@ The problem is that then you have to reconcile the whole tree, too. And if some 
 
 Here’s a diagram of the full top-down reconciliation:
 
-<figure><img src="./reconcile_imgui.png"></figure>
+reconcile_imgui.png
 
 ## Optimized top-down reconciliation
 
@@ -217,11 +218,11 @@ React updates are also mostly top-down, with two important improvements.
 
 First, when generating and comparing new tree, it has a way to be told “this subtree hasn't changed, I promise” and it’ll skip reconciliation for it altogether:
 
-<figure><img src="./reconcile_react_1.png"></figure>
+reconcile_react_1.png
 
 The second optimization is when you find a specific component and only reconcile its sub-trees:
 
-<figure><img src="./reconcile_react_2.png"></figure>
+reconcile_react_2.png
 
 Unfortunately, these techniques are not applied automatically, so a programmer’s work is required. And even then React adds quite a lot of overhead. The discovery of React team was, though, that this overhead is not important/tolerable in most cases and is a great tradeoff.
 
@@ -231,7 +232,7 @@ In theory, both techniques combined could allow one to update one specific compo
 
 Why can’t all React updates be surgical, affecting only the element in question and neither its parents nor children? Well, because of data dependencies! Consider this simple UI:
 
-<figure><video autoplay="" muted="" loop="" preload="auto" playsinline="" controls><source src="./conv.mp4" type="video/mp4"></video></figure>
+conv.mp4
 
 What would it look like in React? Something like this (yes, I asked ChatGPT to write it):
 
@@ -276,7 +277,7 @@ Another problem is that, because `TemperatureConverter` is written as a single f
 
 These are two problems that frameworks like Svelte and SolidJS tried to solve: update as little as possible, only components that need to be updated and nothing more:
 
-<figure><img src="./reconcile_svelte.png"></figure>
+reconcile_svelte.png
 
 [Quoting Ron Minsky](https://signalsandthreads.com/building-a-ui-framework/#1523):
 
@@ -304,7 +305,7 @@ const app          = reactive(() => {
 
 This creates an acyclic dependency graph like this:
 
-<figure><img src="./reactively.png"></figure>
+reactively.png
 
 which can be efficiently updated. For example, if we bump `counter`, it will trigger updates of `squared` and `counterLabel`. Then `squared` will trigger an update of `squaredLabel`. Both `counterLabel` and `squaredLabel` could be effects that update their corresponding DOM node, but the return value is the same — they return exactly the same node their work with, so they won’t trigger further updates at all: app structure is static and doesn’t need to be revisited.
 
@@ -376,7 +377,7 @@ One simplification in incremental compared to React’s prop drilling is that yo
 
 But I’m also thinking about a different angle here: what if components themselves (real ones, heavyweight objects that do layout rendering, not lightweight descriptions) were the output of incremental functions? I mean, they’d stay stable until they need to be changed, right?
 
-<figure><img src="./reconcile_incremental.png"></figure>
+reconcile_incremental.png
 
 That would mean that we can keep the state inside them naturally, and we won’t need any VDOM at all, just incremental computations.
 
@@ -557,7 +558,7 @@ Full restart is also an option, as long as it happens in the same JVM and allows
 
 For example, after a certain threshold I switched from buffer evals for reload to full `tools.namespace` nuke & load because manual buffer evals were becoming too complex:
 
-<figure><video autoplay="" muted="" loop="" preload="auto" playsinline="" controls><source src="./reload.mp4" type="video/mp4"></video></figure>
+reload.mp4
 
 This unloads the namespace, loads it back, creates all new hierarchy of components, etc. All faster than a single frame on a 144 Hz monitor. Things our computers can do if they don’t have to run Xcode!
 

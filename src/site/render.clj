@@ -23,7 +23,7 @@
        ~@(for [x body]
            `(.append ~sym ~x)))))
 
-(defn render-impl [^StringBuilder sb ^String indent tree]
+(defn render-impl [^StringBuilder sb ^String indent mode tree]
   (core/cond+
     (string? tree)
     (.append sb (escape tree))
@@ -33,16 +33,16 @@
      
     (and (sequential? tree) (not (vector? tree)))
     (doseq [form tree]
-      (render-impl sb indent form))
+      (render-impl sb indent mode form))
 
     ;; assume vector now
-    :let [[tag & content] tree
-          [attrs content] (if (map? (first content))
-                            [(first content) (next content)]
-                            [{} content])]
+    :let [[tag attrs content] (core/normalize-tag tree)]
      
     (= :raw-html tag)
-    (.append sb ^String (str/join content))
+    (append sb (str/join content))
+    
+    (= :CDATA tag)
+    (append sb "<![CDATA[\n" (str/join content) "\n]]>")
      
     (and (= :script tag) (not (:processed (meta tree))))
     (let [content' (core/reindent (str/join content) (str indent "  "))]
@@ -50,7 +50,8 @@
      
     :else
     (let [inline?  (#{:a :code :em :figcaption :img :span :strong} tag)
-          nested?  (#{:article :blockquote :body :div :head :html :ol :script :ul} tag)
+          nested?  (#{:article :blockquote :body :div :figure :head :html :ol :script :ul :video
+                      :author :feed :entry} tag)
           void?    (#{:area :base :br :col :embed :hr :img :input :link :meta :param :source :track :wbr} tag)]
       ;; tag name
       (when (not inline?)
@@ -58,27 +59,43 @@
       (append sb "<" (name tag))
       
       ;; attrs
-      (doseq [[k v] attrs]
+      (doseq [[k v] attrs
+              :when (some? v)]
         (append sb " " (name k) "=\"")
-        (append sb (escape v) "\""))
-      (append sb ">")
-      
+        (append sb (if (= v true) "" (escape v)) "\""))
+
       ;; insides
       (when (seq content)
+        (append sb ">")
         (when nested?
           (append sb "\n"))
-        (render-impl sb (str indent "  ") content)
+        (render-impl sb (str indent "  ") mode content)
         (when nested?
           (append sb indent)))
       
       ;; close tag
-      (when-not void?
-        (append sb "</" (name tag) ">"))
+      (cond
+        (seq content) (append sb "</" (name tag) ">")
+        (= :xml mode) (append sb " />")
+        void?         (append sb ">")
+        (not void?)   (append sb "></" (name tag) ">"))
+      
       (when (not inline?)
         (append sb "\n")))))
 
-(defn render [tree]
+(defn render-inner-html [tree]
   (let [sb (StringBuilder.)]
-    (render-impl sb "" tree)
-    (str "<!doctype html>\n" sb)))
+    (render-impl sb "" :html tree)
+    (str sb)))
 
+(defn render-html [tree]
+  (let [sb (StringBuilder.)]
+    (append sb "<!doctype html>\n")
+    (render-impl sb "" :html tree)
+    (str sb)))
+
+(defn render-xml [tree]
+  (let [sb (StringBuilder.)]
+    (append sb "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n")
+    (render-impl sb "" :xml tree)
+    (str sb)))

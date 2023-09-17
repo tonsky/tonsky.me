@@ -1,7 +1,16 @@
 (ns site.parser
   (:require
+    [clojure.edn :as edn]
+    [clojure.java.io :as io]
     [clojure.string :as str]
-    [instaparse.core :as instaparse]))
+    [clojure.walk :as walk]
+    [instaparse.core :as instaparse]
+    [site.core :as core])
+  (:import
+    [java.io File]))
+
+(def ^:dynamic *dir*
+  nil)
 
 (def parse
   (instaparse/parser
@@ -12,7 +21,7 @@
      <meta-key>   = #'[a-zA-Z0-9_\\-\n]+'
      <meta-value> = #'[^\"\n]*'
      
-     <block>    = h1 / h2 / h3 / h4 / ul / ol / code-block / blockquote / figure / p
+     <block>    = h1 / h2 / h3 / h4 / ul / ol / code-block / blockquote / figure / video / p
      h1         = <'#'> <#' +'> inline
      h2         = <'##'> <#' +'> inline
      h3         = <'###'> <#' +'> inline
@@ -25,8 +34,11 @@
      lang       = #'[a-z]+'
      blockquote = qli (<'\n'> qli)*
      <qli>      = <#'> +'> p
-     figure     = <#' *'> #'(?i)[^\n]+\\.(png|jpg|jpeg|gif|webp)' <#' *'> caption?
-     <caption>  = <#'\n *'> #'[^ \n][^\n]*'
+     figure     = <#' *'> #'(?i)[^\n]+\\.(png|jpg|jpeg|gif|webp)' <#' *'> figlink? <#' *'> figalt? figcaption?
+     video      = <#' *'> #'(?i)[^\n]+\\.(mp4|webm)' <#' *'> figlink? <#' *'> figalt? figcaption?
+     figlink    = #'https?://[^ \n]+'
+     figalt     = !'https://' #'[^ \n][^\n]*[^ \n]'
+     figcaption = <#'\n *'> #'[^ \n][^\n]*'
      p          = inline
      
      <inline>   = (text / raw-html / img / link / code / strong / em / fallback)+
@@ -68,22 +80,69 @@
   [:a {:href href} alt])
 
 (defn transform-img [[_ alt] [_ href]]
-  [:img (cond-> {:src href}
-          alt (assoc :alt alt)
-          alt (assoc :title alt))])
+  (let [file  (io/file *dir* href)
+        [w h] (core/image-dimensions file)]
+    [:img
+     {:src   (core/timestamp-url href file)
+      :width  w
+      :height h
+      :alt    alt
+      :title  alt}]))
+
+(defn normalize-figure [args]
+  (reduce
+    (fn [m [tag value]]
+      (assoc m tag value))
+    {}
+    args))
+
+(defn transform-figure [url & args]
+  (let [{:keys [figlink figalt figcaption]} (normalize-figure args)
+        file  (io/file *dir* url)
+        [w h] (core/image-dimensions file)
+        img   [:img {:src    (core/timestamp-url url file)
+                     :width  w
+                     :height h
+                     :alt    figalt
+                     :title  figalt}]]
+    [:figure
+     (if figlink
+       [:a {:href figlink :target "_blank"} img]
+       img)
+     (when figcaption
+       [:figcaption figcaption])]))
+
+(defn transform-video [url & args]
+  (let [{:keys [figlink figalt figcaption]} (normalize-figure args)
+        [_ ext] (re-matches #".*\.([a-z0-9]+)" url)
+        file    (io/file *dir* url)
+        [w h]   (core/video-dimensions file)
+        source  [:source 
+                 {:src  (core/timestamp-url url file)
+                  :type (str "video/" ext)}]
+        video   [:video
+                 {:autoplay    true
+                  :muted       true
+                  :loop        true
+                  :preload     "auto"
+                  :playsinline true
+                  :controls    true
+                  :width       w
+                  :height      h}
+                 source]]
+    [:figure
+     (if figlink
+       [:a {:href figlink :target "_blank"} video]
+       video)
+     (when figcaption
+       [:figcaption figcaption])]))
 
 (def transforms
   {:uli        #(vector :li %&)
    :oli        #(vector :li %&)
    :code-block transform-code-block
-   :figure     (fn
-                 ([url]
-                  [:figure
-                   [:img {:src url}]])
-                 ([url caption]
-                  [:figure
-                   [:img {:src url}]
-                   [:figcaption caption]]))
+   :figure     transform-figure
+   :video      transform-video
    :link       transform-link
    :img        transform-img
    :meta-item  #(vector (keyword %1) %2)
@@ -94,4 +153,20 @@
         [meta content] (if (map? (first content))
                          [(first content) (next content)]
                          [nil content])]
-    (assoc meta :content content)))
+    (assoc meta :content (doall content))))
+
+(def parse-md
+  (core/memoize-by
+    #(.lastModified (io/file %))
+    (fn [path]
+      (let [file   (io/file path)
+            name   (.getName file)
+            [_ id] (re-matches #"(.*)\.md" name)]
+        (binding [*dir* (.getParentFile file)]
+          (-> file
+            slurp
+            parse
+            transform
+            (assoc 
+              :url (str "/blog/" id "/")
+              :categories #{:blog})))))))

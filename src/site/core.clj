@@ -1,10 +1,11 @@
 (ns site.core
   (:require
+    [clojure.edn :as edn]
     [clojure.java.io :as io]
     [clojure.java.shell :as shell]
     [clojure.string :as str])
   (:import
-    [java.time LocalDate]
+    [java.time LocalDate ZoneId]
     [java.time.format DateTimeFormatter]))
 
 (def server-ip
@@ -15,6 +16,9 @@
 
 (def dev?
   false)
+
+(def ^ZoneId UTC
+  (ZoneId/of "UTC"))
 
 (defn apply-args [args]
   (let [args (apply array-map args)]
@@ -68,16 +72,84 @@
             (vswap! *cache assoc args [kv' fv'])
             fv'))))))
 
-(defn parse-date [s format]
+(defn update-some [m k f & args]
+  (if (contains? m k)
+    (apply update m k f args)
+    m))
+
+(defn max-by [cmp]
+  (fn [x y]
+    (if (>= (cmp x y) 0) x y)))
+
+(defn normalize-tag [form]
+  (when (vector? form)
+    (let [[tag & content] form
+          [attrs content] (if (map? (first content))
+                            [(first content) (next content)]
+                            [{} content])]
+      [tag attrs content])))
+
+(defmacro transform-tag [page [tag attr-sym content-sym] & body]
+  `(let [page# ~page
+         tag#  ~tag]
+     (assoc page# :content
+       (walk/postwalk 
+         (fn [form#]
+           (or
+             (when-some [[tag2# ~attr-sym ~content-sym] (normalize-tag form#)]
+               (when (= tag2# tag#)
+                 ~@body))
+             form#))
+         (:content page#)))))
+
+(defn parse-date ^LocalDate [s format]
   (when s
     (LocalDate/parse
       s
       (DateTimeFormatter/ofPattern format))))
 
-(defn format-date [^LocalDate date format]
-  (when date
-    (.format date
-      (DateTimeFormatter/ofPattern format))))
+(defn format-temporal [ta format]
+  (when ta
+    (-> (DateTimeFormatter/ofPattern format)
+      (.withZone UTC)
+      (.format ^TemporalAccessor ta))))
 
 (defn rsort-by [keyfn xs]
   (sort-by keyfn #(compare %2 %1) xs))
+
+(def image-dimensions
+  (memoize-by
+    #(.lastModified (io/file %))
+    (fn [path]
+      (let [file (io/file path)]
+        (when (.exists file)
+          (let [out   (:out (sh "convert" (.getPath file) "-ping" "-format" "[%w,%h]" "info:"))
+                [w h] (edn/read-string out)]
+            (if (str/index-of (.getName file) "@2x.")
+              [(quot w 2) (quot h 2)]
+              [w h])))))))
+
+(def video-dimensions
+  (memoize-by
+    #(.lastModified (io/file %))
+    (fn [path]
+      (let [file (io/file path)]
+        (when (.exists file)
+          (let [out  (:out (sh "ffprobe" "-v" "error" "-select_streams" "v" "-show_entries" "stream=width,height" "-of" "csv=p=0:s=x" (.getPath file)))
+                parse-long #(if (= "N/A" %)
+                              nil
+                              (Long/parseLong %))]
+            (when-some [[_ w h] (re-find #"^(\d+|N/A)x(\d+|N/A)" out)]
+              (let [w (parse-long w)
+                    h (parse-long h)]
+                (when (and w h)
+                  (if (str/index-of (.getName file) "@2x.")
+                    [(quot w 2) (quot h 2)]
+                    [w h]))))))))))
+
+(defn timestamp-url [url file]
+  (let [file (io/file file)]
+    (if (.exists file)
+      (let [modified (quot (.lastModified file) 1000)]
+        (str url (if (str/index-of url "?") "&" "?") "t=" modified))
+      url)))

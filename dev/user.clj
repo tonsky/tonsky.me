@@ -24,7 +24,7 @@
   `(let [t# (System/currentTimeMillis)
          res# ~form]
      (locking lock
-       (println (str "#p" (position) " " '~form " => (" (- (System/currentTimeMillis) t#) " ms) " res#)))
+       (println (str "#p" (position) " " '~form " => (" (- (System/currentTimeMillis) t#) " ms) " (pr-str res#))))
      res#))
 
 (def *reloaded
