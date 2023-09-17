@@ -51,13 +51,13 @@
               [:span {:class "separator"} "·"]
               [:span "Discuss on"]
               (when hn
-                [:a {:href (str "https://news.ycombinator.com/item?id=" hn) :target "_blank"} "HackerNews"])
+                (list " " [:a {:href (str "https://news.ycombinator.com/item?id=" hn) :target "_blank"} "HackerNews"]))
               (when hn2
-                [:a {:href (str "https://news.ycombinator.com/item?id=" hn2) :target "_blank"} "More HackerNews"])
+                (list " " [:a {:href (str "https://news.ycombinator.com/item?id=" hn2) :target "_blank"} "More HackerNews"]))
               (when reddit
-                [:a {:href reddit :target "_blank"} "Reddit"])
+                (list " " [:a {:href reddit :target "_blank"} "Reddit"]))
               (when reddit2
-                [:a {:href reddit2 :target "_blank"} "More Reddit"]))))]
+                (list " " [:a {:href reddit2 :target "_blank"} "More Reddit"])))))]
        
        [:script
         #ml "document.querySelectorAll('.hoverable').forEach(function (e) {
