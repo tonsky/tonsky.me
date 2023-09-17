@@ -77,7 +77,12 @@
          content))]))
 
 (defn transform-link [[_ alt] [_ href]]
-  [:a {:href href} alt])
+  [:a {:href   href
+       :target (when (and 
+                       (str/starts-with? href "http")
+                       (not (str/starts-with? href "https://tonsky.me")))
+                 "_blank")}
+   alt])
 
 (defn transform-img [[_ alt] [_ href]]
   (let [file  (io/file *dir* href)
@@ -137,6 +142,52 @@
      (when figcaption
        [:figcaption figcaption])]))
 
+(defn replace+ [s re f]
+  (let [m (re-matcher re s)]
+    (loop [res  []
+           last 0]
+      (if (.find m)
+        (recur
+          (-> res
+            (conj (subs s last (.start m)))
+            (conj (f (subs s (.start m) (.end m)))))
+          (.end m))
+        (-> res
+          (conj (subs s last))
+          (->> (remove #(= "" %)))
+          (seq))))))
+
+(defn detect-links [form]
+  (core/cond+
+    (string? form)
+    (let [form' (replace+ form #"https?://[^ ]+[^!()-,.<>:;'\" ?&]"
+                  (fn [s] [:a {:href s
+                               :target "_blank"}
+                           (str/replace s #"^https?://" "")]))]
+      (if (= (first form') form)
+        form
+        form'))
+    
+    (and (sequential? form) (not (vector? form)))
+    (apply list (map detect-links form))
+    
+    (not (vector? form))
+    form
+    
+    :let [[tag attrs content] (core/normalize-tag form)]
+    
+    (#{:a :img :video :code :code-block} tag)
+    form
+    
+    :else
+    (vec
+      (concat
+        [tag attrs]
+        (map detect-links content)))))
+
+(defn transform-paragraph [& body]
+  (detect-links (vec (cons :p body))))
+
 (def transforms
   {:uli        #(vector :li %&)
    :oli        #(vector :li %&)
@@ -145,6 +196,7 @@
    :video      transform-video
    :link       transform-link
    :img        transform-img
+   :p          transform-paragraph
    :meta-item  #(vector (keyword %1) %2)
    :meta       #(into {} %&)})
 

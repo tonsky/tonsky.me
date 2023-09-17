@@ -57,7 +57,7 @@
                               "ETag"          etag
                               "Cache-Control" "no-cache"}}
                    resp)]
-    (if (#'ring-modified/cached-response? req resp)
+    (if (and (not core/dev?) (#'ring-modified/cached-response? req resp))
       (assoc resp
         :status 304
         :headers {"Content-Length" 0}
