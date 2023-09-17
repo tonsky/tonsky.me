@@ -8,6 +8,7 @@ on:
       - 'src/**'
       - deps.edn
       - .github/workflows/jar.yml
+      - script/package.sh
 
 jobs:  
   build:

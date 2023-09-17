@@ -8,6 +8,7 @@ on:
       - '_site/**'
       - 'site/**'
       - .github/workflows/content.yml
+      - script/sync.sh
 
 jobs:
   build:
