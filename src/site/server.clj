@@ -50,7 +50,7 @@
         formatted (-> modified
                     (Instant/ofEpochMilli)
                     (core/format-temporal DateTimeFormatter/RFC_1123_DATE_TIME))
-        etag     (str \" (-> modified (Long/toString 16)) \")
+        etag     (str "W/\"" (-> modified (Long/toString 16)) "\"")
         resp     (merge-with merge
                    {:status  200
                     :headers {"Last-Modified" formatted
