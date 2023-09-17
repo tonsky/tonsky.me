@@ -3,7 +3,7 @@ name: jar
 on:
   push:
     branches:
-      - 'master'
+      - 'main'
     paths:
       - 'src/**'
       - deps.edn

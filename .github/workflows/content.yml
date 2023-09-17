@@ -3,7 +3,7 @@ name: content
 on:
   push:
     branches:
-      - 'master'
+      - 'main'
     paths:
       - '_site/**'
       - 'site/**'
