@@ -1,0 +1,26 @@
+name: content
+
+on:
+  push:
+    branches:
+      - 'master'
+    paths:
+      - '_site/**'
+      - 'site/**'
+      - .github/workflows/content.yml
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_KEY }}
+          known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+
+      - name: Upload
+        run: ./script/sync.sh

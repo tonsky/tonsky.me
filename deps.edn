@@ -10,4 +10,7 @@
   {:jvm-opts ["-ea"]
    :extra-paths ["dev" "test"]
    :extra-deps 
-   {org.clojure/tools.namespace {:mvn/version "1.3.0"}}}}}
+   {org.clojure/tools.namespace {:mvn/version "1.3.0"}}}
+  :uberdeps
+  {:replace-deps {uberdeps/uberdeps {:mvn/version "1.3.0"}}
+   :replace-paths []}}}

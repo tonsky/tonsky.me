@@ -1,0 +1,57 @@
+name: jar
+
+on:
+  push:
+    branches:
+      - 'master'
+    paths:
+      - 'src/**'
+      - deps.edn
+      - .github/workflows/jar.yml
+
+jobs:  
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - run: |
+          echo "JAVA_HOME=$JAVA_HOME_17_X64" >> $GITHUB_ENV
+          echo "$JAVA_HOME_17_X64/bin" >> $GITHUB_PATH
+
+      - name: Setup Clojure
+        uses: DeLaGuardo/setup-clojure@10.0
+        with:
+          cli: 1.11.1.1200
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-clojure-${{ hashFiles('deps.edn') }}
+          restore-keys: |
+            ${{ runner.os }}-clojure
+
+      - name: Package
+        run: ./script/package.sh
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: jar
+          path: 'target/*.jar'
+
+      - name: Install SSH key
+        uses: shimataro/ssh-key-action@v2
+        with:
+          key: ${{ secrets.SSH_KEY }}
+          known_hosts: ${{ secrets.SSH_KNOWN_HOSTS }}
+
+      - name: Deploy
+        run: |
+          scp target/site.jar site@tonsky.me:
+
+      - name: Restart
+        run: |
+          ssh site@tonsky.me "kill \$(systemctl show --property MainPID --value site)"
+

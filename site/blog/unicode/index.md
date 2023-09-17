@@ -3,32 +3,18 @@ title: "The Absolute Minimum Every Software Developer Must Know About Unicode in
 summary: "Modern extension to classic 2003 article by Joel Spolsky"
 ---
 
-- no reason not to use utf-8
-- Unicode is 21 bits
-- Unicode is 10% filled
-- utf-16 is still in use
-- UTF-32 will not help you
-- UTF-32 is useless
-- only measures are byte length and extended grapheme clusters length
-- Unicode is locale-dependent
-- Unicode is updated once/twice a year
-- Many ways to do it
-- There is a library for it
-
 20 years ago [Joel Spolsky wrote](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/):
 
 > There Ain’t No Such Thing As Plain Text.
 > It does not make sense to have a string without knowing what encoding it uses. You can no longer stick your head in the sand and pretend that “plain” text is ASCII.
 
-And he was... not wrong. For the time. Indeed, in 2003 the question of encoding did exist, because more than one encoding was in active use.
+A lot has changed in 20 years. In 2003, the main question was: what encoding is this? In 2023, it’s no longer a question: with 99,9% probability, it’s UTF-8.
 
-Enter 2023. 20 years have passed. UTF-8 has seen worldwide adoption. Every other encoding is forgotten. Finally, after 20 long years, we, developers, can finally stick our heads in the sand again and assume UTF-8 everywhere. Hooray!
+Hooray? Can we, developers, finally stick our heads in the sand again?
 
-Hooray?
+Well, sure, but only after you learn to use UTF-8 properly. It’s not hard, but it has a few gotchas. Bear with me.
 
-Well, with some minor gotchas. You have to know how to use it.
-
-# A quick note on Unicode vs UTF-8
+# What’s the difference between Unicode and UTF-8?
 
 Because I reckon there might be some confusion.
 
@@ -44,9 +30,30 @@ It’s a set of rules to convert these codepoints into a sequence of bytes that 
 
 That poo emoji? In Unicode it’s U+1F4A9, but encoded with UTF-8, it turns into `9F F0 A9 92`. Four bytes!
 
-There are other encodings, too. In UTF-16, U+1F4A9 will turn into `D8 3D DC A9`. In UTF-32 it’ll be `00 01 F4 A9`. UTF-32 was designed to be most straightforward, but it’s the most wasteful for small codepoints, too. I doubt you’ll see these in the wild, but technically they do exist.
+There are other encodings, too. In UTF-16, U+1F4A9 will turn into `D8 3D DC A9`. In UTF-32 it’ll be `00 01 F4 A9`. I doubt you’ll see these in the wild, but technically they do exist.
 
-Important thing to understand is, they all encode the same number. And that number is defined by Unicode.
+Important thing is, they all encode the same number. And that number is defined by Unicode.
+
+# How big is Unicode?
+
+21 bit
+fits into an integer
+codepoint
+
+- How is UTF-8 laid out in memory
+- no reason not to use utf-8
+- Unicode is 21 bits
+- Unicode is 10% filled
+- utf-16 is still in use
+- UTF-32 will not help you
+- UTF-32 is useless
+- only measures are byte length and extended grapheme clusters length
+- Unicode is locale-dependent
+- Unicode is updated once/twice a year
+- Many ways to do it
+- There is a library for it
+
+
 
 # A quick note on UTF-16
 

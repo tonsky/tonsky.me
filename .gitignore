@@ -1,0 +1,13 @@
+/target*
+/classes
+/checkouts
+pom.xml
+pom.xml.asc
+*.jar
+*.class
+/.lein-*
+/.nrepl-port
+*.sublime-workspace
+*.sublime-project
+/.cpcache*
+.DS_Store
