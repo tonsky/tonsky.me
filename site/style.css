@@ -1,8 +1,6 @@
-* {
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-}
+*,*::before, *::after { box-sizing: border-box; }
+html { -moz-text-size-adjust: none; -webkit-text-size-adjust: none; text-size-adjust: none; }
+:target { scroll-margin-block: 5ex; }
 
 /** REGULAR **/
 @font-face { font-family: 'IBM Plex Sans'; font-style: normal; font-weight: 400; src: url("/fonts/IBMPlexSans-Regular-Cyrillic.woff2") format("woff2"); unicode-range: U+0400-045F, U+0462-0463, U+0472-0475, U+0490-04C2, U+04CF-04D9, U+04DC-04E9, U+04EE-04F9, U+0524-0525; }
@@ -40,8 +38,8 @@
 
 /** CSS **/
 
-body { font: 18px/28px 'IBM Plex Sans', sans-serif; }
-h1, h2, h3, h4 { font-weight: 600; }
+body { font: 18px/28px 'IBM Plex Sans', sans-serif; min-height: 100vh; }
+h1, h2, h3, h4, .loud { font-weight: 600; line-height: 1.1; text-wrap: balance; }
 pre, code { font-family: 'IBM Plex Mono', monospace; }
 
 body {
@@ -63,8 +61,8 @@ body {
 .menu__item, a.menu__item { color: rgba(0,0,0,0.3); border-color: transparent; display: inline-block; }
 .menu__item_selected,
 a.menu__item_selected,
-a.menu__item:hover { color: #000; border-bottom: 2px solid #000; }
-.menu__item_inside, a.menu__item_inside { border-bottom: 2px solid rgba(0,0,0,0.2); }
+a.menu__item:hover { color: #000; border-bottom: 1.5px solid #000; }
+.menu__item_inside, a.menu__item_inside { border-bottom: 1.5px solid rgba(0,0,0,0.2); }
 .spacer { flex-grow: 1; }
 
 .starred { margin: 0 0.5em 0 -1.5em; }
@@ -88,6 +86,7 @@ h1 + h2 { margin: -0.75em 0 0.9em; }
 
 p > img, .fig, figure { margin: 2em 0; }
 img { max-width: 100%; height: auto; }
+img.inline { margin: 0; display: inline-block; position: relative; top: 3px; }
 
 .fig, figure { text-align: center; font-size: 12px; line-height: 20px; font-style: italic; }
 @media (min-width: 600px) {
@@ -96,6 +95,8 @@ img { max-width: 100%; height: auto; }
 .fig img, figure > img, figure > video, figure > a > img { margin: 0 auto 1em; display: block; border-radius: 3px; }
 figure > video { max-width: 100%; height: auto; }
 .label { text-align: center; font-size: 12px; font-style: italic; margin: -1em 0 1em 0; }
+
+.loud { border: 1.5px solid rgba(0,0,0,0.2); padding: 2em 30px; margin: 1em -30px; font-size: 1.4em; text-align: center; border-radius: 6px; }
 
 code { font-style: normal; background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 4px; font-size: 17px; }
 pre { font-size: 16px;
@@ -114,6 +115,7 @@ ul > li, ol > li { margin: 0.5em 0; }
 sup, sub, .note-ref, .note-number { vertical-align: baseline; position: relative; font-size: .7em; line-height: 1; }
 sup, .note-ref, .note-number { bottom: 1.4ex; }
 sub { top: .5ex; }
+.emoji { font-size: 125%; line-height: 22.5px; }
 
 .about_photo { float: left; width: 100px; height: 160px; margin-left: -150px; margin-top: -10px; background: url("/i/photo.png"); background-size: 200px; }
 .about_photo:hover { background-position: 100%; }

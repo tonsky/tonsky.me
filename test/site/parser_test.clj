@@ -39,7 +39,22 @@
                Paragraphs
                
                
-               "))))
+               ")))
+  
+  (is (= [[:p "body body"]]
+        (parser/parse "body body")))
+  
+  (is (= [[:p [:class "cls"] ".cls body body"]]
+        (parser/parse ".cls .cls body body")))
+  
+  (is (= [[:p [:class "cls"] [:class "cls"] "body body"]]
+        (parser/parse ".cls.cls body body")))
+  
+  (is (= [[:p [:class "cls"] [:class "cls"]]]
+        (parser/parse ".cls.cls")))
+  
+  (is (= [[:p [:class "cls"] ".cls"]]
+        (parser/parse ".cls .cls"))))
 
 (deftest test-code-blocks
   (is (= [[:p "Some code:"]
@@ -157,10 +172,10 @@
   (is (= [[:p "And " [:em "this"] " or " [:strong "this"] " or " [:code "this"]]]
         (parser/parse "And *this* or **this** or `this`")))
 
-  (is (= [[:p "And " [:em "this"] " or " "*" [:em "this"] " or " [:code "this"]]]
+  (is (= [[:p "And " [:em "this"] " or " [:em "*this"] " or " [:code "this"]]]
         (parser/parse "And *this* or **this* or `this`")))
 
-  (is (= [[:p "And " [:em "2"] "3" "*"]]
+  (is (= [[:p "And " [:em "2*3"]]]
         (parser/parse "And *2*3*")))
 
   (is (= [[:p "And " [:em "2*3"]]]
@@ -169,7 +184,7 @@
   (is (= [[:p "And " [:strong "2*3"]]]
         (parser/parse "And __2*3__")))
 
-  (is (= [[:p "And " "_" [:strong "2*3"] "_"]]
+  (is (= [[:p "And " [:em "__2*3__"]]]
         (parser/parse "And ___2*3___")))
   
   (is (= [[:p "Some " [:code "inline"] " code"]]
@@ -243,6 +258,23 @@
                
                Anyway...")))
   
+  (is (= [[:p "List:"]
+          [:ul
+           [:uli "a"]
+           [:uli "b"]
+           [:uli "c"]]
+          [:p "Anyway..."]]
+        (parser/parse
+          #ml "List:
+               
+               - a
+               
+               - b
+               
+               - c
+               
+               Anyway...")))
+  
   (is (= [[:ul
            [:uli
             [:strong "strong"] " " [:em "em"] " just text"]
@@ -259,6 +291,17 @@
         (parser/parse
           #ml "1. First
                2. Second
+               3. Third")))
+  
+  (is (= [[:ol
+           [:oli "First"]
+           [:oli "Second"]
+           [:oli "Third"]]]
+        (parser/parse
+          #ml "1. First
+               
+               2. Second
+               
                3. Third")))
   
   (is (= [[:ol

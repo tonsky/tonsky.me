@@ -26,25 +26,27 @@
      h2         = <'##'> <#' +'> inline
      h3         = <'###'> <#' +'> inline
      h4         = <'####'> <#' +'> inline
-     ul         = uli (<'\n'> uli)*
+     ul         = uli (<#'\n\n?'> uli)*
      uli        = <#' *- +'> inline
-     ol         = oli (<'\n'> oli)*
+     ol         = oli (<#'\n\n?'> oli)*
      oli        = <#' *\\d+\\. +'> inline
      code-block = <#'``` *'> lang? <#' *\n'> #'\n|(?!```).*'* <#'\n``` *(\n|$)'>
      lang       = #'[a-z]+'
      blockquote = qli (<'\n'> qli)*
      <qli>      = <#'> +'> p
-     figure     = <#' *'> #'(?i)[^\n]+\\.(png|jpg|jpeg|gif|webp)' <#' *'> figlink? <#' *'> figalt? figcaption?
-     video      = <#' *'> #'(?i)[^\n]+\\.(mp4|webm)' <#' *'> figlink? <#' *'> figalt? figcaption?
-     figlink    = #'https?://[^ \n]+'
-     figalt     = !'https://' #'[^ \n][^\n]*[^ \n]'
-     figcaption = <#'\n *'> #'[^ \n][^\n]*'
-     p          = inline
+     figure     = <#' *'> #'(?i)[^ \n]+\\.(png|jpg|jpeg|gif|webp)' figlink? figalt? figcaption?
+     video      = <#' *'> #'(?i)[^ \n]+\\.(mp4|webm)' figlink? figalt? figcaption?
+     figlink    = <#' +'> #'https?://[^ \n]+'
+     figalt     = <#' +'> !'https://' #'[^ \n][^\n]*[^ \n]'
+     figcaption = <#' *\n *'> #'[^ \n][^\n]*'
+     p          = class+ <#' *'> / class+ <#' +'> pbody / class+ <#' +'> inline / <#' *'> pbody
+     class      = <'.'> #'[a-zA-Z0-9_\\-]+'
+     <pbody>    = !'.' inline
      
      <inline>   = (text / raw-html / img / link / code / strong / em / fallback)+
      <text>     = #'[^*_`\\[\\]<>!\n]+'
-     strong     = <'**'> #'[^*\n]+' <'**'> | <'__'> #'[^_\n]+' <'__'>
-     em         = <'*'> #'[^*\n]+' <'*'> | <'_'> #'[^_\n]+' <'_'>
+     strong     = <#'(?<!\\w)\\*\\*'> #'([^*\n]|\\*\\w)+' <#'\\*\\*(?!\\w)'> | <'__'> #'[^_\n]+' <'__'>
+     em         = <#'(?<!\\w)\\*'> #'([^*\n]|\\*\\w)+' <#'\\*(?!\\w)'> | <#'(?<!\\w)_'> #'([^_\n]|_\\w)+' <#'_(?!\\w)'>
      code       = <'`'> #'(\\\\`|[^`])*' <'`'>
      alt        = (#'[^*`\\]]+' / (strong | em | code) / #'[^\\]]+')*
      href       = #'[^\\)]*'
@@ -88,7 +90,8 @@
   (let [file  (io/file *dir* href)
         [w h] (core/image-dimensions file)]
     [:img
-     {:src   (core/timestamp-url href file)
+     {:class "inline"
+      :src   (core/timestamp-url href file)
       :width  w
       :height h
       :alt    alt
@@ -186,7 +189,12 @@
         (map detect-links content)))))
 
 (defn transform-paragraph [& body]
-  (detect-links (vec (cons :p body))))
+  (let [[classes body] (split-with #(and (vector? %) (= :class (first %))) body)
+        classes (map second classes)
+        body  (if (seq classes)
+                (cons {:class (str/join " " classes)} body)
+                body)]
+    (detect-links (vec (cons :p body)))))
 
 (def transforms
   {:uli        #(vector :li %&)
