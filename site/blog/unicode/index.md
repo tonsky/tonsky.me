@@ -8,52 +8,307 @@ summary: "Modern extension to classic 2003 article by Joel Spolsky"
 > There Ain’t No Such Thing As Plain Text.
 > It does not make sense to have a string without knowing what encoding it uses. You can no longer stick your head in the sand and pretend that “plain” text is ASCII.
 
-A lot has changed in 20 years. In 2003, the main question was: what encoding is this? In 2023, it’s no longer a question: with 99,9% probability, it’s UTF-8.
+A lot has changed in 20 years. In 2003, the main question was: what encoding is this?
 
-Hooray? Can we, developers, finally stick our heads in the sand again?
+In 2023, it’s no longer a question: with 98% probability, it’s UTF-8. Finally! We can stick our heads in the sand again!
 
-Well, sure, but only after you learn to use UTF-8 properly. It’s not hard, but it has a few gotchas. Bear with me.
+utf8_trend@2x.png
 
-# What’s the difference between Unicode and UTF-8?
+Unfortunatelly, there’re still a few more tricks you need to learn to work with Unicode/UTF-8 correctly.
 
-Because I reckon there might be some confusion.
+# What is Unicode?
 
-Unicode assigns numbers to glyphs.
+Unicode is a standard that tries to unify all human languages, past and present, and make them work with computers.
 
-Letter A is 65. Infinity sign, ∞, is 8734. <span style="font-size: 150%">💩</span> is 128169.
+In practice, Unicode is a table that assigns unique numbers to different characters. 
 
-These numbers are usually written in hexadecimal, like U+1F4A9, but they are still just numbers. A simple, plain platonic abstraction, unconcerned with the limitations of our physical world. Unicode calls them _codepoints_.
+For example, letter `A` gets a number of `65`. Infinity sign, `∞`, is `8734`. <code class="emoji">💩</code> is `128169`.
 
-UTF-8 is _encoding_.
+Since everybody in the world agrees what these numbers are, we can read eath other’s texts.
 
-It’s a set of rules to convert these codepoints into a sequence of bytes that can be stored in computer.
+Unicode calls these numbers _code points_.
 
-That poo emoji? In Unicode it’s U+1F4A9, but encoded with UTF-8, it turns into `9F F0 A9 92`. Four bytes!
-
-There are other encodings, too. In UTF-16, U+1F4A9 will turn into `D8 3D DC A9`. In UTF-32 it’ll be `00 01 F4 A9`. I doubt you’ll see these in the wild, but technically they do exist.
-
-Important thing is, they all encode the same number. And that number is defined by Unicode.
+.loud Unicode == character ⟷ code point.
 
 # How big is Unicode?
 
-21 bit
-fits into an integer
-codepoint
+Currently, largest defined codepoint is 0x10FFFF. That gives us a space of about 11 million codepoints.
 
-- How is UTF-8 laid out in memory
-- no reason not to use utf-8
-- Unicode is 21 bits
-- Unicode is 10% filled
-- utf-16 is still in use
-- UTF-32 will not help you
-- UTF-32 is useless
-- only measures are byte length and extended grapheme clusters length
-- Unicode is locale-dependent
-- Unicode is updated once/twice a year
-- Many ways to do it
-- There is a library for it
+About 170K, or 15%, are currently defined. 11% more are reserved for private use. The rest, or about 800K codepoints, are currently not even allocated. Meaning, they can become characters in the future.
+
+Here’s is roughly it looks:
+
+overview.png
+
+Large square == plane == 65,536 characters. Small one == 256 characters. Entire ASCII is half of small red square in the top left corner.
+
+# What’s Private Use?
+
+These are codepoints that are reserved for app developers and will never be defined by Unicode itself.
+
+For example, there’s no place for Apple logo in Unicode, so Apple puts it at `U+1008FA` which is in Private Use block. In any other font, it’ll render as missing glyph `􀣺`, but in Apple’s own San Francisco, you’ll see ![](apple-logo@2x.png).
+
+The place it’s most used is probably icon fonts:
+
+nerd_font.png
+Isn’t it a beauty?
+
+# What does `U+1F4A9` mean?
+
+It’s a convention how to write codepoint values. Prefix `U+` means, well, Unicode, and `1F4A9` is codepoint number in hexadecimal.
+
+Oh, and `U+1F4A9` speficically is <code class="emoji">💩</code>.
+
+# What’s UTF-8 then?
+
+UTF-8 is an encoding. Encoding is how we store codepoints in memory.
+
+The simplest possible encoding for Unicode is UTF-32. It just stores codepoints as 32-bit integers. So `U+1F4A9` becomes `00 01 F4 A9`, four bytes. Any other codepoint in UTF-32 will also take up four bytes. Since highest defined codepoint is 0x10FFFF, any codepoint is guaranteed to fit.
+
+UTF-16 and UTF-8 are less straightforward, but the ultimate goal is the same: take a codepoint and encode it as bytes.
+
+Encoding is what you’ll actually deal with as a programmer.
+
+# So, how many bytes are in UTF-8?
+
+UTF-8 is a variable-length encoding. Meaning, a codepoint might be encoded as a sequence of one to four bytes.
+
+This is how it works:
+
+<table>
+  <thead>
+    <tr>
+      <th>Codepoint</th>
+      <th>Byte 1</th>
+      <th>Byte 2</th>
+      <th>Byte 3</th>
+      <th>Byte 4</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>U+<code>0000</code>..<code>007F</code></td>
+      <td><code>0xxxxxxx</code></td>
+    </tr>
+    <tr>
+      <td>U+<code>0080</code>..<code>07FF</code></td>
+      <td><code>110xxxxx</code></td>
+      <td><code>10xxxxxx</code></td>
+    </tr>
+    <tr>
+      <td>U+<code>0800</code>..<code>FFFF</code></td>
+      <td><code>1110xxxx</code></td>
+      <td><code>10xxxxxx</code></td>
+      <td><code>10xxxxxx</code></td>
+    </tr>
+    <tr>
+      <td>U+<code>10000</code>..<code>10FFFF</code></td>
+      <td><code>11110xxx</code></td>
+      <td><code>10xxxxxx</code></td>
+      <td><code>10xxxxxx</code></td>
+      <td><code>10xxxxxx</code></td>
+    </tr>
+  </tbody>
+</table>
+
+If you combine this with Unicode table, you’ll see that English is encoded with 1 byte, Cyrillic and Latin European languages, Hebrew and Arabic need 2, and Chinese, Japanese, Korean, other Asian and Emoji need 3 or 4.
+
+Few important points there:
+
+First, UTF-8 is byte-compatible with ASCII. Codepoints 0..127, former ASCII, are encoded with one byte, and it’s the same exact byte. `U+0041` (`A`, Latin Capital Letter A) is just `41`, one byte. Any pure ASCII text is also a valid UTF-8 text, and vice versa.
+
+Second, UTF-8 is space-efficient for basic Latin. That was one of its main selling points over UTF-16. It might not be fair for texts all over the world, but for technical strings like e.g. HTML tags, it makes sense. So, on average, UTF-8 tends to be a pretty good deal, even for non-English computers. And for English there’s no comparison.
+
+Third, UTF-8 has error detection built-in. As you can see, first byte prefix always looks different from bytes 2-4. So if can always tell if you are looking at complete and valid sequence of UTF-8 bytes or something is missing.
+
+And a couple of important consequences:
+
+- You CAN’t determine length of the string by counting bytes.
+- You CAN’T randomly jump into the middle of the string and start reading.
+- You CAN’T get substring by cutting at arbitrary byte offsets. You might cut off part of the character.
+
+Those who do will eventually meet this bad boy: �
+
+# What’s �?
+
+� U+FFFD Replacement Character is just another codepoint in Unicode table. Apps and libraries can use it when they detect Unicode errors.
+
+When you cut half of the codepoint off, there’s not much left to do with other half, except trying to display error. That’s when � is used.
+
+```
+var bytes = "Аналитика".getBytes("UTF-8");
+var partial = Arrays.copyOfRange(bytes, 0, 11);
+new String(partial, "UTF-8"); // => "Анал�"
+```
+
+# Wouldn’t UTF-32 be easier for everything?
+
+It’s easy to think that if we allocate 4 bytes for every codepoint, some things become easier. Like, `strlen(s) == sizeof(s) / 4`, taking first 3 characters is just taking 12 bytes, etc.
+
+Unfortunately, no. The problem is called “extended grapheme clusters”, or graphemes for short.
+
+A grapheme is a minimally distinctive unit of writing in the context of a particular writing system. Basically, it’s what user thinks of as a character.
+
+The problem is, in Unicode, some graphemes are encoded with multiple codepoints!
+
+For example, `ö` (a single grapheme) is encoded in Unicode as `o` (U+006F Latin Small Letter O) + `¨` (U+0308 Combining Diaeresis). Two codepoints!
+
+Same goes for emoji, for example:
+
+- <code class="emoji">☹️</code> is `U+2639` + `U+FE0F`
+- <code class="emoji">🇺🇳</code> is `U+1F1FA` + `U+1F1F3`
+- <code class="emoji">🚵🏻‍♀️</code> is `U+1F6B5` + `U+1F3FB` + `U+200D` + `U+2640` + `U+FE0F`
+
+These can get quite long. There’s no limit, as far as I know.
+
+Anyways. The problem is, just like with UTF-8, you can’t just take part of that sequence and expect anything good happen. What is considered a single unit of writing by human should be added, copied, edited or deleted as a whole.
+
+Otherwise, you get bugs like this:
+
+intellij.mp4
+Just to be clear: this is NOT a correct behavior
+
+That’s why UTF-32 is not the answer. To correctly work with Unicode text, you have to be aware of extended grapheme clusters, and they span multiple codepoints anyway. So, fixed-length encoding wouldn’t help with anything.
+
+.loud Code points alone are not enough!
+
+# What’s "🤦🏼‍♂️".length?
+
+The question is inspired by [this brilliant article](https://hsivonen.fi/string-length/).
+
+Different programming languages will happily give you different answers.
+
+Python 3:
+
+```
+>>> len("🤦🏼‍♂️")
+5
+```
+
+JavaScript / Java / C#:
+
+```
+>> "🤦🏼‍♂️".length 
+7
+```
+
+Rust:
+
+```
+println!("{}", "🤦🏼‍♂️".len());
+// => 17
+```
+
+As you can guess, different languages use different internal string representations (UTF-32, UTF-16, UTF-8) and report length in whatever units they store characters in (ints, shorts, bytes).
+
+BUT! If you ask any normal person, one that isn’t burdened with computers internals, they’ll give you a straight answer: 1. The length of <code class="emoji">🤦🏼‍♂️</code> string is 1.
+
+That’s what extended grapheme clusters are all about: what _humans_ percieve as a single character. And in this case, <code class="emoji">🤦🏼‍♂️</code> is undoubtedly a single character.
+
+The fact that <code class="emoji">🤦🏼‍♂️</code> consists of 5 codepoints (`U+1F926 U+1F3FB U+200D U+2642 U+FE0F`) is mere implementation detail. It should not be breaked apart, it should not be counted as multiple characters, text cursor should not be positioned inside it, it shouldn’t be partially selected, etc. For all intents and purposes, this is an atomic unit of text. Any other representations do more harm than good.
+
+The only modern language that gets it right is Swift:
+
+```
+print("🤦🏼‍♂️".count)
+// => 1
+```
+
+Hope more languages will get on board soon.
+
+Oh, and by the way,
+
+.loud "ẇ͓̞͒͟͡ǫ̠̠̉̏͠͡ͅr̬̺͚̍͛̔͒͢d̠͎̗̳͇͆̋̊͂͐".length === 4
+
+# What if my app doesn’t use Emoji?
+
+No matter. Extended Grapheme Clusters are for alive, actively used languages, too. For example:
+
+- `ö` (German) is a single character, but multiple code points (`U+006F U+0308`).
+- `ą́` (Lithuanian) is `U+00E1 U+0328`.
+- `각` (Korean) is `U+1100 U+1161 U+11A8`.
+
+So no, it’s not only about Emoji.
+
+# I live in US/UK, should I even care?
+
+english@2x.png
+
+- proper quotation marks `“` `”` `‘` `’`, 
+- proper apostrope `’`,
+- proper dashes `–` `—`,
+- different variations of spaces (figure, hair, non-breaking),
+- bullets `•` `■` `☞`,
+- currency symbols other than the `$` (kind of tells you who invented computers, doesn’t it?): `€` `¢` `£`,
+- mathematical signs—plus `+` and equals `=` are part of ASCII, but minus `−` and multiply `×` are not <span>¯\_(ツ)_/¯</span>,
+- various other signs `©` `™` `¶` `†` `§`.
+
+Hell, you can’t even spell `café`, `piñata` or `naïve` without Unicode. So yes, we are all in it together, even Americans.
+
+Touché.
+
+# How do I detect extended grapheme clusters then?
+
+Unfortunately, most languages choose the easy way and let you iterate strings with 1-2-4 byte chunks, or sometimes codepoints, but not with grapheme clusters. And since it’s a default, people don’t think much and we get bugs like this:
+
+error1.png
+
+or this:
+
+error2.png
+
+or this:
+
+error3@2x.png
+
+What you should be doing is using a third-party library. For example:
+
+1. Swift: nothing. Swift does the right thing by default.
+
+1. C/C++/Java: use [ICU](https://github.com/unicode-org/icu). It’s a library from Unicode itself that encodes all the rules about text segmentation.
+
+1. C#: use `TextElementEnumerator`, which is kept up to date with Unicode as far as I can tell.
+
+1. For other languages, there’s probably a library or binding for ICU.
+
+1. Roll your own. Unicode [publishes](https://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundaries) rules and tables machine-readable format, and all the libraries above are based on them.
+
+But whatever you choose, make sure it’s on recent enough version of Unicode (15.1 at the moment of writing), because definition of graphemes changes from version to version. For example, Java’s `java.text.BreakIterator` is no go: it’s based on very old version of Unicode and not updated.
+
+IMO, the whole situation is a shame. Unicode should be in stdlib of every language by default. It’s lingua franca of the Internet! And it’s not new: we’ve been living with Unicode for 20 years now.
+
+# Wait, rules are changing?
 
 
+
+# What about regexps?
+
+# Normalization
+
+# Is UTF-16 still alive?
+
+```
+var bytes = "Analytics".getBytes("UTF-16");
+var partial = Arrays.copyOfRange(bytes, 0, 11);
+new String(partial, "UTF-16"); // => "Anal�"
+
+var bytes = "Analytics".getBytes("UTF-16");
+var partial = Arrays.copyOfRange(bytes, 1, 20);
+new String(partial, "UTF-16"); // => "＀䄀渀愀氀礀琀椀挀�"
+```
+
+# What is surrogate pair?
+
+# no reason not to use utf-8
+# utf-16 is still in use
+# only measures are byte length and extended grapheme clusters length
+# Unicode is locale-dependent
+# Unicode is updated once/twice a year
+# Many ways to do it
+# Regexps
+# Conclusion
+
+It’s not even hard there days, or complicated. It’s a matter of not doing random thing and doing the right thing.
 
 # A quick note on UTF-16
 
