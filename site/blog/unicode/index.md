@@ -1,6 +1,7 @@
 ---
 title: "The Absolute Minimum Every Software Developer Must Know About Unicode in 2023 (Still No Excuses!)"
 summary: "Modern extension to classic 2003 article by Joel Spolsky"
+css: style2.css
 ---
 
 20 years ago [Joel Spolsky wrote](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/):
@@ -22,11 +23,17 @@ Unicode is a standard that tries to unify all human languages, past and present,
 
 In practice, Unicode is a table that assigns unique numbers to different characters. 
 
-For example, letter `A` gets a number of `65`. Infinity sign, `∞`, is `8734`. <code class="emoji">💩</code> is `128169`.
+For example,
 
-Since everybody in the world agrees what these numbers are, we can read eath other’s texts.
+- Latin letter `A` gets a number of `65`.
+- Arabic Letter Seen `س` is `1587`.
+- Katakana Letter Tu `ツ` is `12484`
+- Musical Symbol G Clef `𝄞` is `119070`.
+- <code class="emoji">💩</code> is `128169`.
 
 Unicode calls these numbers _code points_.
+
+Since everybody in the world agrees which numbers correspond to which characters, and we all agree to use Unicode, we can read eath other’s texts.
 
 .loud Unicode == character ⟷ code point.
 
@@ -38,7 +45,7 @@ About 170K, or 15%, are currently defined. 11% more are reserved for private use
 
 Here’s is roughly it looks:
 
-overview.png
+overview@2x.png
 
 Large square == plane == 65,536 characters. Small one == 256 characters. Entire ASCII is half of small red square in the top left corner.
 
@@ -50,7 +57,7 @@ For example, there’s no place for Apple logo in Unicode, so Apple puts it at `
 
 The place it’s most used is probably icon fonts:
 
-nerd_font.png
+nerd_font@2x.png
 Isn’t it a beauty?
 
 # What does `U+1F4A9` mean?
@@ -165,7 +172,7 @@ Anyways. The problem is, just like with UTF-8, you can’t just take part of tha
 
 Otherwise, you get bugs like this:
 
-intellij.mp4
+intellij@2x.mp4
 Just to be clear: this is NOT a correct behavior
 
 That’s why UTF-32 is not the answer. To correctly work with Unicode text, you have to be aware of extended grapheme clusters, and they span multiple codepoints anyway. So, fixed-length encoding wouldn’t help with anything.
@@ -300,9 +307,17 @@ new String(partial, "UTF-16"); // => "＀䄀渀愀氀礀琀椀挀�"
 # What is surrogate pair?
 
 # no reason not to use utf-8
+# You only need two representations: grapheme clusters and bytes
 # utf-16 is still in use
 # only measures are byte length and extended grapheme clusters length
 # Unicode is locale-dependent
+
+Mixing C/J/K in a single document is impossible without metadata and special language specific fonts.
+
+For example airlines can’t rely on Unicode to properly render passenger names
+
+Oh, and yes that means that a single Unicode font that covers all language can never exist either.
+
 # Unicode is updated once/twice a year
 # Many ways to do it
 # Regexps
@@ -332,7 +347,7 @@ Technically, UTF-8 can go as high as 0x1FFFFF, but UTF-16 can’t, so, compromis
 
 This is the overview of the entire codepoint space:
 
-overview.png
+overview@2x.png
 
 On the picture, each large square is a Unicode _plane_. Plane fits 65,536 codepoints.
 
@@ -346,7 +361,7 @@ Last two can be used freely by app developers. For example, icon fonts put assig
 
 The very first plane is called BMP, or Basic Multilingual Plane. It fits most of the languages in active use today, sans CJK. That’s what original UCS-2/UTF-16 was supposed to be. I guess one can feel the temptation of fitting _everything_ into these 65,536 characters and be done with it. Unfortunately, humanity invented more letters than it was convenient for the computer.
 
-bmp.png
+bmp@2x.png
 A map of the Basic Multilingual Plane. Each numbered box represents 256 code points.
 
 Each square is 256 characters. For example, the entirety of Latin alphabet fits into two small red squares in top left corner. ASCII is half of first square. Emoji take, what, about 5 squares at the bottom of second plane? Tiny compared to the entire thing. Unicode is HUGE.

@@ -5,6 +5,7 @@
     [clojure.java.shell :as shell]
     [clojure.string :as str])
   (:import
+    [java.io File]
     [java.time LocalDate ZoneId]
     [java.time.format DateTimeFormatter]
     [java.time.temporal TemporalAccessor]))
@@ -119,6 +120,12 @@
 (defn rsort-by [keyfn xs]
   (sort-by keyfn #(compare %2 %1) xs))
 
+(defn resize [^File file w h]
+  (cond
+    (str/index-of (.getName file) "@2x.") [(quot w 2) (quot h 2)]
+    (>= w 1088)                           [(quot w 2) (quot h 2)]
+    :else                                 [w h]))
+
 (def image-dimensions
   (memoize-by
     #(.lastModified (io/file %))
@@ -127,9 +134,7 @@
         (when (.exists file)
           (let [out   (:out (sh "convert" (.getPath file) "-ping" "-format" "[%w,%h]" "info:"))
                 [w h] (edn/read-string out)]
-            (if (str/index-of (.getName file) "@2x.")
-              [(quot w 2) (quot h 2)]
-              [w h])))))))
+            (resize file w h)))))))
 
 (def video-dimensions
   (memoize-by
@@ -145,9 +150,7 @@
               (let [w (parse-long w)
                     h (parse-long h)]
                 (when (and w h)
-                  (if (str/index-of (.getName file) "@2x.")
-                    [(quot w 2) (quot h 2)]
-                    [w h]))))))))))
+                  (resize file w h))))))))))
 
 (defn timestamp-url [url file]
   (let [file (io/file file)]

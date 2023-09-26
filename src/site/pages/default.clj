@@ -14,7 +14,8 @@
         [:meta {:name "viewport" :content "width=640"}])
       [:meta {:name "theme-color" :content "#FDDB29"}]
       [:link {:href "/i/favicon.png" :rel "icon" :sizes "32x32"}]
-      [:link {:href (core/timestamp-url "/style.css" "site/style.css") :rel "stylesheet" :type "text/css"}]
+      (let [css (:css page "style.css")]
+        [:link {:href (core/timestamp-url (str "/" css) (str "site/" css)) :rel "stylesheet" :type "text/css"}])
       [:title (:title page) " @ tonsky.me"]
       [:link {:href "/blog/atom.xml" :rel "alternate" :title "Nikita Prokopov’s blog" :type "application/atom+xml"}]
       [:meta {:name "author" :content "Nikita Prokopov"}]
