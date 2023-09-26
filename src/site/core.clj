@@ -155,3 +155,15 @@
       (let [modified (quot (.lastModified file) 1000)]
         (str url (if (str/index-of url "?") "&" "?") "t=" modified))
       url)))
+
+(defmacro debug [& args]
+  `(when dev?
+     (println ~@args)))
+
+(defmacro measure [name & body]
+  `(if dev?
+     (let [t#   (System/currentTimeMillis)
+           res# (do ~@body)]
+       (println (format "[ %4d ms ] %s" (- (System/currentTimeMillis) t#) ~name))
+       res#)
+     (do ~@body)))

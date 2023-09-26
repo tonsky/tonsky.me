@@ -12,9 +12,25 @@
 (def ^:dynamic *dir*
   nil)
 
+(defmethod clojure.core/print-method instaparse.gll.Failure [x ^java.io.Writer w]
+  (cond
+    *print-dup*
+    (do
+      (.append w "#instaparse.gll.Failure{:index")
+      (print-dup (:index x) w)
+      (.append w ", :reason ")
+      (print-dup (:reason x) w)
+      (.append w "}"))
+    
+    *print-readably*
+    (print-method (with-out-str (instaparse.failure/pprint-failure x)) w)
+    
+    :else
+    (instaparse.failure/pprint-failure x)))
+
 (def parse
   (instaparse/parser
-    "<root>       = meta? (<'\n'> | block <#' *(\n|$)'>)+
+    "<root>       = meta? (block? <#' *(\n|$)'>)+
      
      meta         = <#'--- *\n'> meta-item* <#'--- *\n'>
      meta-item    = meta-key <#' *: *'> (<'\\''> meta-value <'\\''> | <'\"'> meta-value <'\"'> | meta-value) <'\n'>
@@ -39,7 +55,7 @@
      figlink    = <#' +'> #'https?://[^ \n]+'
      figalt     = <#' +'> !'https://' #'[^ \n][^\n]*[^ \n]'
      figcaption = <#' *\n *'> #'[^ \n][^\n]*'
-     p          = class+ <#' *'> / class+ <#' +'> pbody / class+ <#' +'> inline / <#' *'> pbody
+     p          = class+ <#' *'> / class+ <#' +'> pbody / class+ <#' +'> inline / <#' *'> inline
      class      = <'.'> #'[a-zA-Z0-9_\\-]+'
      <pbody>    = !'.' inline
      
@@ -226,13 +242,17 @@
     (fn [path]
       (transduce (map #(.lastModified ^File %)) max 0 (-> path io/file .getParentFile file-seq)))
     (fn [path]
-      (let [file   (io/file path)
-            name   (.getName file)
-            [_ id] (re-matches #"(.*)\.md" name)]
-        (binding [*dir* (.getParentFile file)]
-          (-> file
-            just-parse
-            transform
-            (assoc 
-              :url (str "/blog/" id "/")
-              :categories #{:blog})))))))
+      (let [file (io/file path)
+            name (.getName file)
+            id   (if (= name "index.md")
+                   (.getName (.getParentFile file))
+                   (second (re-matches #"\d+-\d+-\d+-(.*)\.md" name)))]
+        (core/measure
+          (str "Parsing " (.getName (.getParentFile file)) "/" (.getName file))
+          (binding [*dir* (.getParentFile file)]
+            (-> file
+              just-parse
+              transform
+              (assoc 
+                :url (str "/blog/" id "/")
+                :categories #{:blog}))))))))
