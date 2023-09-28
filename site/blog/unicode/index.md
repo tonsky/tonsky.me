@@ -172,6 +172,10 @@ Anyways. The problem is, just like with UTF-8, you can’t just take part of tha
 
 Otherwise, you get bugs like this:
 
+error1.png
+
+or this:
+
 intellij@2x.mp4
 Just to be clear: this is NOT a correct behavior
 
@@ -256,25 +260,19 @@ Touché.
 
 # How do I detect extended grapheme clusters then?
 
-Unfortunately, most languages choose the easy way and let you iterate strings with 1-2-4 byte chunks, or sometimes codepoints, but not with grapheme clusters. And since it’s a default, people don’t think much and we get bugs like this:
+Unfortunately, most languages choose the easy way out and let you iterate strings with 1-2-4 byte chunks, but not with grapheme clusters.
 
-error1.png
+It makes no sense and has no semantic, but since it’s the default, programmers don’t think twice and we see corrupted strings as the result:
 
-or this:
+stdlib@2x.png
 
-error2.png
-
-or this:
-
-error3@2x.png
-
-What you should be doing is using a third-party library. For example:
-
-1. Swift: nothing. Swift does the right thing by default.
+What you should be doing instead is using a proper Unicode library. For example:
 
 1. C/C++/Java: use [ICU](https://github.com/unicode-org/icu). It’s a library from Unicode itself that encodes all the rules about text segmentation.
 
 1. C#: use `TextElementEnumerator`, which is kept up to date with Unicode as far as I can tell.
+
+1. Swift: just stdlib. Swift does the right thing by default.
 
 1. For other languages, there’s probably a library or binding for ICU.
 
@@ -286,30 +284,60 @@ IMO, the whole situation is a shame. Unicode should be in stdlib of every langua
 
 # Wait, rules are changing?
 
+Yes! Ain’t it cool?
 
+(I know, it ain’t)
 
-# What about regexps?
+Roughly starting from 2014, Unicode is releasing a major revision of their standard every year. This is where you get your new Emoji from — Android and iOS updates in the Fall usually include newest Unicode standard among other things. It also means that old systems can’t show new Emoji.
 
-# Normalization
+versions@2x.png
+
+What’s sad for us, rules that define grapheme clusters change every year, too. What is considered a sequence of two or three separate codepoints today might become a grapheme cluster tomorrow! There’s no way to know! Or prepare!
+
+Even worse, different versions of your own app might be running on different Unicode standards and report different string lengths!
+
+But that’s the reality we live in. You don’t really have a choice here. You can’t ignore Unicode or Unicode updates if you want to stay relevant and you want decent user experience. So, buckle up, embrace, and update.
 
 # Is UTF-16 still alive?
 
+Yes!
+
+A little bit of history. First version of Unicode was supposed to be fixed-width. 16-bit fixed width, to be exact:
+
+unicode1@2x.png
+Version 1.0 of the Unicode Standard, October 1991
+
+They believed 65536 characterd would be enough for all human languages. They were almost right!
+
+And that promise was so compelling many systems embedded it very deeply into their core. Among them were Microsoft Windows, Java, JavaScript, .NET, Python 2, QT, SMS and CD-ROM!
+
+Since then, Python has moved on, but the rest is stuck with UTF-16 or with UCS-2 even. So UTF-16 lives there as memory representation.
+
+It also warms my heart when I remember that every time I store, send or receive a string, there’s a conversion overhead from UTF-8 to UTF-16 to get it in memory. Well, nobody is perfect.
+
+# What are surrogate pairs?
+
+That goes back to Unicode v1 again. When they realized they need more codepoints, UCS-2 was already used in all these systems. 16 bit, fixed-width, it only gives you 65536 characters. What can you do?
+
+Unicode decided to allocate some of these 65536 chars to encode higher codepoints, essentially converting fixed-width UCS-2 into variable-width UTF-16.
+
+Surrogate pair is two UTF-16 units used to encode single Unicode codepoint. For example, `D83D DCA9` (two 16-bit units) encode _one_ codepoint, `U+1F4A9`.
+
+Top 6 bits in surrogate pairs are used for mask, leaving 2×10 free bits to spare:
+
 ```
-var bytes = "Analytics".getBytes("UTF-16");
-var partial = Arrays.copyOfRange(bytes, 0, 11);
-new String(partial, "UTF-16"); // => "Anal�"
-
-var bytes = "Analytics".getBytes("UTF-16");
-var partial = Arrays.copyOfRange(bytes, 1, 20);
-new String(partial, "UTF-16"); // => "＀䄀渀愀氀礀琀椀挀�"
+   High Surrogate          Low Surrogate
+        D800        ++          DC00
+1101 10?? ???? ???? ++ 1101 11?? ???? ????
 ```
 
-# What is surrogate pair?
+Technically, both halves of surrogate pair can be seen as Unicode codepoints, too. In practice, the whole range from `U+D800` to `U+DFFF` is allocated as “for surrogate pairs only”. Codepoints from there are not even considered valid in any other encodings.
 
-# no reason not to use utf-8
-# You only need two representations: grapheme clusters and bytes
-# utf-16 is still in use
-# only measures are byte length and extended grapheme clusters length
+bmp@2x.png
+This space on very crammed Basic Multilingual Plane will never be used for anything good ever again
+
+# What about regexps?
+# Normalization
 # Unicode is locale-dependent
 
 Mixing C/J/K in a single document is impossible without metadata and special language specific fonts.
@@ -318,108 +346,10 @@ For example airlines can’t rely on Unicode to properly render passenger names
 
 Oh, and yes that means that a single Unicode font that covers all language can never exist either.
 
-# Unicode is updated once/twice a year
-# Many ways to do it
-# Regexps
 # Conclusion
 
 It’s not even hard there days, or complicated. It’s a matter of not doing random thing and doing the right thing.
 
-# A quick note on UTF-16
-
-I know, I know... I told you it’s not used anymore. Well, it is.
-
-At the start of Unicode, all codepoints were planned to fit into 16 bit. That’s why Java, JavaScript and Windows were so keen to jump on that train. Fixed-width, 16-bit encoding is as convenient as ASCII. Unfortunately, 16 were not enough in the long run.
-
-(We still pay price for this oversight, by the way. Each time Java or JavaScript receives a string from a disk or the network, it needs to be converted from UTF-8 to UTF-16. It’s not much, and you probably can’t do anything about it, so, you know, just another imperfection to feel sorry about.)
-
-So, Unicode grew over 16 bits, and UTF-16 (called UCS-2 back then) had to be retrofitted.
-
-They did that by blocking out two 16-bit ranges (U+D800..U+DBFF and U+DC00..U+DFFF) and assigning them no glyphs. These Unicode codepoints have no meaning on their own except for “we are used in UTF-16 to represent larger codepoints”. They are called “surrogate pairs”.
-
-That’s a story of an encoding (technical detail) affecting Unicode table (a platonic ideal). Sorry, purists.
-
-# So, how big is Unicode now?
-
-Largest defined codepoint is 0x10FFFF. That’s about 11 million characters. This takes 21 bit to represent, but, surprisingly, does not cover all the space.
-
-Technically, UTF-8 can go as high as 0x1FFFFF, but UTF-16 can’t, so, compromises. It’s plenty of space anyway, and most of it is unused.
-
-This is the overview of the entire codepoint space:
-
-overview@2x.png
-
-On the picture, each large square is a Unicode _plane_. Plane fits 65,536 codepoints.
-
-There are 17 planes total. Most are unallocated, i.e. reserved for future use. Plenty of space for new emojis.
-
-Second plane contains mostly dead languages and some emoji.
-
-Third and fourth are dedicated entirely for CJK (Chinese, Japanes, Korean).
-
-Last two can be used freely by app developers. For example, icon fonts put assign their icons there.
-
-The very first plane is called BMP, or Basic Multilingual Plane. It fits most of the languages in active use today, sans CJK. That’s what original UCS-2/UTF-16 was supposed to be. I guess one can feel the temptation of fitting _everything_ into these 65,536 characters and be done with it. Unfortunately, humanity invented more letters than it was convenient for the computer.
-
-bmp@2x.png
-A map of the Basic Multilingual Plane. Each numbered box represents 256 code points.
-
-Each square is 256 characters. For example, the entirety of Latin alphabet fits into two small red squares in top left corner. ASCII is half of first square. Emoji take, what, about 5 squares at the bottom of second plane? Tiny compared to the entire thing. Unicode is HUGE.
-
-# Unicode is variable-length
-
-Unicode? Weren’t you supposed to say UTF-8?
-
-Well, no.
-
-So ASCII was fixed-length. It was so convenient that every other encoding since then was trying to bring back that property. All of them failed.
-
-USC-2 was supposed to be fixed-length. Didn’t have enough codepoints.
-
-UTF-32 had enough codepoints, but with 4× overhead. Yet we need grapheme clusters.
-
-You see, Unicode codepoints sometimes come in pairs. Sometimes in groups, even. Something like `ö` is actually `o` (U+006F Latin Small Letter O) + `¨` (U+0308 Combining Diaeresis) in disguise. Two codepoints. Single _grapheme_. Under any circumstance, shouldn’t be broken.
-
-Same goes for emoji, for example:
-
-- `☹️` is `U+2639` + `U+FE0F`
-- `🇺🇳` is `U+1F1FA` + `U+1F1F3`
-- `🚵🏻‍♀️` is `U+1F6B5` + `U+1F3FB` + `U+200D` + `U+2640` + `U+FE0F`
-
-These can get quite long.
-
-What’s string lenght of `🤦🏼‍♂️`? If you ask human, a real human, someone not familiar with how computers work internally, naturally their answer would be `1`. Yet it’s 5 codepoints! 17 bytes, if encoded in UTF-8!
-
-
-
-# Проблемы
-
-- UTF-16
-  - Byte order, BOM
-  - Конвертация из-в UTF-8
-- разбивать текст по байтам нельзя
-  - �
-  - да и по кодпоинтам нельзя
-  - Extended Grapheme Cluster
-  - «То, что воспринимается человеком как один символ»
-- Искать по подстроке нельзя
-  - Uppercase/lowercase
-  - Номализация
-  - NFD — все взорвать, é → e + ◌́
-  - NFC — все слепить, e + ◌́ → é
-  - macOS/Windows й
-  - X и 𝕏 (U+1D54F, MATHEMATICAL DOUBLE-STRUCK CAPITAL X)
-  - 1 и ¹ и ₁
-- Локааали
-  - uppercase/lowercase
-    - I → ı, i → İ
-  - Han unification
-    - For Japanese, the kanji characters have been unified with Chinese; that is, a character considered to be the same in both Japanese and Chinese is given a single number, even if the appearance is actually somewhat different, with the precise appearance left to the use of a locale-appropriate font
-  - Болгарица
-    - https://twitter.com/nikitonsky/status/1171115067112398849
-  - Text Segmentation
-    - Границы букв, слогов (для переносов), слов, предложений
-    - Работает через словарь
-    - Поэтому ICU весит 10 Мб, а не 10 Кб :(
-  - Новые версии каждый год
-    - Результаты разбиения/переноса могут поменяться
+- Unicode is a miracle
+- no reason not to use utf-8
+- You only need two representations: grapheme clusters and bytes
