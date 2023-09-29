@@ -266,7 +266,11 @@ It makes no sense and has no semantic, but since it’s the default, programmers
 
 stdlib@2x.png
 
-What you should be doing instead is using a proper Unicode library. For example:
+“I know, I’ll use a library to do strlen()!” — nobody, ever.
+
+But that’s exactly what you should be doing! Use a proper Unicode library! Yes, for dumb stuff like `strlen` or `indexOf` or `substring`!
+
+For example:
 
 1. C/C++/Java: use [ICU](https://github.com/unicode-org/icu). It’s a library from Unicode itself that encodes all the rules about text segmentation.
 
@@ -281,6 +285,8 @@ What you should be doing instead is using a proper Unicode library. For example:
 But whatever you choose, make sure it’s on recent enough version of Unicode (15.1 at the moment of writing), because definition of graphemes changes from version to version. For example, Java’s `java.text.BreakIterator` is no go: it’s based on very old version of Unicode and not updated.
 
 IMO, the whole situation is a shame. Unicode should be in stdlib of every language by default. It’s lingua franca of the Internet! And it’s not new: we’ve been living with Unicode for 20 years now.
+
+.loud Use a library
 
 # Wait, rules are changing?
 
@@ -298,46 +304,50 @@ Even worse, different versions of your own app might be running on different Uni
 
 But that’s the reality we live in. You don’t really have a choice here. You can’t ignore Unicode or Unicode updates if you want to stay relevant and you want decent user experience. So, buckle up, embrace, and update.
 
-# Is UTF-16 still alive?
+.loud Update yearly
 
-Yes!
+# Why isn’t "Å" === "Å"?
 
-A little bit of history. First version of Unicode was supposed to be fixed-width. 16-bit fixed width, to be exact:
-
-unicode1@2x.png
-Version 1.0 of the Unicode Standard, October 1991
-
-They believed 65536 characterd would be enough for all human languages. They were almost right!
-
-And that promise was so compelling many systems embedded it very deeply into their core. Among them were Microsoft Windows, Java, JavaScript, .NET, Python 2, QT, SMS and CD-ROM!
-
-Since then, Python has moved on, but the rest is stuck with UTF-16 or with UCS-2 even. So UTF-16 lives there as memory representation.
-
-It also warms my heart when I remember that every time I store, send or receive a string, there’s a conversion overhead from UTF-8 to UTF-16 to get it in memory. Well, nobody is perfect.
-
-# What are surrogate pairs?
-
-That goes back to Unicode v1 again. When they realized they need more codepoints, UCS-2 was already used in all these systems. 16 bit, fixed-width, it only gives you 65536 characters. What can you do?
-
-Unicode decided to allocate some of these 65536 chars to encode higher codepoints, essentially converting fixed-width UCS-2 into variable-width UTF-16.
-
-Surrogate pair is two UTF-16 units used to encode single Unicode codepoint. For example, `D83D DCA9` (two 16-bit units) encode _one_ codepoint, `U+1F4A9`.
-
-Top 6 bits in surrogate pairs are used for mask, leaving 2×10 free bits to spare:
+Copy this to your JavaScript console:
 
 ```
-   High Surrogate          Low Surrogate
-        D800        ++          DC00
-1101 10?? ???? ???? ++ 1101 11?? ???? ????
+"Å" === "Å"
 ```
 
-Technically, both halves of surrogate pair can be seen as Unicode codepoints, too. In practice, the whole range from `U+D800` to `U+DFFF` is allocated as “for surrogate pairs only”. Codepoints from there are not even considered valid in any other encodings.
+What do you get? False? You should get false, and it’s not a mistake.
 
-bmp@2x.png
-This space on very crammed Basic Multilingual Plane will never be used for anything good ever again
+Remember earlier, when I said that `ö` is two codepoints, `U+006F U+0308`? Basically, Unicode offers more than one way to write characters like `ö`. You can:
 
-# What about regexps?
-# Normalization
+1. Compose `ö` from normal Latin `o` + combining character,
+2. OR there’s also a pre-composed codepoint `U+00F6` that does that for you.
+
+They will look the same (`ö` vs `ö`), they should work the same, and for all intents and purposes they are considered exactly the same. The only difference is byte representation.
+
+That’s why we need normalization. There are four forms:
+
+**NFD** tries to explode everything to smallest possible pieces, and also sorts pieces in a canonical order if there are more than one.
+
+**NFC** instead tries to combine everything into pre-composed form, if one exist.
+
+normalization@2x.png
+
+NFD and NFC are called “canonical normalization”. They also replace clones, like `Ω U+2126 Ohm Sign` with `Ω U+03A9 Greek Capital Letter Omega`.
+
+**NFKD** tries to explode everything and replaces visual variants with default ones.
+
+**NFKC** tries to combine everything while replacing visual variants with default ones.
+
+normalization_compat@2x.png
+
+Visual variants are separate Unicode codepoints that represent the same character but are supposed to render differently. Like, `①` or `⁹` or `𝕏`. We want to be able to find both `"x"` and `"2"` in a string like `"𝕏²"`, don’t we?
+
+x_variants@2x.png
+All of these have their own codepoints
+
+Why does `ﬁ` ligature even have its own codepoint? No idea. A lot can happen inside 11 million characters.
+
+.loud Before comparing strings, or searching for a substring, normalize!
+
 # Unicode is locale-dependent
 
 Russian name Nikolay is written like this:
@@ -401,6 +411,51 @@ var tr = Locale.of("tr");
 ```
 
 And that’s the main reason why there’s a `.toLowerCase` variant that accepts locale.
+
+# What are surrogate pairs?
+
+That goes back to Unicode v1. First version of Unicode was supposed to be fixed-width. 16-bit fixed width, to be exact:
+
+unicode1@2x.png
+Version 1.0 of the Unicode Standard, October 1991
+
+They believed 65536 characterd would be enough for all human languages. They were almost right!
+
+When they realized they need more codepoints, UCS-2 was already used in many systems. 16 bit, fixed-width, it only gives you 65536 characters. What can you do?
+
+Unicode decided to allocate some of these 65536 chars to encode higher codepoints, essentially converting fixed-width UCS-2 into variable-width UTF-16.
+
+Surrogate pair is two UTF-16 units used to encode single Unicode codepoint. For example, `D83D DCA9` (two 16-bit units) encode _one_ codepoint, `U+1F4A9`.
+
+Top 6 bits in surrogate pairs are used for mask, leaving 2×10 free bits to spare:
+
+```
+   High Surrogate          Low Surrogate
+        D800        ++          DC00
+1101 10?? ???? ???? ++ 1101 11?? ???? ????
+```
+
+Technically, both halves of surrogate pair can be seen as Unicode codepoints, too. In practice, the whole range from `U+D800` to `U+DFFF` is allocated as “for surrogate pairs only”. Codepoints from there are not even considered valid in any other encodings.
+
+bmp@2x.png
+This space on very crammed Basic Multilingual Plane will never be used for anything good ever again
+
+# Is UTF-16 still alive?
+
+Yes!
+
+The promise of fixed-width encoding that covers all human languages was so compelling many systems were eager to adopt it. Among them were Microsoft Windows, Java, JavaScript, .NET, Python 2, QT, SMS and CD-ROM!
+
+Since then, Python has moved on, CD-ROM became obsolete, but the rest is stuck with UTF-16 or with UCS-2 even. So UTF-16 lives there as memory representation.
+
+In practical terms today, UTF-16 has ~same usability as UTF-8. It’s also variable-length, counting UTF-16 units is as useless as counting codepoints, grapheme clusters are still a pain, etc. The only difference is memory requirements.
+
+It also warms my heart when I remember that every time I store, send or receive a string, there’s a conversion overhead from UTF-8 to UTF-16 to get it in memory.
+
+Well, nobody is perfect.
+
+# What about regexps?
+
 
 # Conclusion
 
