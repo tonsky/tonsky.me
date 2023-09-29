@@ -40,6 +40,7 @@ html { -moz-text-size-adjust: none; -webkit-text-size-adjust: none; text-size-ad
 
 body { font: 18px/28px 'IBM Plex Sans', sans-serif; min-height: 100vh; }
 h1, h2, h3, h4, .loud { font-weight: 600; line-height: 1.1; text-wrap: balance; }
+h1 > code, h2 > code, h3 > code, h4 > code, .loud > code { font: inherit; }
 pre, code { font-family: 'IBM Plex Mono', monospace; }
 
 body {
