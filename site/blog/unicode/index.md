@@ -340,11 +340,67 @@ This space on very crammed Basic Multilingual Plane will never be used for anyth
 # Normalization
 # Unicode is locale-dependent
 
-Mixing C/J/K in a single document is impossible without metadata and special language specific fonts.
+Russian name Nikolay is written like this:
 
-For example airlines can’t rely on Unicode to properly render passenger names
+nikolay_ru.png
 
-Oh, and yes that means that a single Unicode font that covers all language can never exist either.
+and encoded in Unicode as `U+041D U+0438 U+043A U+043E U+043B U+0430 U+0439`.
+
+Bulgarian name Nikolay is written:
+
+nikolay_bg.png 
+
+and encoded in Unicode as `U+041D U+0438 U+043A U+043E U+043B U+0430 U+0439`. Exactly the same!
+
+Wait a second! How does computer know then when to render Bulgarian-style glyphs and when to use Russian ones?
+
+Short answer: it doesn’t. Unfortunally, Unicode is not a perfect system and it has many shortcomings. Among them is assigning the same codepoint to glyphs that are supposed to look differently, like Cyrillic Lowercase K and Bulgarian Lowercase K (both are `U+043A`).
+
+Unicode motivation is to save codepoints space. Information on how to render is supposed to be transferred outside of the string, as locale/language metadata.
+
+Unfortunately, it fails the original goal of Unicode:
+
+> [...] no escape sequence or control code is required to specify any character in any language.
+
+In practice, dependency on locale brings a lot of problems:
+
+1. Being metadata, locale often gets lost.
+
+1. People are not limited to single locale. For example, I can read and write English (USA), English (UK), German, Russian. Which locale should I set my computer to?
+
+1. It’s hard to mix and match. Like, Russian name in Bulgarian text or vice versa. Why not? It’s the internet, people from all cultures hang out here.
+
+1. There’s no place to specify locale. Even making two screenshots above were non-trivial, because in most software there’s no dropdown or text input to change locale.
+
+1. When needed, it had to be guessed. For example, Twitter tries to guess locale from text of the tweet itself (because where else could it get it from?) and sometimes gets it wrong:
+
+twitter_locale.jpg https://twitter.com/nikitonsky/status/1171115067112398849
+
+I’m using Bulgarian as an example because it’s what I personally experienced.
+
+From what I understand, Asian people [get it much worse](https://en.wikipedia.org/wiki/Han_unification): many of Chinese, Japanese and Korean logograms that are written very differently get assigned the same codepoint:
+
+han.png
+U+8FD4 in different locales
+
+Another unfortunate example of locale dependence is Unicode handling of dotless `i` in Turkish language.
+
+Unlike English, Turks have two `I` variants: dotted and dotless. Unicode decided to reuse `I` and `i` from ASCII and only add two new codepoints: `İ` and `ı`.
+
+Unfortunately, that made `toLowerCase`/`toUpperCase` behave differently on the same input:
+
+```
+var en_US = Locale.of("en", "US");
+var tr = Locale.of("tr");
+
+"I".toLowerCase(en_US); // => "i"
+"I".toLowerCase(tr);    // => "ı"
+
+"i".toUpperCase(en_US); // => "I"
+"i".toUpperCase(tr);    // => "İ"
+```
+
+And that’s the main reason why there’s a `.toLowerCase` variant that accepts locale.
 
 # Conclusion
 
