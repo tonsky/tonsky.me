@@ -65,7 +65,7 @@ Isn’t it a beauty? It’s all text!
 
 It’s a convention for how to write codepoint values. Prefix `U+` means, well, Unicode, and `1F4A9` is a codepoint number in hexadecimal.
 
-Oh, and `U+1F4A9` speficically is <code class="emoji">💩</code>.
+Oh, and `U+1F4A9` specifically is <code class="emoji">💩</code>.
 
 # What’s UTF-8 then?
 
@@ -131,7 +131,7 @@ Second, UTF-8 is space-efficient for basic Latin. That was one of its main selli
 
 On average, UTF-8 tends to be a pretty good deal, even for non-English computers. And for English, there’s no comparison.
 
-Third, UTF-8 has error detection built-in. As you can see, the first byte’s prefix always looks different from bytes 2-4. So you can always tell if you are looking at a complete and valid sequence of UTF-8 bytes or if something is missing (for example, you jumped it the middle of the sequence).
+Third, UTF-8 has error detection and recovery built-in. As you can see, the first byte’s prefix always looks different from bytes 2-4. So you can always tell if you are looking at a complete and valid sequence of UTF-8 bytes or if something is missing (for example, you jumped it the middle of the sequence), and then correct that by moving forward or backwards until you find the beginning.
 
 And a couple of important consequences:
 
@@ -157,25 +157,34 @@ new String(partial, "UTF-8"); // => "Анал�"
 
 NO.
 
-It’s easy to think that if we allocate 4 bytes for every codepoint, some things become easier. Like, `strlen(s) == sizeof(s) / 4`, taking the first 3 characters is just taking 12 bytes, etc.
+UTF-32 is great for operating on code points. Indeed, if every code point is always 4 bytes, then `strlen(s) == sizeof(s) / 4`, `substring(0, 3) == bytes[0, 12]`, etc.
 
-Unfortunately, it doesn’t work this way. The problem is called “extended grapheme clusters”, or graphemes for short.
+The problem is, you don’t want to operate on codepoints. Code point is not a unit of writing, one code point is not always a single character. What you should be iterating on is called “__extended grapheme clusters__”, or graphemes for short.
 
-A grapheme is a minimally distinctive unit of writing in the context of a particular writing system. Basically, it’s what the user thinks of as a character.
+A grapheme is a minimally distinctive unit of writing in the context of a particular writing system. `ö` is one grapheme. `é` is one, too. And `각`. Basically, grapheme is what the user thinks of as a single character.
 
 The problem is, in Unicode, some graphemes are encoded with multiple codepoints!
 
-For example, `ö` (a single grapheme) is encoded in Unicode as `o` (U+006F Latin Small Letter O) + `¨` (U+0308 Combining Diaeresis). Two codepoints!
+graphemes@2x.png
 
-The same goes for emojis, for example:
+For example, `é` (a single grapheme) is encoded in Unicode as `e` (U+0065 Latin Small Letter E) + `´` (U+0301 Combining Acute Accent). Two codepoints!
+
+It can also be more than two:
 
 - <code class="emoji">☹️</code> is `U+2639` + `U+FE0F`
-- <code class="emoji">🇺🇳</code> is `U+1F1FA` + `U+1F1F3`
+- <code class="emoji">👨‍🏭</code> is `U+1F468` + `U+200D` + `U+1F3ED`
 - <code class="emoji">🚵🏻‍♀️</code> is `U+1F6B5` + `U+1F3FB` + `U+200D` + `U+2640` + `U+FE0F`
+- `y̖̠͍̘͇͗̏̽̎͞` is `U+0079` + `U+0316` + `U+0320` + `U+034D` + `U+0318` + `U+0347` + `U+0357` + `U+030F` + `U+033D` + `U+030E` + `U+035E`
 
-One grapheme, multiple codepoints. These can get quite long. There’s no limit, even, as far as I know.
+There’s no limit, as far as I know.
 
-The problem here is similar to variable-lenght encoding’s problem: you can’t just take a part of that sequence and expect anything good to happen. What is considered a single unit of writing by humans should be added, copied, edited, or deleted as a whole. Only now we are talking about sequences that span multiple codepoints.
+Remember, we are talking about code points here. Even in the most widest encoding, UTF-32, <code class="emoji">👨‍🏭</code> will still take three 4-byte units to encode. And it still needs to be treated as a single character.
+
+If the analogy helps, we can think of the Unicode itself (without any encodings) as being variable-lenght.
+
+.loud Extended Grapheme Cluster is a sequence of one or more Unicode code points that must be treatead as a single, unbreakable character.
+
+Therefore, we get all the problems we have with variable-length encodings, but now on code point level: you can’t take only a part of the sequence, it always should be added, copied, edited, or deleted as a whole.
 
 Failure to respect grapheme clusters leads to bugs like this:
 
@@ -186,9 +195,9 @@ or this:
 intellij@2x.mp4
 Just to be clear: this is NOT a correct behavior
 
-That’s why UTF-32 is not the answer. To work correctly with Unicode text, you have to be aware of extended grapheme clusters, and they span multiple codepoints anyway. So, fixed-length encoding wouldn’t help with anything.
+Using UTF-32 instead of UTF-8 will not make your life any easier in regards to extended grapheme clusters. And extended grapheme clusters is what you should care about.
 
-.loud Code points alone are not enough!
+.loud Code points — 🥱. Graphemes — 😍
 
 # Is Unicode hard only because of emojis?
 
@@ -235,7 +244,7 @@ That’s what extended grapheme clusters are all about: what _humans_ perceive a
 
 The fact that <code class="emoji">🤦🏼‍♂️</code> consists of 5 codepoints (`U+1F926 U+1F3FB U+200D U+2642 U+FE0F`) is mere implementation detail. It should not be broken apart, it should not be counted as multiple characters, the text cursor should not be positioned inside it, it shouldn’t be partially selected, etc.
 
-For all intents and purposes, this is an atomic unit of text. Any other representations do more harm than good.
+For all intents and purposes, this is an atomic unit of text. Internally, it could be encoded whatever, but for user-facing API, it should be seen as a whole.
 
 The only modern language that gets it right is Swift:
 
@@ -244,11 +253,15 @@ print("🤦🏼‍♂️".count)
 // => 1
 ```
 
-Hope more languages will get on board soon.
+Basically, there are two layers:
 
-Oh, and by the way,
+1. Internal, computer-oriented. How to copy strings, send them over the network, store on disk, etc. This is where you need encodings like UTF-8. Swift uses UTF-8 internally, but it might as well be UTF-16 or UTF-32. What important is that you only use it to copy strings as a whole, and never to analyze its content.
 
-.loud "ẇ͓̞͒͟͡ǫ̠̠̉̏͠͡ͅr̬̺͚̍͛̔͒͢d̠͎̗̳͇͆̋̊͂͐".length === 4
+2. External, human-facing API. Character count in UI. Taking first 10 characters to generate preview. Searching in text. Methods like `.count` or `.substring`. Swift gives you _a view_ that pretends string is a sequence of grapheme clusters. And that view behaves like any human would expect: it gives you 1 for `"🤦🏼‍♂️".count`.
+
+Hope more languages adopt this design soon.
+
+Question to the reader: what to you think `"ẇ͓̞͒͟͡ǫ̠̠̉̏͠͡ͅr̬̺͚̍͛̔͒͢d̠͎̗̳͇͆̋̊͂͐".length` should be?
 
 # How do I detect extended grapheme clusters then?
 
@@ -440,7 +453,7 @@ Version 1.0 of the Unicode Standard, October 1991
 
 They believed 65536 characters would be enough for all human languages. They were almost right!
 
-When they realized they needed more codepoints, UCS-2 was already used in many systems. 16 bit, fixed-width, it only gives you 65536 characters. What can you do?
+When they realized they needed more codepoints, UCS-2 (an original version of UTF-16 without surrogates) was already used in many systems. 16 bit, fixed-width, it only gives you 65536 characters. What can you do?
 
 Unicode decided to allocate some of these 65536 chars to encode higher codepoints, essentially converting fixed-width UCS-2 into variable-width UTF-16.
 
@@ -463,7 +476,7 @@ This space on a very crammed Basic Multilingual Plane will never be used for any
 
 Yes!
 
-The promise of fixed-width encoding that covers all human languages was so compelling many systems were eager to adopt it. Among them were Microsoft Windows, Java, JavaScript, .NET, Python 2, QT, SMS, and CD-ROM!
+The promise of fixed-width encoding that covers all human languages was so compelling many systems were eager to adopt it. Among them were Microsoft Windows, Objective-C, Java, JavaScript, .NET, Python 2, QT, SMS, and CD-ROM!
 
 Since then, Python has moved on, CD-ROM has become obsolete, but the rest is stuck with UTF-16 or with UCS-2 even. So UTF-16 lives there as in-memory representation.
 
@@ -480,9 +493,9 @@ To sum it up:
 - Unicode has won.
 - UTF-8 is the most popular encoding for data in transfer and at rest.
 - UTF-16 is still sometimes used as an in-memory representation.
-- The number of UTF-8, UTF-16 units, or 21-bit codepoints are more or less useless for any work.
-- The two most important metrics for Unicode strings are byte count (for memory allocation) and extended grapheme clusters.
-- To detect extended grapheme cluster boundaries, you need Unicode tables.
+- The two most important views for strings are bytes (allocate memory/copy/encode/decode) and extended grapheme clusters.
+- Using code points for iterating over string is wrong. They are not basic unit of writing. One grapheme could consist of multiple code points.
+- To detect grapheme boundaries, you need Unicode tables.
 - Use Unicode library for everything Unicode, even boring stuff like `strlen`, `indexOf` and `substring`.
 - Unicode updates every year, and rules sometimes change.
 - Unicode strings need to be normalized before they can be compared.
@@ -498,5 +511,3 @@ Overall, yes, Unicode is not perfect, but the fact that
 is a miracle.
 
 .loud There’s such a thing as plain text, and it’s encoded with UTF-8.
-
-All hail Unicode!
