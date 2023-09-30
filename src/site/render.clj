@@ -44,10 +44,13 @@
     (= :CDATA tag)
     (append sb "<![CDATA[\n" (str/join content) "\n]]>")
      
-    (and (= :script tag) (not (:processed (meta tree))))
+    (and (= :script tag) content)
     (let [content' (core/reindent (str/join content) (str indent "  "))]
       (append sb indent "<script>\n" content' "\n" indent "</script>\n"))
-     
+    
+    (nil? tag)
+    nil
+    
     :else
     (let [inline?  (#{:a :code :em :figcaption :img :span :strong} tag)
           nested?  (#{:article :blockquote :body :div :figure :head :html :ol :script :ul :video

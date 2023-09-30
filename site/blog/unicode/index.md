@@ -5,8 +5,6 @@ css: style2.css
 published: 2023-10-02
 ---
 
-cover@2x.png
-
 Twenty years ago, [Joel Spolsky wrote](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/):
 
 > There Ain’t No Such Thing As Plain Text.

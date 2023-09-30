@@ -6,6 +6,7 @@
     [org.httpkit.server :as http]
     [ring.middleware.head :as ring-head]
     [ring.middleware.not-modified :as ring-modified]
+    [ring.middleware.params :as ring-params]
     [ring.util.codec :as ring-codec]
     [ring.util.io :as ring-io]
     [ring.util.mime-type :as ring-mime]
@@ -16,6 +17,7 @@
     [site.pages.index :as index]
     [site.pages.post :as post]
     [site.parser :as parser]
+    [site.pointers :as pointers]
     [site.render :as render])
   (:import
     [java.io File]
@@ -87,27 +89,30 @@
     (wrap-files "_site")
     (wrap-files "site")
     (router/wrap-routes
-      (router/routes
-        "GET /" []
-        (cached-by-files req {:headers {"Content-Type" "text/html; charset=UTF-8"}}
-          (file-seq (io/file "site"))
-          #(-> (index/index)
-             default/default
-             :content
-             render/render-html))
-        
-        "GET /blog/atom.xml" []
-        (cached-by-files req {:headers {"Content-Type" "application/atom+xml; charset=UTF-8"}}
-          (file-seq (io/file "site"))
-          #(render/render-xml (atom/feed)))
-        
-        "GET /blog/*" req
-        (post req)
-        
-        "GET /about" []
-        {:status 301
-         :headers {"Location" "/projects/"}}))
+      (merge
+        pointers/routes
+        (router/routes
+          "GET /" []
+          (cached-by-files req {:headers {"Content-Type" "text/html; charset=UTF-8"}}
+            (file-seq (io/file "site"))
+            #(-> (index/index)
+               default/default
+               :content
+               render/render-html))
+          
+          "GET /blog/atom.xml" []
+          (cached-by-files req {:headers {"Content-Type" "application/atom+xml; charset=UTF-8"}}
+            (file-seq (io/file "site"))
+            #(render/render-xml (atom/feed)))
+          
+          "GET /blog/*" req
+          (post req)
+          
+          "GET /about" []
+          {:status 301
+           :headers {"Location" "/projects/"}})))
     wrap-decode-uri
+    ring-params/wrap-params
     ring-head/wrap-head))
 
 (mount/defstate server
