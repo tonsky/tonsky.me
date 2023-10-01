@@ -43,6 +43,7 @@
   (atom #{}))
 
 (defn handler [req]
+  (prn req)
   (let [{:strs [id page platform]} (:query-params req)
         id (parse-long id)]
     (http/as-channel req
