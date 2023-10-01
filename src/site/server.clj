@@ -47,7 +47,10 @@
   (fn [req]
     (handler (update req :uri ring-codec/url-decode))))
 
-(defn cached-by-files [req resp files body-fn]
+(def *cache
+  (atom {}))
+
+(defn cached-by-files [key req resp files body-fn]
   (let [modified  (transduce (map #(.lastModified ^File %)) max 0 files)
         formatted (-> modified
                     (Instant/ofEpochMilli)
@@ -64,15 +67,19 @@
         :status 304
         :headers {"Content-Length" 0}
         :body nil)
-      (assoc resp
-        :body (body-fn)))))
+      (let [[ts val] (@*cache key)]
+        (if (= ts modified)
+          (assoc resp :body val)
+          (let [val (body-fn)]
+            (swap! *cache assoc key [modified val])
+            (assoc resp :body val)))))))
 
 (defn post [req]
   (let [[id] (:path-params req)
         dir  (io/file (str "site/blog/" id))
         file (io/file dir "index.md")]
     (when (.exists file)
-      (cached-by-files req {:headers {"Content-Type" "text/html; charset=UTF-8"}}
+      (cached-by-files id req {:headers {"Content-Type" "text/html; charset=UTF-8"}}
         (file-seq dir)
         #(-> (parser/parse-md file)
            post/post
@@ -93,7 +100,7 @@
         pointers/routes
         (router/routes
           "GET /" []
-          (cached-by-files req {:headers {"Content-Type" "text/html; charset=UTF-8"}}
+          (cached-by-files "/" req {:headers {"Content-Type" "text/html; charset=UTF-8"}}
             (file-seq (io/file "site"))
             #(-> (index/index)
                default/default
@@ -101,7 +108,7 @@
                render/render-html))
           
           "GET /blog/atom.xml" []
-          (cached-by-files req {:headers {"Content-Type" "application/atom+xml; charset=UTF-8"}}
+          (cached-by-files "atom" req {:headers {"Content-Type" "application/atom+xml; charset=UTF-8"}}
             (file-seq (io/file "site"))
             #(render/render-xml (atom/feed)))
           
