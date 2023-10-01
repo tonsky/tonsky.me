@@ -1,9 +1,83 @@
-var lastX, lastY, newX, newY;
+function randInt(max) {
+  return Math.floor(Math.random() * max);
+}
 
-window.addEventListener("mousemove", (event) => {
-  newX = event.clientX + window.scrollX - 3;
-  newY = event.clientY + window.scrollY - 5;
-});
+const ptr = {
+  lastX: 0,
+  lastY: 0,
+  newX: 0,
+  newY: 0,
+  url: undefined,
+  socket: undefined,
+  me: randInt(1000000000),
+  container: undefined,
+  pointers: new Map(),
+  epoch: 0,
+  timer: undefined
+};
+
+function ptrOnMessage(event) {
+  if (document.hidden)
+    return;
+  
+  const data = JSON.parse(event.data);
+  for (const el of data) {
+    const [id, x, y, platform] = el;
+    if (id === ptr.me)
+      continue;
+
+    if (!ptr.pointers.has(id)) {
+      const div = document.createElement("div");
+      div.className = "pointer " + platform;
+      div.dataset.id = id;
+      ptr.container.appendChild(div);
+      ptr.pointers.set(id, div);
+    }
+    const pointer = ptr.pointers.get(id);
+
+    pointer.dataset.epoch = ptr.epoch;
+    setTimeout(() => {
+      pointer.style.left = x + 'px';
+      pointer.style.top = y + 'px';
+    }, randInt(1000));
+  }
+
+  for (const [id, pointer] of ptr.pointers) {
+    if (pointer.dataset.epoch < ptr.epoch) {
+      ptr.pointers.delete(id);
+      ptr.container.removeChild(pointer);
+    }
+  }
+  ptr.epoch++;
+}
+
+function ptrOnTimer() {
+  if (ptr.lastX != ptr.newX || ptr.lastY != ptr.newY) {
+      ptr.lastX = ptr.newX;
+      ptr.lastY = ptr.newY;
+      ptr.socket.send(JSON.stringify([ptr.lastX, ptr.lastY]));
+  }
+}
+
+function ptrOnOpen(event) {
+  ptr.timer = setInterval(ptrOnTimer, 1000);
+}
+
+function ptrOnClose(event) {
+  ptr.socket = undefined;
+  if (ptr.timer) {
+    clearInterval(ptr.timer);
+    ptr.timer = undefined;
+  }
+  setTimeout(ptrConnect, randInt(10000));
+}
+
+function ptrConnect() {
+  ptr.socket = new WebSocket(ptr.url);
+  ptr.socket.addEventListener("open", ptrOnOpen);
+  ptr.socket.addEventListener("message", ptrOnMessage);
+  ptr.socket.addEventListener("close", ptrOnClose);
+}
 
 window.addEventListener("load", (event) => {
   if (/iPhone|iPad|iPod|Android/i.test(navigator.userAgent))
@@ -15,50 +89,13 @@ window.addEventListener("load", (event) => {
   if (!platform)
     return;
 
-  const me = Math.floor(Math.random() * 1000000000);
-  const url = (location.protocol === "http:" ? "ws://" : "wss://") + location.host + "/pointers";
-  const socket = new WebSocket(url + "?id=" + me + "&page=" + location.pathname + "&platform=" + platform);
+  ptr.container = document.querySelector('.pointers');
+  ptr.url = (location.protocol === "http:" ? "ws://" : "wss://") + location.host + "/pointers" + "?id=" + ptr.me + "&page=" + location.pathname + "&platform=" + platform;
 
-  const container = document.querySelector('.pointers');
-  const pointers = new Map();
-  let epoch = 0;
-
-  socket.addEventListener("message", (event) => {
-    const data = JSON.parse(event.data);
-    
-    for (const el of data) {
-      const [id, x, y, platform] = el;
-      if (id === me)
-        continue;
-
-      if (!pointers.has(id)) {
-        const div = document.createElement("div");
-        div.className = "pointer " + platform;
-        div.dataset.id = id;
-        container.appendChild(div);
-        pointers.set(id, div);
-      }
-      const pointer = pointers.get(id);
-
-      pointer.dataset.epoch = epoch;
-      pointer.style.left = x + 'px';
-      pointer.style.top = y + 'px';
-    }
-
-    for (const [id, pointer] of pointers) {
-      if (pointer.dataset.epoch < epoch) {
-        pointers.delete(id);
-        container.removeChild(pointer);
-      }
-    }
-    epoch++;
+  window.addEventListener("mousemove", (event) => {
+    ptr.newX = event.clientX + window.scrollX - 3;
+    ptr.newY = event.clientY + window.scrollY - 5;
   });
-
-  setInterval(() => {
-    if (lastX != newX || lastY != newY) {
-      lastX = newX;
-      lastY = newY;
-      socket.send(JSON.stringify([lastX, lastY]));
-    }
-  }, 1000);
+  
+  ptrConnect();
 });
