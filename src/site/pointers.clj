@@ -59,7 +59,7 @@
        :on-receive
        (fn [ch msg]
          ; (prn "RCV" id page msg)
-         (let [[_ x y] (re-find #"\[\s*(\d+),\s*(\d+)\s*\]" msg)]
+         (when-some [[_ x y] (re-find #"\[\s*(\d+),\s*(\d+)\s*\]" msg)]
            (swap! *clients update id assoc
              :x (parse-long x)
              :y (parse-long y)
