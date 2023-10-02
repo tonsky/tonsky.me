@@ -508,8 +508,8 @@ Overall, yes, Unicode is not perfect, but the fact that
 2. the entire world agrees to use it,
 3. we can completely forget about encodings and conversions and all that stuff
 
-is a miracle.
+is a miracle. Send this to your fellow programmers so they can learn about it, too.
 
 .loud There’s such a thing as plain text, and it’s encoded with UTF-8.
 
-Thanks Lev Walkin and patrons for reading early drafts of this article.
+Thanks Lev Walkin and my patrons for reading early drafts of this article.
