@@ -40,7 +40,7 @@ Since everybody in the world agrees on which numbers correspond to which charact
 
 # How big is Unicode?
 
-Currently, the largest defined code point is 0x10FFFF. That gives us a space of about 11 million code points.
+Currently, the largest defined code point is 0x10FFFF. That gives us a space of about 1.1 million code points.
 
 About 170,000, or 15%, are currently defined. An additional 11% are reserved for private use. The rest, about 800,000 code points, are not allocated at the moment. They could become characters in the future.
 
@@ -359,7 +359,7 @@ Visual variants are separate Unicode code points that represent the same charact
 x_variants@2x.png
 All of these have their own code points, but they are also all Xs
 
-Why does the `ﬁ` ligature even have its own code point? No idea. A lot can happen in 11 million characters.
+Why does the `ﬁ` ligature even have its own code point? No idea. A lot can happen in a million characters.
 
 .loud Before comparing strings or searching for a substring, normalize!
 
