@@ -126,7 +126,8 @@
             :let [msg (page-msg page)]
             id (get @*pages page)
             :let [client (@*clients id)
-                  ch (:ch client)]]
+                  ch (:ch client)]
+            :when ch]
       (http/send! ch msg))))
 
 (mount/defstate ^TimerTask broadcast-task
