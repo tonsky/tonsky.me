@@ -3,6 +3,7 @@ title: "The Absolute Minimum Every Software Developer Must Know About Unicode in
 summary: "Modern extension to classic 2003 article by Joel Spolsky"
 css: style2.css
 published: 2023-10-02
+hackernews_id: 37735801
 ---
 
 Twenty years ago, [Joel Spolsky wrote](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/):
