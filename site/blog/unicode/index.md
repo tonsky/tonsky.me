@@ -284,6 +284,8 @@ For example:
 
 1. Swift: just stdlib. Swift does the right thing by default.
 
+1. UPD: Erlang/Elixir seem to be doing the right thing, too.
+
 1. For other languages, there’s probably a library or binding for ICU.
 
 1. Roll your own. Unicode [publishes](https://www.unicode.org/reports/tr29/#Grapheme_Cluster_Boundaries) rules and tables in a machine-readable format, and all the libraries above are based on them.
