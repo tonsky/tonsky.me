@@ -121,7 +121,7 @@
     (str "[" (str/join "," (keep client-pos ids)) "]")))
 
 (defn broadcast []
-  (let [[dirty _] (swap-vals! *dirty #{})]
+  (let [[dirty _] (reset-vals! *dirty #{})]
     (doseq [page dirty
             :let [msg (page-msg page)]
             id (get @*pages page)
