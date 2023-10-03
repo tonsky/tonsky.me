@@ -38,7 +38,7 @@
       [:meta {:property "profile:username" :content "tonsky"}]
       [:meta {:property "profile:gender" :content "male"}]
       [:meta {:name "twitter:creator" :content "@nikitonsky"}]
-      [:script {:src "/pointers.js" :defer "defer"}]]
+      [:script {:src (core/timestamp-url "/pointers.js" "site/pointers.js") :defer "defer"}]]
      [:body
       [:div {:class "page"}
        (:content page)

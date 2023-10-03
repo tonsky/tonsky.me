@@ -9,7 +9,7 @@ const ptr = {
   newY: 0,
   url: undefined,
   socket: undefined,
-  me: randInt(1000000000),
+  me: randInt(10000000),
   container: undefined,
   pointers: new Map(),
   epoch: 0,
@@ -37,8 +37,8 @@ function ptrOnMessage(event) {
 
     pointer.dataset.epoch = ptr.epoch;
     setTimeout(() => {
-      pointer.style.left = Math.min(x, window.innerWidth - 16) + 'px';
-      pointer.style.top =  Math.min(y, document.body.clientHeight - 32)  + 'px';
+      pointer.style.left = Math.floor(x / 10000 * (document.body.clientWidth - 16)) + 'px';
+      pointer.style.top =  Math.floor(y / 10000 * (document.body.clientHeight - 32)) + 'px';
     }, randInt(1000));
   }
 
@@ -55,7 +55,9 @@ function ptrOnTimer() {
   if (ptr.lastX != ptr.newX || ptr.lastY != ptr.newY) {
       ptr.lastX = ptr.newX;
       ptr.lastY = ptr.newY;
-      ptr.socket.send(JSON.stringify([ptr.lastX, ptr.lastY]));
+      const x = Math.floor(ptr.lastX / document.body.clientWidth * 10000);
+      const y = Math.floor(ptr.lastY / document.body.clientHeight * 10000);
+      ptr.socket.send(JSON.stringify([x, y]));
   }
 }
 
@@ -95,7 +97,7 @@ window.addEventListener("load", (event) => {
   window.addEventListener("mousemove", (event) => {
     ptr.newX = event.clientX + window.scrollX - 3;
     ptr.newY = event.clientY + window.scrollY - 5;
+    if (!ptr.socket)
+      ptrConnect();
   });
-  
-  ptrConnect();
 });

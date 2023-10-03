@@ -30,7 +30,7 @@
      t))
   ([f ^long delay ^long period]
    (let [t (timer-task f)]
-     (.scheduleAtFixedRate timer t delay period)
+     (.schedule timer t delay period)
      t)))
 
 (def *clients
@@ -59,10 +59,10 @@
        :on-receive
        (fn [ch msg]
          ; (prn "RCV" id page msg)
-         (when-some [[_ x y] (re-find #"\[\s*(\d+),\s*(\d+)\s*\]" msg)]
+         (when-some [[_ x y] (re-find #"\[\s*([0-9]+),\s*([0-9]+)\s*\]" msg)]
            (swap! *clients update id assoc
-             :x (parse-long x)
-             :y (parse-long y)
+             :x       (parse-long x)
+             :y       (parse-long y)
              :updated (Instant/now))
            (swap! *dirty conj page)))})))
 
