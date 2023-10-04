@@ -183,7 +183,7 @@ Remember, we are talking about code points here. Even in the widest encoding, UT
 
 If the analogy helps, we can think of the Unicode itself (without any encodings) as being variable-length.
 
-.loud An Extended Grapheme Cluster is a sequence of one or more Unicode code points that must be treatead as a single, unbreakable character.
+.loud An Extended Grapheme Cluster is a sequence of one or more Unicode code points that must be treated as a single, unbreakable character.
 
 Therefore, we get all the problems we have with variable-length encodings, but now on code point level: you can’t take only a part of the sequence, it always should be selected, copied, edited, or deleted as a whole.
 
