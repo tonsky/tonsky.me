@@ -87,6 +87,13 @@
            :content
            render/render-html)))))
 
+(defn wrap-redirects [handler]
+  (fn [{:keys [uri] :as req}]
+    (if (re-matches #"(/blog/[^/]+|/talks|/projects|/design|/patrons)" uri)
+      {:status 301
+       :headers {"Location" (str uri "/")}}
+      (handler req))))
+
 (def app
   (->
     (fn [req]
@@ -118,6 +125,7 @@
           "GET /about" []
           {:status 301
            :headers {"Location" "/projects/"}})))
+    wrap-redirects
     wrap-decode-uri
     ring-params/wrap-params
     ring-head/wrap-head))

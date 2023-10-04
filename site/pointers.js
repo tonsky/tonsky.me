@@ -37,8 +37,8 @@ function ptrOnMessage(event) {
 
     pointer.dataset.epoch = ptr.epoch;
     setTimeout(() => {
-      pointer.style.left = Math.floor(x / 10000 * (document.body.clientWidth - 16)) + 'px';
-      pointer.style.top =  Math.floor(y / 10000 * (document.body.clientHeight - 32)) + 'px';
+      pointer.style.left = Math.floor(Math.min(x, 10000) / 10000 * (document.body.clientWidth - 16)) + 'px';
+      pointer.style.top =  Math.floor(Math.min(y, 10000) / 10000 * (document.body.clientHeight - 32)) + 'px';
     }, randInt(1000));
   }
 
