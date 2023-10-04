@@ -9,7 +9,7 @@ const ptr = {
   newY: 0,
   url: undefined,
   socket: undefined,
-  me: randInt(10000000),
+  me: 1000 + randInt(9000),
   container: undefined,
   pointers: new Map(),
   epoch: 0,
@@ -17,8 +17,10 @@ const ptr = {
 };
 
 function ptrOnMessage(event) {
-  if (document.hidden)
+  if (document.visibilityState != 'visible') {
+    ptr.socket.close();
     return;
+  }
   
   const data = JSON.parse(event.data);
   for (const el of data) {
@@ -52,12 +54,14 @@ function ptrOnMessage(event) {
 }
 
 function ptrOnTimer() {
-  if (ptr.lastX != ptr.newX || ptr.lastY != ptr.newY) {
-      ptr.lastX = ptr.newX;
-      ptr.lastY = ptr.newY;
-      const x = Math.floor(ptr.lastX / document.body.clientWidth * 10000);
-      const y = Math.floor(ptr.lastY / document.body.clientHeight * 10000);
-      ptr.socket.send(JSON.stringify([x, y]));
+  if (document.visibilityState != 'visible' && ptr.socket) {
+    ptr.socket.close();
+  } else if (ptr.lastX != ptr.newX || ptr.lastY != ptr.newY) {
+    ptr.lastX = ptr.newX;
+    ptr.lastY = ptr.newY;
+    const x = Math.floor(ptr.lastX / document.body.clientWidth * 10000);
+    const y = Math.floor(ptr.lastY / document.body.clientHeight * 10000);
+    ptr.socket.send(JSON.stringify([x, y]));
   }
 }
 
@@ -71,14 +75,15 @@ function ptrOnClose(event) {
     clearInterval(ptr.timer);
     ptr.timer = undefined;
   }
-  setTimeout(ptrConnect, randInt(10000));
 }
 
 function ptrConnect() {
-  ptr.socket = new WebSocket(ptr.url);
-  ptr.socket.addEventListener("open", ptrOnOpen);
-  ptr.socket.addEventListener("message", ptrOnMessage);
-  ptr.socket.addEventListener("close", ptrOnClose);
+  if (document.visibilityState === 'visible') {
+    ptr.socket = new WebSocket(ptr.url);
+    ptr.socket.addEventListener("open", ptrOnOpen);
+    ptr.socket.addEventListener("message", ptrOnMessage);
+    ptr.socket.addEventListener("close", ptrOnClose);
+  }
 }
 
 window.addEventListener("load", (event) => {
@@ -92,7 +97,7 @@ window.addEventListener("load", (event) => {
     return;
 
   ptr.container = document.querySelector('.pointers');
-  ptr.url = (location.protocol === "http:" ? "ws://" : "wss://") + location.host + "/pointers" + "?id=" + ptr.me + "&page=" + location.pathname + "&platform=" + platform;
+  ptr.url = (location.protocol === "http:" ? "ws://" : "wss://") + location.host + "/ptrs" + "?id=" + ptr.me + "&page=" + location.pathname + "&platform=" + platform;
 
   window.addEventListener("mousemove", (event) => {
     ptr.newX = event.clientX + window.scrollX - 3;

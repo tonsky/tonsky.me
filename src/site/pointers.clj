@@ -33,8 +33,8 @@
      (.schedule timer t delay period)
      t)))
 
-(def *clients
-  (atom {}))
+(def page-limit
+  20)
 
 (def *pages
   (atom {}))
@@ -42,25 +42,31 @@
 (def *dirty
   (atom #{}))
 
+(defn find-page [page]
+  (loop [i 0]
+    (let [id (str page i)]
+      (if (>= (count (get @*pages id)) page-limit)
+        (recur (inc i))
+        id))))
+
 (defn handler [req]
   (let [{:strs [id page platform]} (:query-params req)
-        id (parse-long id)]
+        page (find-page page)
+        id   (parse-long id)]
     (http/as-channel req
       {:on-open
        (fn [ch]
          ; (prn "OPEN" id page)
-         (swap! *clients assoc id {:ch ch, :page page, :platform platform, :joined (Instant/now)})
-         (swap! *pages update page (fnil conj #{}) id))
+         (swap! *pages update page assoc id {:ch ch, :page page, :platform platform, :joined (Instant/now)}))
        :on-close
        (fn [ch status]
          ; (prn "CLOSE" id page status)
-         (swap! *clients dissoc id)
-         (swap! *pages update page disj id))
+         (swap! *pages update page dissoc id))
        :on-receive
        (fn [ch msg]
          ; (prn "RCV" id page msg)
          (when-some [[_ x y] (re-find #"\[\s*([0-9]+),\s*([0-9]+)\s*\]" msg)]
-           (swap! *clients update id assoc
+           (swap! *pages update page update id assoc
              :x       (parse-long x)
              :y       (parse-long y)
              :updated (Instant/now))
@@ -76,57 +82,51 @@
         [:style
          #ml "table, th, td { border: 1px solid rgba(0,0,0,0.2); border-collapse: collapse; }
               .page { width: 100vw; }
-              td, th { text-align: left; min-width: 100px; }"]
+              td, th { text-align: left; min-width: 100px; padding: 0 5px; }"]
         [:table
-         [:tr
-          [:th "Pages"]
-          [:td {:colspan 6} (str (count @*pages))]]
-         (for [[page clients] @*pages]
-           [:tr
-            [:th page]
-            [:td (str (count clients))]])
-         [:tr
-          [:th "Clients"]
-          [:td {:colspan 6} (str (count @*clients))]]
-         [:tr
-          [:th "id"]
-          [:th "x"]
-          [:th "y"]
-          [:th "platform"]
-          [:th "joined"]
-          [:th "updated"]]
-         (for [[id client] @*clients]
-           [:tr
-            [:th (str id)]
-            [:td (str (:x client))]
-            [:td (str (:y client))]
-            [:td (:platform client)]
-            [:td (core/format-temporal (:joined client) "yyyy-MM-dd hh:mm:ss")]
-            [:td (core/format-temporal (:updated client) "yyyy-MM-dd hh:mm:ss")]])])}
+         [:thead
+          [:tr
+           [:th "id"]
+           [:th "x"]
+           [:th "y"]
+           [:th "platform"]
+           [:th "joined"]
+           [:th "updated"]]]
+         [:tbody
+          (for [[page clients] @*pages]
+            (list
+              [:tr
+               [:th {:colspan 6} page]]
+              (for [[id client] clients]
+                [:tr
+                 [:th (str id)]
+                 [:td (str (:x client))]
+                 [:td (str (:y client))]
+                 [:td (:platform client)]
+                 [:td (core/format-temporal (:joined client) "yyyy-MM-dd hh:mm:ss")]
+                 [:td (core/format-temporal (:updated client) "yyyy-MM-dd hh:mm:ss")]])))]])}
      default/default
      :content
      render/render-html)})
 
 (def routes
-  {"GET /pointers" handler
-   "GET /pointers/stats" stats})
+  {"GET /ptrs" handler
+   "GET /ptrs/stats" stats})
 
 (defn page-msg [page]
-  (let [ids    (get @*pages page)
-        client-pos (fn [id]
-                     (let [client (@*clients id)
-                           {:keys [x y platform]} client]
+  (let [clients    (get @*pages page)
+        client-pos (fn [[id client]]
+                     (let [{:keys [x y platform]} client]
                        (when (and id x y platform)
                          (str "[" id "," (:x client) "," (:y client) ",\"" platform "\"]"))))]
-    (str "[" (str/join "," (keep client-pos ids)) "]")))
+    (str "[" (str/join "," (keep client-pos clients)) "]")))
 
 (defn broadcast []
   (let [[dirty _] (reset-vals! *dirty #{})]
     (doseq [page dirty
             :let [msg (page-msg page)]
-            id (get @*pages page)
-            :let [client (@*clients id)
-                  ch (:ch client)]
+            [id client] (get @*pages page)
+            :let [ch (:ch client)]
             :when ch]
       (http/send! ch msg))))
 
