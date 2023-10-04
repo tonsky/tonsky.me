@@ -12,20 +12,15 @@
 (def ^:dynamic *dir*
   nil)
 
+(defmethod clojure.core/print-method instaparse.core.Parser [x writer]
+  (if *print-readably*
+    (print-method (instaparse.print/Parser->str x) writer)
+    (binding [*out* writer]
+      (println (instaparse.print/Parser->str x)))))
+
 (defmethod clojure.core/print-method instaparse.gll.Failure [x ^java.io.Writer w]
-  (cond
-    *print-dup*
-    (do
-      (.append w "#instaparse.gll.Failure{:index")
-      (print-dup (:index x) w)
-      (.append w ", :reason ")
-      (print-dup (:reason x) w)
-      (.append w "}"))
-    
-    *print-readably*
+  (if *print-readably*
     (print-method (with-out-str (instaparse.failure/pprint-failure x)) w)
-    
-    :else
     (instaparse.failure/pprint-failure x)))
 
 (def parse
