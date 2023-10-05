@@ -30,7 +30,7 @@ For example:
 
 - The Latin letter `A` is assigned the number `65`.
 - The Arabic Letter Seen `س` is `1587`.
-- The Katakana Letter Tu `ツ` is `12484`
+- The Katakana Letter Tsu `ツ` is `12484`
 - The Musical Symbol G Clef `𝄞` is `119070`.
 - <code class="emoji">💩</code> is `128169`.
 
