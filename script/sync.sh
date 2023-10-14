@@ -15,5 +15,4 @@ touch -m -t 202305031142.50 site/blog/humble-state/index.md
 touch -m -t 202305191428.55 site/blog/humble-signals/index.md 
 touch -m -t 202306291434.24 site/blog/clojurescript-2/index.md
 
-rsync --verbose --compress --recursive --times --delete _site site@tonsky.me:
 rsync --verbose --compress --recursive --times --delete site site@tonsky.me:
