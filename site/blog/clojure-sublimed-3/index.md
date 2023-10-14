@@ -1,7 +1,5 @@
 ---
-layout: post
 title: "Adventures in REPL implementation"
-category: blog
 summary: "Writing Clojure REPL plugin for Sublime Text"
 published: 2023-03-09
 ---

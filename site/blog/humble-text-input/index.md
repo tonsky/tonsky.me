@@ -1,9 +1,6 @@
 ---
-layout: post
 title: "Humble Chronicles: Text Input"
-category: blog
 summary: "A recipie to implement full set of behaviours for text inputs"
-draft: true
 ---
 
 So you want to implement your own text input? Don’t. It will bring you no happiness nor satisfaction.

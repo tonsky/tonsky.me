@@ -1,7 +1,5 @@
 ---
-layout: post
 title: "Humble Chronicles: Managing State with Signals"
-category: blog
 summary: "An experiment of using incremental computations for managing state in Humble UI"
 published: 2023-05-18
 hackernews_id: 35973151

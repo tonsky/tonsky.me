@@ -1,0 +1,621 @@
+[[talk]]
+date    = 2023-09-25
+url     = "https://podlodka.io/339"
+title   = "Кодировки текста"
+event   = "Podlodka"
+desc    = "История развития, принципы работы, странные проблемы"
+content = "https://www.youtube.com/watch?v=Dr2njmnRLrE"
+
+[[talk]]
+date    = 2022-12-23
+url     = "https://soundcloud.com/javaswag/e40"
+title   = "Подкаст Java Swag, эпизод 40"
+event   = "Java Swag"
+desc    = "Разочарование в Java, простота Clojure и опенсорс проекты"
+content = "2022-12 Java Swag.mp3"
+
+[[talk]]
+date    = 2022-12-19
+title   = "Как мы попали в IT"
+event   = "Разрабы"
+desc    = "Как влиять на технологии и делать значимый опенсорс"
+content = "https://www.youtube.com/watch?v=6B92JkMWajw"
+
+[[talk]]
+date    = 2022-10-29
+title   = "Clojure + UI = ❤️"
+event   = "Dutch Clojure Days"
+city    = "Amsterdam"
+country = "Netherlands"
+desc    = "Introducing Humble UI, a desktop UI framework for Clojure"
+content = "https://www.youtube.com/watch?v=cM5e_tJqbT8"
+
+[[talk]]
+date    = 2022-04-29
+title   = "Your frontend needs a database"
+event   = "Have you tried rubbing a database on it"
+desc    = "Communication between frontend and backend should be handled by database"
+content = "https://www.youtube.com/watch?v=KC0HUOlsXzk"
+
+[[talk]]
+date    = 2022-03-30
+url     = "https://soundcloud.com/clojurestream/sublimed-with-nikita-prokopov"
+title   = "Clojure Sublimed"
+event   = "ClojureStream podcast"
+desc    = "Sublime Text setup for Clojure development"
+content = "2022-03 ClojureStream Clojure Sublimed.mp3"
+
+[[talk]]
+date    = 2021-11-17
+title   = "Мы обречены"
+event   = "Мы обречены"
+desc    = "Разочарование в софте, разочарование в Дюне Вильнева"
+content = "https://www.youtube.com/watch?v=1qDyWccmcuY"
+
+[[talk]]
+date    = 2021-04-10
+url     = "https://devzen.ru/episode-0331/"
+title   = "Подкаст DevZen, эпизод 331"
+event   = "DevZen"
+desc    = "Разработка IDE, какой она должна быть, какие они были за последние 50 лет, отзывчивость UI, тренды и идеи."
+content = "2021-04 DevZen.mp3"
+
+[[talk]]
+date    = 2021-04-07
+url     = "https://soundcloud.com/vsapronov/my-obrecheny-open-source-govorim-s-nikitoi-prokopovym"
+title   = "Мы обречены — Open Source"
+event   = "Мы обречены"
+desc    = "Говорим про open source c Никитой Прокоповым."
+content = "2021-04 Мы обречены.mp3"
+
+[[talk]]
+date    = 2020-12-23
+title   = "SciCloj #18: Introducing Skija"
+event   = "SciCloj"
+desc    = "What Skija is about, how does it work, what is it good for."
+content = "https://www.youtube.com/watch?v=t1X-Oln1u24"
+
+[[talk]]
+date    = 2020-07-03
+url     = "https://changelog.com/podcast/401"
+title   = "The Changelog episode 401"
+event   = "The Changelog"
+desc    = "The intersection of coding and fonts: coding fonts! Talking with The Changelog about Fira Code."
+content = "2020-07 The Changelog 401.mp3"
+  
+[[talk]]
+date    = 2019-11-08
+url     = "https://soundcloud.com/clojurestream/s4-e4-rum-with-nikita-prokopov"
+title   = "ClojureScript podcast, s04e04"
+event   = "ClojureScript podcast"
+desc    = "Rum With Nikita Prokopov."
+content = "2019-11 ClojureStream Rum.mp3"
+
+[[talk]]
+date    = 2019-08-09
+url     = "https://devzen.ru/episode-0245/"
+title   = "Подкаст DevZen, эпизод 245"
+event   = "DevZen"
+desc    = "Обсуждаем физические принципы клавиатур, виды раскладок, как клавиатура приводит к RSI и как этого избежать, как правильно собрать свою клавиатуру."
+content = "2019-08 DevZen Keyboards.mp3"
+
+[[talk]]
+date    = 2019-05-20
+url     = "https://t.me/KgOfHedgehogs/509"
+title   = "Подкаст Высший Клик, эпизод 2"
+event   = "Высший клик"
+desc    = "Обсуждаем эргономику клавиатур и отвечаем на <a target='_blank' href='https://tonsky.livejournal.com/321097.html'>вопросы из комментариев.</a>"
+content = "2019-05 Podcast Keyboards.mp3"
+
+[[talk]]
+[[talk.version]]
+date    = 2019-05-30
+title   = "Пишем все Clojure-инструменты сами"
+event   = "FPURE"
+city    = "Kazan"
+country = "Russia"
+desc    = "Применяем дизайн-подход к программированию: подсветке кода, форматированию, шрифту. Определяем проблему и решение само себя находит."
+content = "https://www.youtube.com/watch?v=e6_OJefvmf0"
+[[talk.version]]
+date    = 2019-04-19
+title   = "Building My Own Clojure Tools"
+event   = "Clojure/north"
+city    = "Toronto"
+country = "Canada"
+desc    = "I’m using my own font, my own syntax grammar, my own color scheme, my own indentation rules. Why? Let’s explore what’s wrong with existing ones and how hard it is to build your own. Spoiler: not hard at all."
+content = "https://www.youtube.com/watch?v=l1b7Da2DnPo"
+slides  = "2019.04 Toronto.pdf"
+
+[[talk]]
+date    = 2018-10-18
+url     = "https://soundcloud.com/defn-771544745/40-nikita-prokopov-aka-tonsky"
+title   = "Defn podcast, episode 40"
+event   = "Defn"
+desc    = "Software disenchantment, DataScript, Rum, FiraCode and Flutter"
+content = "2018-10 Defn.mp3"
+
+[[talk]]
+title   = "Разочарование в программировании"
+desc    = "Компьютеры стали бытовым прибором, начать программировать легче, чем когда-либо, сложнейшие вещи делаются просто и даже тривиально, написаны горы готового кода. К сожалению, у этого есть и обратная сторона — программы становятся большими, медленными, неуправляемыми, непонимаемыми."
+[[talk.version]]
+date    = 2018-11-17
+event   = "FrontHub"
+city    = "Ulyanovsk"
+country = "Russia"
+slides  = "2018.11 Fronthub.pdf"
+[[talk.version]]
+date    = 2018-10-13
+event   = "YouCon"
+city    = "Saratov"
+country = "Russia"
+content = "https://www.youtube.com/watch?v=zXy6BzDCZag"
+slides  = "2018.10 YouCon.pdf"
+
+[[talk]]
+date    = 2018-10-04
+url     = "https://www.therepl.net/episodes/5/"
+title   = "The REPL podcast, episode 5"
+event   = "The REPL"
+desc    = "Data synchronisation, the web after tomorrow, Datascript, Rum, software quality, and font ligatures."
+content = "2018-10 The REPL.mp3"
+
+[[talk]]
+date    = 2018-08-21
+title   = "Подкаст Run Loop, эпизод 4"
+event   = "Run Loop"
+desc    = "Родился, вырос, написал AnyBar (и всё остальное)"
+content = "2018-08 Run Loop.mp3"
+
+[[talk]]
+date    = 2018-06-30
+title   = "REPL-driven development"
+event   = "BeerJS Summit"
+city    = "Minsk"
+country = "Belarus"
+desc    = "Пропагандирую REPL"
+slides  = "2018.06 BeerJS.pdf"
+
+[[talk]]
+date    = 2018-06-03
+url     = "https://music.yandex.ru/album/6842995/track/70282010"
+title   = "Подкаст Frontend Weekend, эпизод 55"
+event   = "Frontend Weekend"
+desc    = "С какой целью было создано столько блогов и шрифт Fira Code? Почему ЖЖ до сих пор живой? Почему предпочитаю фронтенд и HolyJS в частности?"
+content = "2018-05 Frontend Weekend.mp3"
+
+[[talk]]
+date    = 2018-05-27
+url     = "https://devzen.ru/episode-0193/"
+title   = "Подкаст DevZen, эпизод 193"
+event   = "DevZen"
+desc    = "Хорошие интерфейсы — хорошо, но и плохие не смертельно; error монады в динамических языках."
+content = "2018-05 DevZen.mp3"
+
+[[talk]]
+title   = "Обретение навыков"
+desc    = "Пять стадий прокачки (новичок, продвинутый, компетентный, специалист, эксперт) в работе программистов, обучении, общении, спорах"
+country = "Russia"
+[[talk.version]]
+date    = 2018-11-23
+event   = "DevFest Siberia"
+city    = "Novosibirsk"
+slides  = "2018.11 DevFest.pdf"
+[[talk.version]]
+date    = 2018-10-08
+event   = "AppsConf"
+city    = "Moscow"
+content = "https://www.youtube.com/watch?v=ZKB0oaeF3_Q"
+slides  = "2018.10 AppsConf.pdf"
+[[talk.version]]
+date    = 2018-05-20
+event   = "HolyJS"
+city    = "Saint Petersburg"
+content = "https://www.youtube.com/watch?v=f6LsU1zotPI"
+slides  = "2018.05 HolyJS.pdf"
+[[talk.version]]
+date    = 2018-04-30
+event   = "AlphaTalk"
+city    = "Cheboksary"
+content = "https://www.youtube.com/watch?v=ObHrsSrfJJk"
+slides  = "2018.04 Cheboskary.pdf"
+[[talk.version]]
+date    = 2018-04-27
+event   = "OrelRB"
+city    = "Orel"
+content = "https://www.youtube.com/watch?v=WzSu3dHmAPQ"
+slides  = "2018.04 Orel.pdf"
+[[talk.version]]
+date    = 2018-03-29
+event   = "Deep Refactoring"
+city    = "Voronezh"
+content = "https://www.youtube.com/watch?v=Fwr2E7nYWLA"
+slides  = "2018.03 Voronezh.pdf"
+
+[[talk]]
+date    = 2018-03-22
+title   = "Web, JavaScript и цирк с конями"
+event   = "Senior Software Vlogger"
+desc    = "О веб-разработке, веб-экосистеме и веб-будущем"
+content = "https://www.youtube.com/watch?v=QB5kN6gqfDk"
+
+[[talk]]
+date    = 2017-11-24
+title   = "Coherence: Conflict-free* DVCS"
+event   = "ReactJS"
+city    = "Vienna"
+country = "Austria"
+desc    = "What if we use conflict-free text editing data structures (OT/CRDT) for version control?"
+content = "https://www.youtube.com/watch?v=HpZYqUmK3_M"
+slides  = "2017.10 Vienna.pdf"
+
+[[talk]]
+title   = "Клиенту и серверу нужно поговорить"
+desc    = "Состояние и перспективы клиент-серверной синхронизации данных. GraphQL, Apollo, PouchDB, реактивность, Meteor, Firabase, журналы событий, работа с конфликтами, CRDT"
+country = "Russia"
+[[talk.version]]
+date    = 2018-05-19
+event   = "UWDC"
+city    = "Chelyabinsk"
+content = "https://www.youtube.com/watch?v=103yo-pB_0c"
+[[talk.version]]
+date    = 2018-03-29
+event   = "Deep Refactoring"
+city    = "Voronezh"
+content = "https://www.youtube.com/watch?v=tUjFsKREc34"
+slides  = "2017.10 Reactive.pdf"
+[[talk.version]]
+date    = 2017-06-05
+event   = "FrontendConf"
+city    = "Moscow"
+content = "https://www.youtube.com/watch?v=0nL6T-OPtM8"
+slides  = "2017.06 FrontendConf.pdf"
+[[talk.version]]
+date    = 2017-04-14
+event   = "DUMP"
+city    = "Yekaterinburg"
+content = "https://www.youtube.com/watch?v=m-siXL-mbbE"
+slides  = "2017.04 Dump.pdf"
+[[talk.version]]
+date    = 2017-04-02
+event   = "CodeFest"
+city    = "Novosibirsk"
+content = "https://www.youtube.com/watch?v=uHGeI9_fgUw"
+slides  = "2017.04 Codefest.pdf"
+[[talk.version]]
+title   = "Client and Server need to talk"
+desc    = "Data sync problem space and solutions. GraphQL, Apollo, PouchDB, reactivity, Meteor, Firabase, event sourcing, conflict resolution, CRDTs"
+date    = 2017-10-25
+event   = "ReactiveConf"
+city    = "Bratislava"
+country = "Slovakia"
+content = "https://www.youtube.com/watch?v=ZjbeBIkaESM"
+slides  = "2017.10 Reactive.pdf"
+[[talk.version]]
+title   = "Client and Server need to talk"
+desc    = "Data sync problem space and solutions. GraphQL, Apollo, PouchDB, reactivity, Meteor, Firabase, event sourcing, conflict resolution, CRDTs"
+date    = 2017-09-10
+event   = "CSS-Minsk-JS"
+city    = "Minsk"
+country = "Belarus"
+slides  = "2017.09 CSS-Minsk-JS.pdf"
+[[talk.version]]
+title   = "Client and Server need to talk"
+desc    = "Data sync problem space and solutions. GraphQL, Apollo, PouchDB, reactivity, Meteor, Firabase, event sourcing, conflict resolution, CRDTs"
+date    = 2017-05-15
+event   = "RigaDevDays"
+city    = "Riga"
+country = "Latvia"
+content = "https://www.youtube.com/watch?v=7ShYs5FQ6uc"
+slides  = "2017.05 RigaDevDays.pdf"
+
+[[talk]]
+date    = 2017-03-03
+title   = "Совершенствуя Clojure"
+event   = "Moscow Clojure Meetup"
+city    = "Moscow"
+country = "Russia"
+desc    = "Как сделать Clojure код еще лучше. Организация кода, стиль, соглашения, читаемость, опасные конструкции"
+content = "https://www.youtube.com/watch?v=oeA7k4XYJGs"
+slides  = "2017.02 Moscow Clojure Meetup.pdf"
+
+[[talk]]
+[[talk.version]]
+date    = 2016-12-11
+title   = "Как подойти к современным веб-приложениям"
+event   = "HolyJS"
+city    = "Moscow"
+country = "Russia"
+desc    = "Архитектурное устройство современных коллаборативных веб-приложений. Модель данных, нормализация, клиентские хранилища, синхронизация данных, журналы событий, оптимистичный UI, совместная работа"
+content = "https://www.youtube.com/watch?v=x9yYlDNHI2Y"
+slides  = "2016.12 HolyJS Moscow.pdf"
+[[talk.version]]
+date    = 2016-12-10
+title   = "How to approach modern web apps"
+event   = "f(by)"
+city    = "Minsk"
+country = "Belarus"
+desc    = "High-level architecture overview of modern collaborative web apps. Data model, normalization, decoupling, client storages, data sync, event sourcing, optimistic UI, collaboration"
+content = "https://www.youtube.com/watch?v=bDBRY4e81Tk"
+slides  = "2016.12 funcby.pdf"
+
+[[talk]]
+title   = "Isomorphic Web Apps with Rum"
+desc    = "History and philosophy behind <a href='https://github.com/tonsky/rum' target='_blank'>Rum</a>, isomorphic Clojure/Script UI library. Simplicity, transparency, extensibility, server-side rendering"
+[[talk.version]]
+date    = 2017-12-01
+event   = "Clojure eXchange"
+city    = "London"
+country = "United Kingdom"
+slides  = "2016.12 Clojure eXchange.pdf"
+[[talk.version]]
+date    = 2016-09-10
+event   = "clojuTRE"
+city    = "Tampere"
+country = "Finland"
+content = "https://www.youtube.com/watch?v=2fLx4fu9VV8"
+slides  = "2016.09 clojureTRE.pdf"
+
+[[talk]]
+title   = "A Database for the Client"
+desc    = "Short intro into <a href='https://github.com/tonsky/datascript' target='_blank'>DataScript</a>, powerful client-side storage. Lightweight, relational, normalized, immutable, supports queries & transaction log"
+date    = 2016-10-25
+event   = "ViennaJS"
+city    = "Vienna"
+country = "Austria"
+content = "https://www.youtube.com/watch?v=0q_ldbQ5tL4"
+
+[[talk]]
+title   = "LambdaNsk митап"
+desc    = "Что-то про Clojure"
+date    = 2016-01-30
+event   = "LambdaNsk meetup"
+city    = "Novosibirsk"
+country = "Russia"
+content = "https://www.youtube.com/watch?v=EYBjZmU3nU0"
+
+[[talk]]
+title   = "Подкаст DevZen, эпизод 99"
+url     = "https://devzen.ru/episode-0099/"
+desc    = "Обучение Clojure на <a href='http://ClojureCourse.by' target='_blank'>ClojureCourse.by</a>, Ask Me Anything с Alan Kay и будущее языков программирования, React.js и работа с состоянием на фронтенде, Clojure.spec и property-based тесты, Websocket-ы в разных стеках."
+date    = 2016-07-03
+event   = "DevZen"
+content = "2016-07 DevZen.mp3"
+
+[[talk]]
+title   = "Rum workshop"
+desc    = "Capabilities, design philosophy, usage scenarios and lots of code examples"
+date    = 2016-06-23
+event   = "Cognician"
+content = "https://www.youtube.com/watch?v=RqHnxkU9TZE"
+
+[[talk]]
+title   = "Данные на фронтенде"
+desc    = "Анализ современных средств синхронизации данных. Проблематика, структура синхронизации, элементы архитектуры, плюсы и минусы Meteor, Firebase, PouchDB, Relay, Horizon, CRDT"
+date    = 2016-06-05
+event   = "HolyJS"
+city    = "Saint Petersburg"
+country = "Russia"
+content = "https://www.youtube.com/watch?v=ZWNtxmrA4UY"
+slides  = "2016.06 holyjs.pdf"
+
+[[talk]]
+title   = "How immutability, functional programming, databases and reactivity change front-end"
+desc    = "Do frontend apps need a storage? Why? DataScript data model, queries, transactions, database as a value, foundations for reliable data sync and reactive UIs"
+date    = 2015-11-04
+event   = "ReactiveConf"
+city    = "Bratislava"
+country = "Slovakia"
+content = "https://www.youtube.com/watch?v=5DyQwMQbWvs"
+slides  = "2015.11 reactive.pdf"
+
+[[talk]]
+title   = "Подкаст Разбор полетов, эпизод 92"
+url     = "http://razbor-poletov.com/2015/10/episode-92.html"
+desc    = "Clojure, ClojureScript, DataScript, Datomic"
+date    = 2015-10-11
+event   = "Разбор полетов"
+content = "2015-10 Разбор полетов.mp3"
+
+[[talk]]
+[[talk.version]]
+title   = "Фронтенд без грусти"
+desc    = "Зачем веб-приложениям клиентский data storage и как использовать <a target='_blank' href='https://github.com/tonsky/datascript'>DataScript</a> в single-page приложениях"
+date    = 2015-08-15
+event   = "FPConf"
+city    = "Moscow"
+country = "Russia"
+content = "https://www.youtube.com/watch?v=cRWrrHPrk9g"
+slides  = "2015.08 fpconf.pdf"
+[[talk.version]]
+title   = "Web UI with Database in a Browser"
+desc    = "Why web apps need a client-side data storage and how to apply <a target='_blank' href='https://github.com/tonsky/datascript'>DataScript</a> to reactive single-page web applications"
+date    = 2015-07-04
+event   = "PolyConf"
+city    = "Poznań"
+country = "Poland"
+content = "https://www.youtube.com/watch?v=1dr-CzMMDD8"
+slides  = "2015.07 polyconf.pdf"
+
+[[talk]]
+title   = "Функциональное программирование в браузере"
+desc    = "Что такое чистые функции, разделение функций и данных, иммутабельность, ленивость в контексте веб-приложений"
+[[talk.version]]
+date    = 2015-05-22
+event   = "FrontendConf"
+city    = "Moscow"
+country = "Russia"
+content = "https://www.youtube.com/watch?v=6XzYYrQTsks"
+slides  = "2015.05 FrontendConf/"
+[[talk.version]]
+date    = 2015-03-28
+event   = "CodeFest"
+city    = "Novosibirsk"
+country = "Russia"
+content = "https://www.youtube.com/watch?v=CohpRapbXqA"
+slides  = "2015.03 CodeFest/"
+
+[[talk]]
+title   = "DataScript for Web Development"
+desc    = "Overview of <a target='_blank' href='https://github.com/tonsky/datascript'>DataScript</a> implementation and range of application architectures it enables"
+date    = 2014-12-04
+event   = "Clojure eXchange"
+city    = "London"
+country = "United Kingdom"
+slides  = "2014.12 clojure eXchange.pdf"
+
+[[talk]]
+title   = "ToDo list in DataScript (webinar)"
+desc    = "Creating ToDo app from scratch using DataScript and React.js"
+date    = 2014-12-16
+event   = "ClojureScript NYC user group"
+content = "https://vimeo.com/114688970"
+
+[[talk]]
+title   = "Как спорить о языках программирования"
+url     = "http://tonsky.livejournal.com/297610.html"
+desc    = "Что важно, что неважно, чеклист аргументов"
+date    = 2014-11-22
+event   = "f(by)"
+city    = "Minsk"
+country = "Belarus"
+slides  = "2014.11 fby.pdf"
+
+[[talk]]
+date    = 2014-10-11
+title   = "Подкаст DevZen, эпизод 12"
+url     = "https://devzen.ru/episode-0012/"
+desc    = "ClojureCup, Transit, transducers, ClojureScript rationale, React"
+event   = "DevZen"
+content = "2014-10 DevZen.mp3"
+
+[[talk]]
+date    = 2014-09-09
+title   = "Функциональное программирование для всех"
+desc    = "Чувствуете себя неуверенно в разговоре с матерыми коллегами на тему функциональных языков? Не знаете, что делает моноидальный эндофунктор? Хватит это терпеть."
+event   = "VLadivostok Developers Sabbath"
+slides  = "2014.09 Дальинфоком.md"
+
+[[talk]]
+desc    = "Streams (Mail 3.0 concept), Lambda architecture, Storm, Zookeeper"
+event   = "EaxCast"
+[[talk.version]]
+date    = 2014-07-23
+title   = "Подкаст EaxCast, s02 e06"
+url     = "http://eax.me/eaxcast-s02e06/"
+content = "2014-10 EaxCast.s02e06.mp3"
+[[talk.version]]
+default = true
+date    = 2014-07-16
+title   = "Подкаст EaxCast, s02 e05"
+url     = "http://eax.me/eaxcast-s02e05/"
+content = "2014-10 EaxCast.s02e05.mp3"
+
+[[talk]]
+date    = 2014-05-19
+title   = "DataScript хэнгаут"
+event   = "Clojure Russia"
+desc    = "Обзор, возможности, ответы на вопросы"
+content = "https://www.youtube.com/watch?v=jhBC81pczZY"
+
+[[talk]]
+date    = 2014-05-17
+title   = "Функциональный подход к JavaScript"
+event   = "IT Life meetup"
+city    = "Saint Petersburg"
+country = "Russia"
+desc    = "Как ФП помогает во фронтенд-разработке"
+slides  = "2014.05 functional-approach-to-js/"
+
+[[talk]]
+title   = "Зачем вам нужна Clojure"
+desc    = "Что такое, сильные/слабые стороны, применимость, опыт использования"
+url     = "http://2013.codefest.ru/lecture/53"
+date    = 2013-03-31
+event   = "CodeFest"
+city    = "Novosibirsk"
+country = "Russia"
+content = "https://www.youtube.com/watch?v=jZI1aZcRHCI"
+slides  = "2013.03 Codefest.pdf"
+
+[[talk]]
+desc    = "Открытая лекция в НГУ"
+event   = "Mainstreamless"
+city    = "Novosibirsk"
+county  = "Russia"
+[[talk.version]]
+title   = "Ввеедние в Clojure часть 2"
+date    = 2013-03-20
+slides  = "2013.03 Mainstreamless 01.pdf"
+[[talk.version]]
+default = true
+title   = "Ввеедние в Clojure часть 1"
+date    = 2013-03-06
+slides  = "2013.03 Mainstreamless 00.pdf"
+
+[[talk]]
+event   = "Echo"
+city    = "Ulyanovsk"
+country = "Russia"
+[[talk.version]]
+title   = "Clojure @ Echo 02"
+desc    = "Библиотеки, web-стек, ClojureScript"
+url     = "http://tonsky.livejournal.com/266915.html"
+date    = 2012-08-09
+content = "https://vimeo.com/47224529"
+slides  = "2012.07 clojure at echo 02.pdf"
+[[talk.version]]
+title   = "Clojure @ Echo 01"
+desc    = "Структуры данных, полиморфизм, интероп"
+url     = "http://tonsky.livejournal.com/265621.html"
+date    = 2012-07-15
+content = "https://vimeo.com/45778765"
+slides  = "2012.06 clojure at echo 01.pdf"
+[[talk.version]]
+default = true
+title   = "Clojure @ Echo 00"
+desc    = "Обзор, concurrency"
+url     = "http://tonsky.livejournal.com/265218.html"
+date    = 2012-07-01
+content = "https://vimeo.com/45018095"
+slides  = "2012.06 clojure at echo 00.pdf"
+
+[[talk]]
+title   = "Правила хорошего тона для веб-приложений"
+desc    = "Автоматизация, простота, человечность, доступность, внимание к деталям"
+url     = "http://sibinetweek.ru/program/7/profitconf/prokopov_pravila-horoshego-tona-dlya-veb-prilozheniy"
+date    = 2011-09-25
+event   = "ProfitConf"
+city    = "Novosibirsk"
+country = "Russia"
+content = "//www.slideshare.net/slideshow/embed_code/key/EqGuGjZtz5fpjo"
+slides  = "2011.09 ProfitConf.pdf"
+
+[[talk]]
+desc    = "Как упростить и улучшить инструменты самих разработчиков"
+country = "Russia"
+[[talk.version]]
+title   = "Философия простоты, или еретическая лекция о программировании"
+url     = "http://lib.custis.ru/1a2-philosophy-of-simplicity-prokopov"
+date    = 2011-04-29
+event   = "ADDConf"
+city    = "Saint Petersburg"
+content = "https://vimeo.com/23726142"
+slides  = "2011.05 ADDconf.pdf"
+[[talk.version]]
+title   = "Мы ведь тоже люди. Еретическая лекция про юзабилити инструментов разработчика"
+url     = "https://2011.codefest.ru/lecture/453"
+date    = 2011-03-19
+event   = "CodeFest"
+city    = "Novosibirsk"
+content = "//www.slideshare.net/slideshow/embed_code/key/iZzUkk0CZ9mkvP"
+slides  = "2011.03 Codefest.pdf"
+
+[[talk]]
+title   = "Основы проектирования интерфейсов"
+desc    = "Базовые приемы улучшения интерфейса на случай, если в команде нет UI-дизайнера"
+date    = 2010-10-02
+event   = "DevPoint"
+city    = "Novosibirsk"
+country = "Russia"
+content = "//www.slideshare.net/slideshow/embed_code/key/zhcVpOeuYz6OWH"
+slides  = "2010.10 Devpoint.pdf"

@@ -1,0 +1,119 @@
+[[design]]
+date  = 2021-12-13
+img   = "2021-12-clojure-sublimed.png"
+desc  = "<a href='https://github.com/tonsky/Clojure-Sublimed'>Clojure Sublimed</a> is a Clojure development environment for Sublime Text."
+
+[[design]]
+date  = 2021-11-30
+img   = "2021-11-eql.svg"
+desc  = "<a href='https://edn-query-language.org/'>EQL</a> is a declarative query language to make hierarchical (and possibly nested) selections of information."
+
+[[design]]
+date  = 2021-11-24
+img   = "2021-11-clj-commons.svg"
+desc  = "<a href='https://github.com/clj-commons'>clj-commons</a> is a community-led project to build up the supporting infrastructure around Clojure. Idea: Erik Assum."
+
+[[design]]
+date  = 2021-06-30
+img   = "2021-06-jwm.svg"
+desc  = "<a href='https://github.com/JetBrains/JWM'>Java Window Management library</a> has window and management in its logo."
+
+[[design]]
+date  = 2021-02-26
+img   = "2021-02-duckduckgo.png"
+desc  = "Following a trend of turning internet logos into abstract spirals, I redesigned a canonical <a href='https://duckduckgo.com/'>DuckDuckGO</a> logo."
+
+[[design]]
+img   = "2020-11-skija.png"
+desc  = "Skia is an open source 2D graphics library. <a href='https://github.com/JetBrains/Skija'>Skija</a> is Skia bindings for Java."
+
+[[design]]
+img   = "2020-10-rudolf.svg"
+desc  = "Deer crossing sign for <a href='https://twitter.com/nikitonsky/status/1311374431646658561'>traffic signs reimagined by graphic designers</a> project."
+
+[[design]]
+img   = "2020-08-datahike.svg"
+desc  = "<a href='https://github.com/replikativ/datahike'>Datahike</a> is a durable Datalog database. This logo was not accepted as an official one, though."
+
+[[design]]
+img   = "2020-03-planet-clojure.svg"
+desc  = "<a href='http://planet.clojure.in/'>Planet Clojure</a> collects posts from Clojure hackers and contributors."
+
+[[design]]
+img   = "2019-12-babashka.svg"
+desc  = "<a href='https://github.com/borkdude/babashka'>Babashka</a> is a tiny Clojure interpreter for shell scripting."
+
+[[design]]
+img   = "2019-12-age.svg"
+desc  = "My entry for <a href='https://twitter.com/FiloSottile/status/1207516941239410690'>the logo contest</a> for <a href='https://github.com/FiloSottile/age'>Age</a>, a simple, secure and modern encryption tool with small explicit keys, no config options, and UNIX-style composability."
+
+[[design]]
+img   = "2019-12-deklarota.svg"
+desc  = "<a href='https://github.com/arestov/deklarota'>Deklarota</a> is really declarative, functional reactive OOP MVC Flux/Redux framework."
+
+[[design]]
+img   = "2019-10-onair.svg"
+class = "nobg"
+desc  = "A logo I designed for an internal JetBrains project."
+
+[[design]]
+img   = "2019-07-clj-kondo.svg"
+desc  = "<a href='https://github.com/borkdude/clj-kondo'>Clj-kondo</a> is a linter for Clojure code that sparks joy. When printing the stickers, print shop called because they thought there were spelling errors in the logo."
+
+[[design]]
+img   = "2019-04-infininote.svg"
+class = "icon"
+desc  = "An icon for an unreleased note-taking application."
+
+[[design]]
+img   = "2019-01-kaocha.svg"
+desc  = "Unofficial icon and a logo for <a href='https://github.com/lambdaisland/kaocha'>Kaocha</a>, full featured next generation Clojure test runner."
+
+[[design]]
+img   = "2019-01-speculative.svg"
+desc  = "<a href='https://github.com/borkdude/speculative'>Speculative</a> is an unofficial community-driven specs for clojure.core."
+
+[[design]]
+img   = "2018-10-nrepl.svg"
+desc  = "<a href='https://nrepl.org/'>nREPL</a> is the most popular Clojure network REPL."
+
+[[design]]
+img   = "2018-10-ron.svg"
+class = "nobg"
+desc  = "<a href='http://replicated.cc/'>RON</a> is a format for continuous data synchronization. Ron is a successor of <a href='https://github.com/gritzko/swarm'>Swarm.js</a>, so the logo reflects that."
+
+[[design]]
+img   = "2018-10-neovim.svg"
+desc  = "Unofficial <a href='https://neovim.io/'>Neovim</a> logo upgrade nobody asked me to do."
+
+[[design]]
+img   = "2018-09-task-killer.svg"
+class = "icon"
+desc  = "An icon for an unreleased task management app."
+
+[[design]]
+img   = "2018-03-datascript.svg"
+desc  = "<a href='https://github.com/tonsky/datascript'>DataScript</a> is a popular immutable database and Datalog query engine for Clojure, ClojureScript and JS. Print shop was confused when I sent them the file because they thought fonts went bananas."
+
+[[design]]
+img   = "2017-12-clojure-warrior.svg"
+class = "icon"
+desc  = "<a href='https://github.com/tonsky/clojure-warrior'>Clojure Warrior</a> was my Visual Studio Code extension for Clojure development."
+
+[[design]]
+img   = "2016-06-tongue.svg"
+desc  = "<a href='https://github.com/tonsky/tongue'>Tongue</a> is do-it-yourself i18n library for Clojure/Script."
+
+[[design]]
+img   = "2016-rum.svg"
+desc  = "<a href='https://github.com/tonsky/rum'>Rum</a> is a simple, decomplected, isomorphic HTML UI library for Clojure and ClojureScript."
+
+[[design]]
+img   = "2015-03-anybar.svg"
+class = "icon"
+desc  = "<a href='https://github.com/tonsky/AnyBar'>AnyBar</a> is a minimalist programmable macOS menubar indicator."
+
+[[design]]
+img   = "2014-fira-code.svg"
+class = "full"
+desc  = "<a href='https://github.com/tonsky/FiraCode'>Fira Code</a> is an extremely popular monospaced font with programming ligatures that still has no decent logo. It has this piece of wall art though."

@@ -1,0 +1,18 @@
+.content > figure {
+  margin: 12px 0;
+  padding: 48px 96px;
+  border-radius: 8px;
+  background: #FFF;
+  width: min(792px, 96vw);
+}
+
+.content > figure + p { margin-bottom: 48px; }
+
+.content > figure > img { width: 100%; height: auto; }
+
+.content > figure.nobg { background: transparent; padding: 0 0 12px 0; }
+
+.content > figure.icon { background: transparent; padding: 0 0 12px 0; }
+.content > figure.icon > img { background: #FFF; width: 228px; border-radius: 36px; box-shadow: 0 0 40px rgba(0,0,0,0.1), 0 0 20px rgba(0,0,0,0.1), 0 0 10px rgba(0,0,0,0.1); } 
+
+.content > figure.full { padding: 0; }

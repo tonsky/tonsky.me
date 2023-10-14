@@ -26,7 +26,7 @@
 (defn render-impl [^StringBuilder sb ^String indent mode tree]
   (core/cond+
     (string? tree)
-    (.append sb (escape tree))
+    (append sb (escape tree))
      
     (nil? tree)
     :noop
@@ -34,6 +34,9 @@
     (and (sequential? tree) (not (vector? tree)))
     (doseq [form tree]
       (render-impl sb indent mode form))
+    
+    (not (vector? tree))
+    (append sb (pr-str tree))
 
     ;; assume vector now
     :let [[tag attrs content] (core/normalize-tag tree)]
@@ -43,16 +46,12 @@
     
     (= :CDATA tag)
     (append sb "<![CDATA[\n" (str/join content) "\n]]>")
-     
-    (and (= :script tag) content)
-    (let [content' (core/reindent (str/join content) (str indent "  "))]
-      (append sb indent "<script>\n" content' "\n" indent "</script>\n"))
-    
+
     (nil? tag)
     nil
     
     :else
-    (let [inline?  (#{:a :code :em :figcaption :img :span :strong} tag)
+    (let [inline?  (#{:a :code :em :figcaption :img :span :strong :sup :sub} tag)
           nested?  (#{:article :blockquote :body :div :figure :head :html :ol :script :ul :video
                       :author :feed :entry} tag)
           void?    (#{:area :base :br :col :embed :hr :img :input :link :meta :param :source :track :wbr} tag)]
@@ -64,8 +63,10 @@
       ;; attrs
       (doseq [[k v] attrs
               :when (some? v)]
-        (append sb " " (name k) "=\"")
-        (append sb (if (= v true) "" (escape v)) "\""))
+        (cond
+          (= true v)  (append sb " " (name k) "=\"\"")
+          (= false v) :nop
+          :else       (append sb " " (name k) "=\"" (escape v) "\"")))
 
       ;; insides
       (when (seq content)

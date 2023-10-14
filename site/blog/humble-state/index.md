@@ -1,7 +1,5 @@
 ---
-layout: post
 title: "Humble Chronicles: State Management"
-category: blog
 summary: "Search for the best state management solution for Humble UI"
 published: 2023-04-29
 ---

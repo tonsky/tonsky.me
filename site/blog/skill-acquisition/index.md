@@ -1,15 +1,11 @@
 ---
-layout: post
 title: "Skill acquisition"
-category: blog
 summary: "Dreyfus model of skill acquisition explains what happens in IT industry"
-draft: true
-img_rel: true
 ---
 
 There’s a great talk by Dan North about “Patterns of Effective Teams”:
 
-<iframe class="figure" width="600" height="338" src="https://www.youtube.com/embed/lvs7VEsQzKY?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+https://www.youtube.com/watch?v=lvs7VEsQzKY
 
 The most interesting part for me was the [Dreyfus model of skill acquisition](http://www.dtic.mil/cgi-bin/GetTRDoc?AD=ADA084551&Location=U2&doc=GetTRDoc.pdf). It proposes that a person, while aquiring new skill, passes through five distinct stages:
 
@@ -108,7 +104,7 @@ As you learn more and more about programming, it’s natural to change your lang
 
 Vladimir Krichevsky
 
-<iframe class="figure" width="600" height="338" src="https://www.youtube.com/embed/g-q3YHUnSe0?rel=0&amp;showinfo=0" frameborder="0" allowfullscreen></iframe>
+https://www.youtube.com/watch?v=g-q3YHUnSe0
 
 He can’t explain his own decision, only describe them. He describes how the material “asked” him to be put this way. He contradict himself, of course, but that makes sense. If you decide to make rule out of it and remove contradiction, it’ll be worse.
 

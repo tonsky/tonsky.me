@@ -1,11 +1,12 @@
 ---
 title: "The Absolute Minimum Every Software Developer Must Know About Unicode in 2023 (Still No Excuses!)"
 summary: "Modern extension to classic 2003 article by Joel Spolsky"
-css: style2.css
 published: 2023-10-02
 hackernews_id: 37735801
 starred: true
 ---
+
+_Translations: [French](https://www.outofpluto.com/blog/nikita-prokopov-must-read-article-about-utf-8/)_
 
 Twenty years ago, [Joel Spolsky wrote](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/):
 
@@ -441,7 +442,7 @@ english@2x.png
 - different variations of spaces (figure, hair, non-breaking),
 - bullets `•` `■` `☞`,
 - currency symbols other than the `$` (kind of tells you who invented computers, doesn’t it?): `€` `¢` `£`,
-- mathematical signs—plus `+` and equals `=` are part of ASCII, but minus `−` and multiply `×` are not <span>¯\_(ツ)_/¯</span>,
+- mathematical signs—plus `+` and equals `=` are part of ASCII, but minus `−` and multiply `×` are not <nobr>¯\_(ツ)_/¯</nobr>,
 - various other signs `©` `™` `¶` `†` `§`.
 
 Hell, you can’t even spell `café`, `piñata`, or `naïve` without Unicode. So yes, we are all in it together, even Americans.

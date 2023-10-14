@@ -1,0 +1,48 @@
+.talks { --width: 1000px; --radius: 10px; width: 100%; display: flex; flex-direction: column; gap: 70px; align-items: center; margin: 70px 0; }
+.talks > * { width: 96vw; max-width: var(--width); }
+.talk-inner { display: flex; flex-direction: row; gap: 20px; }
+@media (max-width: 1000px) {
+  .talk-inner { flex-direction: column; }
+}
+.content > ul { gap: 4px; }
+
+/* VIEW */
+
+.talk-view { width: 560px; aspect-ratio: 16/9; }
+@media (max-width: 560px) {
+  .talk-view { width: 96vw; }
+}
+.podcast { height: 100%; background-size: cover; background-position: center; display: flex; flex-direction: column; justify-content: flex-end; border-radius: var(--radius); }
+.podcast audio { margin: 0 5px 5px 5px; width: calc(100% - 10px); border-radius: calc(var(--radius) - 5px); }
+iframe { display: block; border-radius: var(--radius); }
+.talk-view-stub { height: 100%; background: var(--gray-bg); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; }
+
+.popup { color: inherit; }
+.popup:hover { color: #000; }
+.popup::after { content: " "; margin: 0 0 0 5px; display: inline-block; width: 15px; height: 13px; background-image: url('data:image/svg+xml;utf8,<svg width="15px" height="13px" viewBox="0 0 15 13" version="1.1" xmlns="http://www.w3.org/2000/svg"><g stroke="%2300000033" fill="none" stroke-width="1.5"><polyline points="11 9 11 12 1 12 1 4 4 4"></polyline><rect x="4" y="1" width="10" height="8"></rect></g></svg>'); }
+.popup:hover::after { content: " "; margin: 0 0 0 5px; display: inline-block; width: 15px; height: 13px; background-image: url('data:image/svg+xml;utf8,<svg width="15px" height="13px" viewBox="0 0 15 13" version="1.1" xmlns="http://www.w3.org/2000/svg"><g stroke="%23000" fill="none" stroke-width="1.5"><polyline points="11 9 11 12 1 12 1 4 4 4"></polyline><rect x="4" y="1" width="10" height="8"></rect></g></svg>'); }
+
+.download { color: inherit; }
+.download:hover { color: #000; }
+.download::after { content: " "; margin: 0 0 0 5px; display: inline-block; width: 15px; height: 13px; background-image: url('data:image/svg+xml;utf8,<svg width="15" height="13" viewBox="0 0 15 13" xmlns="http://www.w3.org/2000/svg"><g fill="none" stroke="%2300000033" stroke-width="1.5"><path d="M7.5 0L7.5 8"/><path d="M11.5 5L7.5 8.9L3.5 5"/><path d="M2 9V12H13V9"/></g></svg>'); }
+.download:hover::after { background-image: url('data:image/svg+xml;utf8,<svg width="15" height="13" viewBox="0 0 15 13" xmlns="http://www.w3.org/2000/svg"><g fill="none" stroke="%23000" stroke-width="1.25"><path d="M7.5 0L7.5 8"/><path d="M11.5 5L7.5 8.9L3.5 5"/><path d="M2 9V12H13V9"/></g></svg>'); }
+
+/* DETAILS */
+
+.talk-details { width: calc(var(--width) - 20px - 560px); min-height: 315px; display: flex; flex-direction: column; gap: 15px; }
+h2 { margin-top: 0; }
+.spacer { flex-grow: 1; }
+@media (max-width: 1000px) {
+  .talk-details { width: 560px; min-height: unset; }
+  .spacer { display: none; }
+}
+@media (max-width: 560px) {
+  .talk-details { width: 96vw; }
+}
+.talk-versions { display: flex; flex-direction: column; gap: 5px; }
+.talk-version { font-size: var(--font-small); color: var(--gray-text); cursor: pointer; }
+.talk-version_active, .talk-version:hover { color: #000; }
+.talk-version_active { cursor: default; }
+.talk-version-lang { background: var(--gray-bg); padding: 1px 3px; border-radius: 2px; font-size: 10px; position: relative; top: -1px; margin: 0 3px 0 0; }
+.talk-version_active > .talk-version-lang,
+.talk-version:hover > .talk-version-lang { background: #00000033; }

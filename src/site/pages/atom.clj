@@ -48,7 +48,7 @@
       (:content page))))
 
 (defn feed []
-  (let [posts (->> (concat (index/old-posts) (index/new-posts))
+  (let [posts (->> (index/posts)
                 (remove index/draft?)
                 (core/rsort-by :published)
                 (take 5)

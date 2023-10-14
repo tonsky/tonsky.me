@@ -8,30 +8,7 @@
     [site.render :as render])
   (:import
     [java.time Instant]
-    [java.time.format DateTimeFormatter]
-    [java.util Timer TimerTask]))
-
-(mount/defstate ^Timer timer
-  :start (Timer. true)
-  :stop  (.cancel ^Timer timer))
-
-(defn- timer-task ^TimerTask [f]
-  (proxy [TimerTask] []
-    (run []
-      (try
-        (f)
-        (catch Throwable t
-          (.printStackTrace t))))))
-
-(defn schedule
-  ([f ^long delay]
-   (let [t (timer-task f)]
-     (.schedule timer t delay)
-     t))
-  ([f ^long delay ^long period]
-   (let [t (timer-task f)]
-     (.schedule timer t delay period)
-     t)))
+    [java.time.format DateTimeFormatter]))
 
 (def page-limit
   20)
@@ -130,8 +107,8 @@
             :when ch]
       (http/send! ch msg))))
 
-(mount/defstate ^TimerTask broadcast-task
+(mount/defstate broadcast-task
   :start
-  (schedule broadcast 0 1000)
+  (core/schedule broadcast 0 1000)
   :stop
-  (.cancel ^TimerTask broadcast-task))
+  (core/cancel-task broadcast-task))

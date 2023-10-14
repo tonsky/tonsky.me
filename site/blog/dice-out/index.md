@@ -1,7 +1,5 @@
 ---
-layout: post
 title: "GMTK Game Jam 2022: Dice Out"
-category: blog
 summary: "Experience report from participating in latest GMTK Game Jam"
 published: 2022-07-26
 ---

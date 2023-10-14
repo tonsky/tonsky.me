@@ -4,6 +4,11 @@
     [site.parser :as parser]
     [clojure.test :as test :refer [is are deftest testing]]))
 
+(def transform
+  #(-> % parser/parse
+     parser/transform
+     :content))
+
 (deftest test-headers
   (is (= [[:h1 "Hello"]]
         (parser/parse "# Hello")))
@@ -166,25 +171,48 @@
            [:figlink "https://a.com"]
            [:figalt "alt text"]
            [:figcaption "caption"]]]
-        (parser/parse "image.jpg https://a.com alt text\ncaption"))))
+        (parser/parse "image.jpg https://a.com alt text\ncaption")))
+  
+  (is (= [[:figure
+           [:a {:href "http://link"}
+            [:img {:src "img.jpg"
+                   :alt "alt text"
+                   :title "alt text"}]]
+           [:figcaption
+            "Also " [:em "some"] " caption"]]]
+        (transform
+          #ml "img.jpg http://link alt text
+         Also *some* caption"))))
 
 (deftest test-inlines
   (is (= [[:p "And " [:em "this"] " or " [:strong "this"] " or " [:code "this"]]]
         (parser/parse "And *this* or **this** or `this`")))
-
-  (is (= [[:p "And " [:em "this"] " or " [:em "*this"] " or " [:code "this"]]]
+  
+  (is (= [[:p [:em "em1"] " and " [:em "em2"]]]
+        (parser/parse "*em1* and *em2*")))
+  
+  (is (= [[:p [:em "em1"] " and " [:em "em2"]]]
+        (parser/parse "_em1_ and _em2_")))
+  
+  (is (= [[:p [:strong "em1"] " and " [:strong "em2"]]]
+        (parser/parse "**em1** and **em2**")))
+  
+  (is (= [[:p [:strong "em1"] " and " [:strong "em2"]]]
+        (parser/parse "__em1__ and __em2__")))
+    
+  (is (= [[:p "And " [:em "this"] " or " [:em "*" "this"] " or " [:code "this"]]]
         (parser/parse "And *this* or **this* or `this`")))
 
-  (is (= [[:p "And " [:em "2*3"]]]
+  (is (= [[:p "And " [:em "2" "*" "3"]]]
         (parser/parse "And *2*3*")))
 
-  (is (= [[:p "And " [:em "2*3"]]]
+  (is (= [[:p "And " [:em "2" "*" "3"]]]
         (parser/parse "And _2*3_")))
 
-  (is (= [[:p "And " [:strong "2*3"]]]
+  (is (= [[:p "And " [:strong "2" "*" "3"]]]
         (parser/parse "And __2*3__")))
 
-  (is (= [[:p "And " [:em "__2*3__"]]]
+  (is (= [[:p "And " [:strong "_" "2" "*" "3" "_"]]]
         (parser/parse "And ___2*3___")))
   
   (is (= [[:p "Some " [:code "inline"] " code"]]
@@ -192,6 +220,22 @@
   
   (is (= [[:p "Some " [:code "escape \\` in code"] " code"]]
         (parser/parse "Some `escape \\` in code` code"))))
+
+(deftest test-escapes
+  (is (= [[:p "Capturing " [:em "out"]]]
+        (transform "Capturing *out*")))
+  
+  (is (= [[:p "Capturing " "*" "out" "*"]]
+        (transform "Capturing \\*out*")))
+  
+  (is (= [[:p "Capturing " "~" "280"]]
+        (transform "Capturing \\~280")))
+  
+  (is (= [[:p "¯" "_" "(ツ)" "_" "/¯"]]
+        (transform "¯\\_(ツ)_/¯")))
+  
+  (is (= [[:p "¯" "\\" "_" "(ツ)" "_" "/¯"]]
+        (transform "¯\\\\\\_(ツ)_/¯"))))
 
 (deftest test-links
   (is (= [[:p "This "
@@ -215,7 +259,7 @@
   (is (= [[:p [:img [:alt] [:href "https://abc"]]]]
         (parser/parse "![](https://abc)\n")))
   
-  (is (= [[:p [:img [:alt] [:href ""]]]]
+  (is (= [[:p [:img [:alt] [:href]]]]
         (parser/parse "![]()"))))
 
 (deftest test-html
@@ -227,19 +271,19 @@
   (is (= [[:p "Text " [:raw-html "<" "br" ">"] " text"]]
         (parser/parse "Text <br> text")))
   
-  (is (= [[:p [:raw-html "<" "center" ">" "text" "</" "center" ">"]]]
+  (is (= [[:raw-html "<" "center" ">" "text" "</" "center" ">"]]
         (parser/parse "<center>text</center>")))
   
-  (is (= [[:p [:raw-html "<" "center" ">" "text" "</ " "center" ">"]]]
+  (is (= [[:raw-html "<" "center" ">" "text" "</ " "center" ">"]]
         (parser/parse "<center>text</ center>")))
   
-  (is (= [[:p [:raw-html "<" "img" " src='abc'" ">"]]]
+  (is (= [[:raw-html "<" "img" " src='abc'" ">"]]
         (parser/parse "<img src='abc'>")))
   
-  (is (= [[:p [:raw-html "<" "img" " src='abc'" "/>"]]]
+  (is (= [[:raw-html "<" "img" " src='abc'" "/>"]]
         (parser/parse "<img src='abc'/>")))
   
-  (is (= [[:p [:raw-html "<" "img" " src='abc' " "/>"]]]
+  (is (= [[:raw-html "<" "img" " src='abc' " "/>"]]
         (parser/parse "<img src='abc' />"))))
 
 (deftest test-lists
@@ -284,45 +328,68 @@
           #ml "- **strong** *em* just text
                - `code`")))
   
-  (is (= [[:ol
-           [:oli "First"]
-           [:oli "Second"]
-           [:oli "Third"]]]
-        (parser/parse
+  (is (= [[:ol {:start "1"}
+           [:li "First"]
+           [:li "Second"]
+           [:li "Third"]]]
+        (transform
           #ml "1. First
                2. Second
                3. Third")))
   
-  (is (= [[:ol
-           [:oli "First"]
-           [:oli "Second"]
-           [:oli "Third"]]]
-        (parser/parse
+  (is (= [[:ol {:start "1"}
+           [:li "First"]
+           [:li "Second"]
+           [:li "Third"]]]
+        (transform
           #ml "1. First
                
                2. Second
                
                3. Third")))
   
-  (is (= [[:ol
-           [:oli "First"]
-           [:oli "Second"]
-           [:oli "Third"]]]
-        (parser/parse
+  (is (= [[:ol {:start "1"}
+           [:li "First"]
+           [:li "Second"]
+           [:li "Third"]]]
+        (transform
           #ml "1. First
                1. Second
                1. Third")))
   
-  (is (= [[:ol
-           [:oli "First"]]
+  (is (= [[:ol {:start "5"}
+           [:li "First"]
+           [:li "Second"]
+           [:li "Third"]]]
+        (transform
+          #ml "5. First
+               6. Second
+               7. Third")))
+  
+  (is (= [[:ol {:start "1"}
+           [:li "First"]]
           [:ul
-           [:uli "Second"]]
-          [:ol
-           [:oli "Third"]]]
-        (parser/parse
+           [:li "Second"]]
+          [:ol {:start "1"}
+           [:li "Third"]]]
+        (transform
           #ml "1. First
                - Second
                1. Third"))))
+
+(deftest test-footnotes
+  (is (= [[:p "Text" [:footnote "1"] " with" [:footnote "2"] " footnote" [:footnote "3"]]]
+        (parser/parse
+          "Text[^1] with[^2] footnote[^3]")))
+  (is (= [[:fl
+           [:fli "1" "First"]
+           [:fli "2" "Second " [:em "em"] " " [:link [:alt "link"] [:href "href"]]]
+           [:fli "3" "Third"]]]
+        (parser/parse
+          #ml "[^1]: First
+         [^2]: Second *em* [link](href)
+         
+         [^3]: Third"))))
 
 (comment
   (test/run-tests *ns*))

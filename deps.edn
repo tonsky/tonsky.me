@@ -4,7 +4,9 @@
   http-kit/http-kit                  {:mvn/version "2.7.0"}
   mount/mount                        {:mvn/version "0.1.17"}
   org.clojure/clojure                {:mvn/version "1.11.1"}
-  ring/ring-core                     {:mvn/version "1.8.0"}}
+  ring/ring-core                     {:mvn/version "1.8.0"}
+  com.github.vmfhrmfoaj/clj-toml     {:mvn/version "1.0.0-0.1"}
+  cheshire/cheshire                  {:mvn/version "5.12.0"}}
  :aliases
  {:dev
   {:jvm-opts ["-ea"]

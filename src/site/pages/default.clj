@@ -2,7 +2,18 @@
   (:require
     [clojure.java.io :as io]
     [clojure.string :as str]
+    [clojure.walk :as walk]
     [site.core :as core]))
+
+(def about
+  [:.about
+   [:.about_photo]
+   [:.about_inner
+    [:p "Hi!"]
+    [:p "I’m Niki. Here I write about programming and UI design "
+     [:a.btn-subscribe {:href "/subscribe/"}
+      [:img {:src "/i/subscribe.svg"}] " Subscribe"]]
+    [:p "I also create open-source stuff: " [:a {:href "https://github.com/tonsky/FiraCode"} "Fira Code"] ", " [:a {:href "https://github.com/tonsky/DataScript"} "DataScript"] ", " [:a {:href "https://github.com/tonsky/Clojure-Sublimed"} "Clojure Sublimed"] " and " [:a {:href "https://github.com/HumbleUI/HumbleUI"} "Humble UI"] ". If you like what I do and want to get early access to my articles, you should " [:a {:href "https://patreon.com/tonsky"} "support me on Patreon"] "."]]])
 
 (defn default [page]
   (assoc page :content
@@ -14,13 +25,15 @@
         [:meta {:name "viewport" :content "width=640"}])
       [:meta {:name "theme-color" :content "#FDDB29"}]
       [:link {:href "/i/favicon.png" :rel "icon" :sizes "32x32"}]
-      (let [css (:css page "style.css")]
-        [:link {:href (core/timestamp-url (str "/" css) (str "site/" css)) :rel "stylesheet" :type "text/css"}])
+      [:link {:href "/fonts/fonts.css" :rel "stylesheet" :type "text/css"}]
+      [:link {:href "/style.css" :rel "stylesheet" :type "text/css"}]
+      (for [style (:styles page)]
+        [:link {:href style :rel "stylesheet" :type "text/css"}])
       [:title (:title page) " @ tonsky.me"]
       [:link {:href "/blog/atom.xml" :rel "alternate" :title "Nikita Prokopov’s blog" :type "application/atom+xml"}]
       [:meta {:name "author" :content "Nikita Prokopov"}]
       [:meta {:property "og:title" :content (:title page)}]
-      [:meta {:property "og:url" :content (str "https://tonsky.me" (:url page))}]
+      [:meta {:property "og:url" :content (str "https://tonsky.me" (:uri page))}]
       (when (:blog (:categories page))
         (list
           [:meta {:property "og:type" :content "article"}]
@@ -38,31 +51,35 @@
       [:meta {:property "profile:username" :content "tonsky"}]
       [:meta {:property "profile:gender" :content "male"}]
       [:meta {:name "twitter:creator" :content "@nikitonsky"}]
-      [:script {:src (core/timestamp-url "/pointers.js" "site/pointers.js") :defer "defer"}]]
-     [:body
-      [:div {:class "page"}
-       (:content page)
-       [:div {:class "preload"}]
-       [:div {:class "pointers"}]]
-      [:script
-       #ml "function updateFlashlight(e) {
-              var style = document.body.style;
-              style.backgroundPositionX = e.pageX - 250 + 'px';
-              style.backgroundPositionY = e.pageY - 250 + 'px';
-            }
-            
-            document.querySelector('.dark_mode').onclick = function(e) {
-              var body = document.body;
-              body.classList.toggle('dark');
-              if (body.classList.contains('dark')) {
-                updateFlashlight(e);
-                ['mousemove', 'touchstart', 'touchmove', 'touchend'].forEach(function(s) {
-                  document.documentElement.addEventListener(s, updateFlashlight, false);
-                });
-              } else {
-                ['mousemove', 'touchstart', 'touchmove', 'touchend'].forEach(function(s) {
-                  document.documentElement.removeEventListener(s, updateFlashlight, false);
-                });
-              }
-            }"]]]))
-
+      [:script {:src "/script.js" :defer true :async true}]
+      (for [script (:scripts page)]
+        [:script {:src script :defer true :async true}])
+      (when core/dev?
+        [:script {:src "/watcher.js" :defer true :async true}])]
+     (let [index? (:index (:categories page))
+           post?  (:blog (:categories page))]
+       [:body
+        [:.page
+         [:ul {:class "menu"}
+          (for [[url title] [["/"          "Blog"]
+                             ["/talks/"    "Talks"]
+                             ["/projects/" "Projects"]
+                             ["/design/"   "Logos"]
+                             ["/patrons/"  "Patrons"]]]
+            [:li {:class (cond
+                           (= (:uri page) url) "selected"
+                           (and post? (= url "/")) "inside")}
+             [:a {:href url} title]])
+          [:div {:class "spacer"}]
+          [:div {:class "dark_mode"}]]
+      
+         (when index?
+           about)
+      
+         (:content page)
+      
+         (when post?
+           about)]
+      
+        [:.preload]
+        [:.pointers]])]))

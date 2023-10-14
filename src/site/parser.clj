@@ -5,12 +5,15 @@
     [clojure.string :as str]
     [clojure.walk :as walk]
     [instaparse.core :as instaparse]
+    [site.cache :as cache]
     [site.core :as core])
   (:import
     [java.io File]))
 
-(def ^:dynamic *dir*
+(def ^:dynamic *path*
   nil)
+
+(def ^:dynamic *meta*)
 
 (defmethod clojure.core/print-method instaparse.core.Parser [x writer]
   (if *print-readably*
@@ -32,38 +35,45 @@
      <meta-key>   = #'[a-zA-Z0-9_\\-\n]+'
      <meta-value> = #'[^\"\n]*'
      
-     <block>    = h1 / h2 / h3 / h4 / ul / ol / code-block / blockquote / figure / video / p
+     <block>    = h1 / h2 / h3 / h4 / ul / ol / fl / code-block / blockquote / figure / video / youtube / raw-html / p
      h1         = <'#'> <#' +'> inline
      h2         = <'##'> <#' +'> inline
      h3         = <'###'> <#' +'> inline
      h4         = <'####'> <#' +'> inline
      ul         = uli (<#'\n\n?'> uli)*
-     uli        = <#' *- +'> inline
+     uli        = <#' *[-\\*] +'> inline
      ol         = oli (<#'\n\n?'> oli)*
-     oli        = <#' *\\d+\\. +'> inline
+     oli        = <#' *'> #'\\d+' <#'\\. +'> inline
+     fl         = fli (<#'\n\n?'> fli)*
+     fli        = <'[^'> #'\\d+' <']: '> inline
+     
      code-block = <#'``` *'> lang? <#' *\n'> #'\n|(?!```).*'* <#'\n``` *(\n|$)'>
      lang       = #'[a-z]+'
      blockquote = qli (<'\n'> qli)*
      <qli>      = <#'> +'> p
      figure     = <#' *'> #'(?i)[^ \n]+\\.(png|jpg|jpeg|gif|webp)' figlink? figalt? figcaption?
      video      = <#' *'> #'(?i)[^ \n]+\\.(mp4|webm)' figlink? figalt? figcaption?
+     youtube    = <#'(?i) *https?://(www\\.)?(youtube\\.com|youtu\\.be)/[^ \n]+[?&]v='> #'[a-zA-Z0-9_\\-]{11}' <#'[^ \n]*'> figcaption?
      figlink    = <#' +'> #'https?://[^ \n]+'
      figalt     = <#' +'> !'https://' #'[^ \n][^\n]*[^ \n]'
-     figcaption = <#' *\n *'> #'[^ \n][^\n]*'
+     figcaption = <#' *\n *'> inline
      p          = class+ <#' *'> / class+ <#' +'> pbody / class+ <#' +'> inline / <#' *'> inline
      class      = <'.'> #'[a-zA-Z0-9_\\-]+'
      <pbody>    = !'.' inline
      
-     <inline>   = (text / raw-html / img / link / code / strong / em / fallback)+
-     <text>     = #'[^*_`\\[\\]<>!\n]+'
-     strong     = <#'(?<!\\w)\\*\\*'> #'([^*\n]|\\*\\w)+' <#'\\*\\*(?!\\w)'> | <'__'> #'[^_\n]+' <'__'>
-     em         = <#'(?<!\\w)\\*'> #'([^*\n]|\\*\\w)+' <#'\\*(?!\\w)'> | <#'(?<!\\w)_'> #'([^_\n]|_\\w)+' <#'_(?!\\w)'>
+     <inline>   = (text / raw-html / img / link / code / s / strong / em / footnote/ fallback)+
+     <text>     = <'\\\\'> #'.' / #'[^*_~`\\[\\]<>!\\\\\n]+'
+     s          = <'~~'> inline <#'\\~~(?!\\w)'>
+     strong     = <'**'> inline <#'\\*\\*(?!\\w)'> | <'__'> inline <#'__(?!\\w)'>
+     em         = <'*'> inline <#'\\*(?!\\w)'> | <'_'> inline <#'_(?!\\w)'>
      code       = <'`'> #'(\\\\`|[^`])*' <'`'>
      alt        = (#'[^*`\\]]+' / (strong | em | code) / #'[^\\]]+')*
-     href       = #'[^\\)]*'
+     href       = href_inn
+     <href_inn> = ('(' href_inn ')' | #'[^\\(\\)]*')*
      img        = <'!['> alt <']('> href <')'>
      link       = <'['> alt <']('> href <')'>
-     <fallback> = #'[*_`\\[\\]<>!]'
+     footnote   = <'[^'> #'\\d+' <']'>
+     <fallback> = #'[*_~`\\[\\]<>!\\\\]'
      
      raw-html           = void-tag | self-closing-tag | tag
      <inner-html>       = (html-text | void-tag | self-closing-tag | tag)*
@@ -76,107 +86,108 @@
      <void-tag>         = #'< *' void-tag-name #' [^>]+'? '>'
      <void-tag-name>    = 'area' | 'base' | 'br' | 'col' | 'embed' | 'hr' | 'img' | 'input' | 'link' | 'meta' | 'param' | 'source' | 'track' | 'wbr'"))
 
+(defn inner-text [form]
+  (cond
+    (string? form) form
+    (vector? form) (str/join "" (keep inner-text (next form)))
+    (sequential? form) (str/join "" (keep inner-text form))
+    :else nil))
+
+(defn transform-header [tag & body]
+  (let [id (-> (inner-text body)
+             (str/lower-case)
+             (str/replace #" " "-")
+             (str/replace #"[^a-z0-9\-]" ""))]
+    (core/consv tag {:id id} body)))
+
 (defn transform-code-block [& args]
   (let [[lang content]
         (if (vector? (first args))
           [(second (first args)) (next args)]
           [nil args])]
     [:pre
-     (vec
-       (concat
-         [:code]
-         (when lang
-           [{:data-lang lang}])
-         content))]))
+     (core/concatv
+       [:code]
+       (when lang
+         [{:data-lang lang}])
+       content)]))
 
 (defn transform-link [[_ alt] [_ href]]
-  [:a {:href   href
-       :target (when (and 
-                       (str/starts-with? href "http")
-                       (not (str/starts-with? href "https://tonsky.me")))
-                 "_blank")}
-   alt])
+  [:a {:href href} alt])
 
 (defn transform-img [[_ alt] [_ href]]
-  (let [file  (io/file *dir* href)
-        [w h] (core/image-dimensions file)]
-    [:img
-     {:class "inline"
-      :src   (core/timestamp-url href file)
-      :width  w
-      :height h
-      :alt    alt
-      :title  alt}]))
+  [:img
+   (core/some-map
+     :class  "inline"
+     :src    href
+     :alt    alt
+     :title  alt)])
 
 (defn normalize-figure [args]
   (reduce
-    (fn [m [tag value]]
-      (assoc m tag value))
+    (fn [m [tag & values]]
+      (assoc m tag values))
     {}
     args))
 
 (defn transform-figure [url & args]
-  (let [{:keys [figlink figalt figcaption]} (normalize-figure args)
-        file  (io/file *dir* url)
-        [w h] (core/image-dimensions file)
-        img   [:img {:src    (core/timestamp-url url file)
-                     :width  w
-                     :height h
-                     :alt    figalt
-                     :title  figalt}]]
+  (let [{[figlink]  :figlink
+         [figalt]   :figalt
+         figcaption :figcaption} (normalize-figure args)
+        img [:img (core/some-map
+                    :src    url
+                    :class  (when (re-find #"@hover" url) "hoverable")
+                    :alt    figalt
+                    :title  figalt)]]
     [:figure
      (if figlink
-       [:a {:href figlink :target "_blank"} img]
+       [:a {:href figlink} img]
        img)
      (when figcaption
-       [:figcaption figcaption])]))
+       (core/consv :figcaption figcaption))]))
 
 (defn transform-video [url & args]
-  (let [{:keys [figlink figalt figcaption]} (normalize-figure args)
+  (let [{[figlink]  :figlink
+         [figalt]   :figalt
+         figcaption :figcaption} (normalize-figure args)
         [_ ext] (re-matches #".*\.([a-z0-9]+)" url)
-        file    (io/file *dir* url)
-        [w h]   (core/video-dimensions file)
         source  [:source 
-                 {:src  (core/timestamp-url url file)
+                 {:src  url
                   :type (str "video/" ext)}]
+        opts    (:video @*meta* "")
         video   [:video
-                 {:autoplay    true
-                  :muted       true
-                  :loop        true
+                 {:autoplay    (not (str/index-of opts "-autoplay"))
+                  :muted       (not (str/index-of opts "-muted"))
+                  :loop        (not (str/index-of opts "-loop"))
                   :preload     "auto"
-                  :playsinline true
-                  :controls    true
-                  :width       w
-                  :height      h}
+                  :playsinline (not (str/index-of opts "-playsinline"))
+                  :controls    (not (str/index-of opts "-controls"))}
                  source]]
     [:figure
      (if figlink
-       [:a {:href figlink :target "_blank"} video]
+       [:a {:href figlink} video]
        video)
      (when figcaption
        [:figcaption figcaption])]))
 
-(defn replace+ [s re f]
-  (let [m (re-matcher re s)]
-    (loop [res  []
-           last 0]
-      (if (.find m)
-        (recur
-          (-> res
-            (conj (subs s last (.start m)))
-            (conj (f (subs s (.start m) (.end m)))))
-          (.end m))
-        (-> res
-          (conj (subs s last))
-          (->> (remove #(= "" %)))
-          (seq))))))
+(defn transform-youtube [id & args]
+  (let [figcaption (:figcaption (normalize-figure args))]
+    [:figure
+     ;; TODO fetch width/height from YouTube
+     [:iframe {:width           "635"
+               :height          "358"
+               :src             (str "https://www.youtube-nocookie.com/embed/" id)
+               :frameborder     "0"
+               :allow           "autoplay; encrypted-media; picture-in-picture"
+               :allowfullscreen true}]
+     (when figcaption
+       [:figcaption figcaption])]))
 
 (defn detect-links [form]
   (core/cond+
     (string? form)
-    (let [form' (replace+ form #"https?://[^ ]+[^!()-,.<>:;'\" ?&]"
-                  (fn [s] [:a {:href s
-                               :target "_blank"}
+    (let [form' (core/replace+ form #"https?://[^ ]+[^!()-,.<>:;'\" ?&]"
+                  (fn [s] [:a {:href s}
                            (str/replace s #"^https?://" "")]))]
       (if (= (first form') form)
         form
@@ -190,14 +201,17 @@
     
     :let [[tag attrs content] (core/normalize-tag form)]
     
-    (#{:a :img :video :code :code-block} tag)
+    (#{:a :img :code :code-block :raw-html :video} tag)
     form
     
+    (empty? attrs)
+    (core/consv tag (map detect-links content))
+    
     :else
-    (vec
-      (concat
-        [tag attrs]
-        (map detect-links content)))))
+    (core/consv tag attrs (map detect-links content))))
+
+(defn transform-href [& body]
+  [:href (str/join body)])
 
 (defn transform-paragraph [& body]
   (let [[classes body] (split-with #(and (vector? %) (= :class (first %))) body)
@@ -205,49 +219,76 @@
         body  (if (seq classes)
                 (cons {:class (str/join " " classes)} body)
                 body)]
-    (detect-links (vec (cons :p body)))))
+    (detect-links (core/consv :p body))))
+
+(defn transform-footnote [id]
+  [:sup {:id (str "fnref:" id) :role "doc-noteref"}
+   [:a {:href (str "#fn:" id) :class "footnote" :rel "footnote"}
+    id]])
+
+(defn transform-ol [& body]
+  (let [start (-> body first second)]
+    (core/consv
+      :ol {:start start}
+      (map (fn [[_ _ & rest]] (core/consv :li rest)) body))))
+
+(defn transform-fl [& body]
+  (list
+    [:div {:class "footnotes-br"}
+     [:div {:class "footnotes-br_inner"}]]
+    (core/consv :ol {:class "footnotes" :role "doc-endnotes"} body)))
+
+(defn transform-fli [id & body]
+  [:li {:id (str "fn:" id) :role "doc-endnote"}
+   body
+   [:a {:class "reversefootnote" :href (str "#fnref:" id) :role "doc-backlink"}
+    "↩"]])
+
+(defn transform-meta [& items]
+  (let [meta (into {} items)]
+    (reset! *meta* meta)
+    meta))
 
 (def transforms
-  {:uli        #(vector :li %&)
-   :oli        #(vector :li %&)
+  {:h1         #(transform-header :h1 %&)
+   :h2         #(transform-header :h2 %&)
+   :h3         #(transform-header :h3 %&)
+   :uli        #(core/consv :li %&)
+   :ol         transform-ol
+   :fl         transform-fl
+   :fli        transform-fli
    :code-block transform-code-block
    :figure     transform-figure
    :video      transform-video
+   :youtube    transform-youtube
    :link       transform-link
    :img        transform-img
+   :href       transform-href
    :p          transform-paragraph
+   :footnote   transform-footnote
    :meta-item  #(vector (keyword %1) %2)
-   :meta       #(into {} %&)})
+   :meta       transform-meta})
 
 (defn transform [tree]
-  (let [content (instaparse/transform transforms tree)
-        [meta content] (if (map? (first content))
-                         [(first content) (next content)]
-                         [nil content])]
-    (assoc meta :content (doall content))))
-
-(def just-parse
-  (core/memoize-by
-    #(.lastModified ^File %)
-    (fn [path]
-      (parse (slurp (io/file path))))))
+  (binding [*meta* (atom nil)]
+    (let [content (instaparse/transform transforms tree)
+          [meta content] (if (map? (first content))
+                           [(first content) (next content)]
+                           [nil content])]
+      (assoc meta :content (doall content)))))
 
 (def parse-md
   (core/memoize-by
+    #(.lastModified (cache/touched (io/file (str "site/" % "/index.md"))))
     (fn [path]
-      (transduce (map #(.lastModified ^File %)) max 0 (-> path io/file .getParentFile file-seq)))
-    (fn [path]
-      (let [file (io/file path)
-            name (.getName file)
-            id   (if (= name "index.md")
-                   (.getName (.getParentFile file))
-                   (second (re-matches #"\d+-\d+-\d+-(.*)\.md" name)))]
+      (let [file (io/file (str "site/" path "/index.md"))]
         (core/measure
-          (str "Parsing " (.getName (.getParentFile file)) "/" (.getName file))
-          (binding [*dir* (.getParentFile file)]
+          (str "Parsing " (str file))
+          (binding [*path* path]
             (-> file
-              just-parse
+              slurp
+              parse
               transform
               (assoc 
-                :url (str "/blog/" id "/")
+                :uri path
                 :categories #{:blog}))))))))

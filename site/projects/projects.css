@@ -1,0 +1,44 @@
+.projects { --width: 1000px; width: 100%; display: flex; flex-direction: column; gap: 70px; align-items: center; margin: 35px 0; }
+.projects > * { width: 96vw; max-width: var(--width); }
+.project { display: flex; flex-direction: row; gap: 40px; }
+@media (max-width: 1000px) {
+  .project { flex-direction: column; }
+}
+
+.projects > blockquote { max-width: 600px; margin: 0; padding: 0; border: none; position: relative; }
+blockquote > p:nth-child(1)::before { content: " "; position: absolute; width: 100px; height: 100px; background: url(quote_open.svg); left: -100px; top: -35px; }
+blockquote > p:nth-child(1)::after { content: " "; position: absolute; width: 100px; height: 100px; background: url(quote_close.svg); right: -100px; top: -35px; }
+.source { text-align: right; }
+
+.project-img { width: 560px; }
+@media (max-width: 560px) {
+  .project-img { width: 96vw; }
+}
+.project-img img { width: 100%; height: auto; border-radius: 10px; box-shadow: 0 10px 20px var(--gray-line); }
+
+.project-details { width: calc(var(--width) - 40px - 560px); display: flex; flex-direction: column; gap: 15px; }
+h2 { margin-top: 0; display: flex; gap: var(--gap); }
+
+.stars { color: var(--gray-text); }
+.stars::before { display: inline-block; content: ""; width: 32px; height: 33px; vertical-align: bottom; background-size: 100%; background-image: url('star.svg'); }
+
+.installs { color: var(--gray-text); }
+.installs::before { display: inline-block; content: ""; width: 32px; height: 33px; vertical-align: bottom; background-size: 100%; background-image: url('installs.svg'); }
+
+.visitors { color: var(--gray-text); }
+.visitors::before { display: inline-block; content: ""; width: 40px; height: 33px; vertical-align: bottom; background-size: 100%; background-image: url('visitors.svg'); }
+
+@media (max-width: 1000px) {
+  .project-details { width: 560px; min-height: unset; }
+}
+@media (max-width: 560px) {
+  .project-details { width: 96vw; }
+}
+
+dl {
+  font-size: var(--font-small);
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  grid-gap: 5px 10px;
+  --border: 1px;
+}
