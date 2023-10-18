@@ -4,7 +4,8 @@
     [clojure.java.io :as io]
     [clojure.math :as math]
     [clojure.string :as str]
-    [site.core :as core])
+    [site.core :as core]
+    [site.render :as render])
   (:import
     [java.io File]
     [java.time LocalDate Period]))
@@ -227,7 +228,7 @@
        (map talk talks)]]}))
 
 (defn render-atom [version]
-  (let [{:keys [id lang title desc event content published modified]} version
+  (let [{:keys [id lang title desc event content published modified slides]} version
         title      (str title " @ " event)
         url        (str "https://tonsky.me/talks/#" id)
         youtube-id (core/youtube-id content)]
@@ -238,36 +239,62 @@
      [:published (core/format-temporal published core/atom-date-format)]
      [:updated (core/format-temporal modified core/atom-date-format)]
      
-     (when youtube-id
-       (list
-         [:yt:videoId youtube-id]
-         [:media:group
-          [:media:title title]
-          [:media:content
-           {:url    (str "https://www.youtube.com/v/" youtube-id "?version=3")
-            :type   "application/x-shockwave-flash"
-            :width  "640"
-            :height "390"}]
-          [:media:thumbnail
-           {:url    (str "https://i1.ytimg.com/vi/" youtube-id "/hqdefault.jpg")
-            :width  "480" 
-            :height "360"}]
-          [:media:description [:raw-html desc]]]))
+     ; (when youtube-id
+     ;   (list
+     ;     [:yt:videoId youtube-id]
+     ;     [:media:group
+     ;      [:media:title title]
+     ;      [:media:content
+     ;       {:url    (str "https://www.youtube.com/v/" youtube-id "?version=3")
+     ;        :type   "application/x-shockwave-flash"
+     ;        :width  "640"
+     ;        :height "390"}]
+     ;      [:media:thumbnail
+     ;       {:url    (str "https://i1.ytimg.com/vi/" youtube-id "/hqdefault.jpg")
+     ;        :width  "480" 
+     ;        :height "360"}]
+     ;      [:media:description [:raw-html desc]]]))
      
-     (when (str/ends-with? content ".mp3")
-       (when-some [file (or
-                          (core/file "site/talks/content" content)
-                          (core/file "files/talks/content" content))]
-         [:link {:rel      "enclosure"
-                 :xml:lang (str/lower-case lang)
-                 :title    title
-                 :type     "audio/mpeg"
-                 :href     (str "https://tonsky.me/talks/content/" content)
-                 :length   (.length ^File file)}]))
+     ; (when (str/ends-with? content ".mp3")
+     ;   (when-some [file (or
+     ;                      (core/file "site/talks/content" content)
+     ;                      (core/file "files/talks/content" content))]
+     ;     [:link {:rel      "enclosure"
+     ;             :xml:lang (str/lower-case lang)
+     ;             :title    title
+     ;             :type     "audio/mpeg"
+     ;             :href     (str "https://tonsky.me/talks/content/" content)
+     ;             :length   (.length ^File file)}]))
      
-     (when-not youtube-id
-       [:content {:type "html"}
-        [:CDATA desc]])
+     [:content {:type "html"}
+      [:CDATA
+       (render/render-inner-html
+         (list
+           [:p
+            (cond
+              (str/ends-with? content ".mp3")
+              [:img {:src (str "https://tonsky.me/talks/covers/" event ".png")}
+               [:audio {:controls true}
+                [:source
+                 {:src  (str "https://tonsky.me/talks/content/" content)
+                  :type "audio/mpeg"}]]]
+               
+              youtube-id
+              [:iframe
+               {:width           "560"
+                :height          "315"
+                :src             (str "https://www.youtube-nocookie.com/embed/" youtube-id)
+                :frameborder     "0"
+                :allow           "autoplay; encrypted-media; picture-in-picture"
+                :allowfullscreen true}])]
+
+           [:p [:raw-html desc]]
+           
+           (when slides
+             [:p [:a {:href (str "https://tonsky.me/talks/slides/" slides)}
+                  (if (= "RU" lang)
+                    "Слайды"
+                    "Slides")]])))]]
      
      [:author
       [:name "Nikita Prokopov"]
