@@ -53,7 +53,7 @@
     :else
     (let [inline?  (#{:a :code :em :figcaption :img :span :strong :sup :sub} tag)
           nested?  (#{:article :blockquote :body :div :figure :head :html :ol :script :ul :video
-                      :author :feed :entry} tag)
+                      :author :feed :entry :media:group} tag)
           void?    (#{:area :base :br :col :embed :hr :img :input :link :meta :param :source :track :wbr} tag)]
       ;; tag name
       (when (not inline?)

@@ -2,19 +2,38 @@ function talks_render_version_idx(event, idx) {
     var version = event.currentTarget,
         details = version.parentNode.parentNode,
         inner   = details.parentNode,
-        talk    = inner.parentNode;
-    talks_render_version(talk, talk.querySelectorAll("script[type=talk-version]")[idx]);
+        talk    = inner.parentNode,
+        script  = talk.querySelectorAll("script[type=talk-version]")[idx],
+        id      = script.getAttribute("data-id");
+    history.replaceState(undefined, undefined, "#" + id);
+    talks_render_version(talk, script);
 }
 
 function talks_render_version(talk, version) {
     var html     = version.innerHTML,
         versions = talk.querySelectorAll("script[type=talk-version]"),
-        suffix   = "";
+        suffix   = "",
+        change_active = false,
+        fragment = location.hash;
+
+    if (fragment != "") {
+        fragment = fragment.substr(1);
+        for (var v of versions) {
+            if (v.getAttribute("data-id") === fragment) {
+                change_active = true;
+                break;
+            }
+        }
+    } else {
+        fragment = undefined;
+    }
+
     for (var i = 0; i < versions.length; ++i) {
-        var lang   = versions[i].getAttribute("data-lang"),
+        var id     = versions[i].getAttribute("data-id"),
+            lang   = versions[i].getAttribute("data-lang"),
             date   = versions[i].getAttribute("data-date"),
             event  = versions[i].getAttribute("data-event"),
-            active = versions[i] === version,
+            active = change_active ? id == fragment : versions[i] === version,
             idx    = html.lastIndexOf("</div>");
         suffix += "<div"
                +  " class='talk-version" + (active ? " talk-version_active" : "") + "'"
@@ -26,7 +45,9 @@ function talks_render_version(talk, version) {
                +  "</div>";
     }
     html = html.substring(0, idx) + "<div class='talk-versions'>" + suffix + "</div>" + html.substring(idx);
-    talk.querySelector(".talk-inner").innerHTML = html;
+    var inner = talk.querySelector(".talk-inner");
+    inner.innerHTML = html;
+    inner.id = version.getAttribute("data-id");
 }
 
 function talks_on_scroll(e) {

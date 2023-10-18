@@ -9,7 +9,7 @@ Three ways: RSS, Mastodon or Patreon.
 This blog delivers updates via [RSS](https://en.wikipedia.org/wiki/RSS). To use it, you need _a reader_.
 
 1. Register at one of the services or install an app. Good list of hosted RSS readers and apps can be found [here](https://zapier.com/blog/best-rss-feed-reader-apps/). I use [Feedly](https://feedly.com/).
-2. Add my blog to the sources. Usually "`tonsky.me`" would work, but if it doesn’t, try this: "`http://tonsky.me/blog/atom.xml`"
+2. Add my blog to the sources. Usually "`tonsky.me`" would work, but if it doesn’t, try this: "`https://tonsky.me/atom.xml`"
 3. Enjoy!
 
 This is how my blog looks like in Feedly:

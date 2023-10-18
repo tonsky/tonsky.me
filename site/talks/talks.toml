@@ -1,4 +1,12 @@
 [[talk]]
+date    = 2023-10-17
+url     = "https://podlodka.io/342"
+title   = "Рендеринг текста"
+event   = "Podlodka"
+desc    = "Преобразования, которые происходят с текстом для его отображения на экране"
+content = "2023-10 Podlodka Ep 342.mp3"
+
+[[talk]]
 date    = 2023-09-25
 url     = "https://podlodka.io/339"
 title   = "Кодировки текста"

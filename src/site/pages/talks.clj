@@ -6,6 +6,7 @@
     [clojure.string :as str]
     [site.core :as core])
   (:import
+    [java.io File]
     [java.time LocalDate Period]))
 
 (defn populate-versions [talk]
@@ -17,6 +18,14 @@
   (if (some (set "абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ") (str (:title version) (:desc version)))
     (assoc version :lang "RU")
     (assoc version :lang "EN")))
+
+(defn set-id [version]
+  (assoc version :id (core/format-temporal (:date version) "yyyy-MM-dd")))
+
+(defn set-dates [version]
+  (assoc version
+    :published (.atStartOfDay ^LocalDate (:date version) core/UTC)
+    :modified (.atStartOfDay ^LocalDate (:date version) core/UTC)))
 
 (defn talk-cmp-key [talk]
   (reduce
@@ -42,12 +51,15 @@
         toml/parse-string
         (get "talk")
         (->>
-          (mapv populate-versions)
-          (mapv #(mapv core/keywordize-keys %))
-          (mapv #(mapv set-lang %))
-          (mapv set-default)
-          (mapv #(sort-by :date core/reverse-compare %))
-          (sort-by talk-cmp-key core/reverse-compare))))))
+          (map populate-versions)
+          (map #(mapv core/keywordize-keys %))
+          (map #(mapv set-lang %))
+          (map #(mapv set-id %))
+          (map #(mapv set-dates %))
+          (map set-default)
+          (map #(sort-by :date core/reverse-compare %))
+          (sort-by talk-cmp-key core/reverse-compare)
+          (vec))))))
 
 (defn slides-link [version]
   (let [{:keys [lang slides]} version]
@@ -117,13 +129,15 @@
 
 (defn talk [talk]
   [:.talk.talk_hidden
-   [:.talk-inner
-    [:.talk-view]
-    (talk-details (first (filter #(% "default") talk)))]
+   (let [default (first (filter #(% "default") talk))]
+     [:.talk-inner {:id (:id default)}
+      [:.talk-view]
+      (talk-details default)])
    (for [version talk
          :let [{:keys [default lang date event city]} version]]
      [:script
       {:type         "talk-version"
+       :data-id      (:id version)
        :data-default (or default false)
        :data-lang    lang
        :data-date    (core/format-temporal date "MMMM d, yyyy")
@@ -211,3 +225,50 @@
          [:li "Median pause between talks: " (core/pluralize median "{1} day" "{1} days")])]
       [:.talks
        (map talk talks)]]}))
+
+(defn render-atom [version]
+  (let [{:keys [id lang title desc event content published modified]} version
+        title      (str title " @ " event)
+        url        (str "https://tonsky.me/talks/#" id)
+        youtube-id (core/youtube-id content)]
+    [:entry
+     [:title title]
+     [:link {:rel "alternate" :type "text/html" :href url}]
+     [:id url]
+     [:published (core/format-temporal published core/atom-date-format)]
+     [:updated (core/format-temporal modified core/atom-date-format)]
+     
+     (when youtube-id
+       (list
+         [:yt:videoId youtube-id]
+         [:media:group
+          [:media:title title]
+          [:media:content
+           {:url    (str "https://www.youtube.com/v/" youtube-id "?version=3")
+            :type   "application/x-shockwave-flash"
+            :width  "640"
+            :height "390"}]
+          [:media:thumbnail
+           {:url    (str "https://i1.ytimg.com/vi/" youtube-id "/hqdefault.jpg")
+            :width  "480" 
+            :height "360"}]
+          [:media:description [:raw-html desc]]]))
+     
+     (when (str/ends-with? content ".mp3")
+       (when-some [file (or
+                          (core/file "site/talks/content" content)
+                          (core/file "files/talks/content" content))]
+         [:link {:rel      "enclosure"
+                 :xml:lang (str/lower-case lang)
+                 :title    title
+                 :type     "audio/mpeg"
+                 :href     (str "https://tonsky.me/talks/content/" content)
+                 :length   (.length ^File file)}]))
+     
+     (when-not youtube-id
+       [:content {:type "html"}
+        [:CDATA desc]])
+     
+     [:author
+      [:name "Nikita Prokopov"]
+      [:email "niki@tonsky.me"]]]))

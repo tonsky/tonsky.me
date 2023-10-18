@@ -24,6 +24,9 @@
 (def ^ZoneId UTC
   (ZoneId/of "UTC"))
 
+(def atom-date-format
+  "yyyy-MM-dd'T'HH:mm:ssX")
+
 (defn apply-args [args]
   (let [args (apply array-map args)]
     (when-some [ip (args "--ip")]
@@ -171,7 +174,7 @@
                           
                             :else
                             [(keyword s) attrs]))
-                        [:div attrs] (re-seq #"[.#]?[a-zA-Z0-9\-_]+" (name tag)))]
+                        [:div attrs] (re-seq #"[.#]?[a-zA-Z0-9\-_:]+" (name tag)))]
       [tag attrs content])))
 
 (defmacro transform-tag [page [tag attr-sym content-sym] & body]
@@ -202,6 +205,11 @@
 
 (defn rsort-by [keyfn xs]
   (sort-by keyfn #(compare %2 %1) xs))
+
+(defn file [& args]
+  (let [^File file (apply io/file args)]
+    (when (.exists file)
+      file)))
 
 (def list-files
   (memoize-by
