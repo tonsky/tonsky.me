@@ -51,9 +51,6 @@
     (butlast args)
     (last args)))
 
-(defn keywordize-keys [m]
-  (reduce-kv #(assoc %1 (keyword %2) %3) {} m))
-
 (defn reindent ^String [s indent]
   (let [lines    (str/split-lines s)
         butfirst (->> lines

@@ -1,6 +1,6 @@
 (ns site.pages.design
   (:require
-    [clj-toml.core :as toml]
+    [toml-clj.core :as toml]
     [clojure.java.io :as io]
     [clojure.math :as math]
     [clojure.string :as str]
@@ -28,10 +28,9 @@
     (fn []
       (-> "site/design/design.toml"
         slurp
-        toml/parse-string
-        (get "design")
+        (toml/read-string {:key-fn keyword})
+        :design
         (->>
-          (map core/keywordize-keys)
           (map set-year)
           (map set-slug)
           vec)))))

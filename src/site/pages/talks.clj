@@ -1,6 +1,6 @@
 (ns site.pages.talks
   (:require
-    [clj-toml.core :as toml]
+    [toml-clj.core :as toml]
     [clojure.java.io :as io]
     [clojure.math :as math]
     [clojure.string :as str]
@@ -11,9 +11,9 @@
     [java.time LocalDate Period]))
 
 (defn populate-versions [talk]
-  (if-some [versions (get talk "version")]
-    (mapv #(merge (dissoc talk "version") %) versions)
-    [(assoc talk "default" true)]))
+  (if-some [versions (:version talk)]
+    (mapv #(merge (dissoc talk :version) %) versions)
+    [(assoc talk :default true)]))
 
 (defn set-lang [version]
   (if (some (set "абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ") (str (:title version) (:desc version)))
@@ -49,11 +49,10 @@
     (fn []
       (-> "site/talks/talks.toml"
         slurp
-        toml/parse-string
-        (get "talk")
+        (toml/read-string {:key-fn keyword})
+        :talk
         (->>
           (map populate-versions)
-          (map #(mapv core/keywordize-keys %))
           (map #(mapv set-lang %))
           (map #(mapv set-id %))
           (map #(mapv set-dates %))

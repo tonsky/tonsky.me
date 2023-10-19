@@ -1,7 +1,7 @@
 (ns site.pages.patrons
   (:require
     [cheshire.core :as json]
-    [clj-toml.core :as toml]
+    [toml-clj.core :as toml]
     [clojure.java.io :as io]
     [clojure.math :as math]
     [clojure.string :as str]
@@ -227,10 +227,9 @@
   (core/memoize-by
     #(.lastModified (cache/touched (last-file)))
     (fn []
-      (let [parsed (toml/parse-string (slurp (last-file)))]
-        {:fetched (get parsed "fetched")
-         :members (->> (get parsed "member")
-                    (map core/keywordize-keys)
+      (let [parsed (toml/read-string (slurp (last-file)) {:key-fn keyword})]
+        {:fetched (:fetched parsed)
+         :members (->> (:member parsed)
                     (map set-layer)
                     (vec))}))))
 
