@@ -227,8 +227,13 @@
        (map talk talks)]]}))
 
 (defn render-atom [version]
-  (let [{:keys [id lang title desc event content published modified slides]} version
-        title      (str title " @ " event)
+  (let [{:keys [id lang title desc event content published modified slides thumb]} version
+        type       (cond
+                     (str/ends-with? content ".mp3")
+                     "Podcast"
+                     :else
+                     "Talk")
+        title      (str type ": " title " @ " event)
         url        (str "https://tonsky.me/talks/#" id)
         youtube-id (core/youtube-id content)]
     [:entry
@@ -279,13 +284,20 @@
                   :type "audio/mpeg"}]]]
                
               youtube-id
-              [:iframe
-               {:width           "560"
-                :height          "315"
-                :src             (str "https://www.youtube-nocookie.com/embed/" youtube-id)
-                :frameborder     "0"
-                :allow           "autoplay; encrypted-media; picture-in-picture"
-                :allowfullscreen true}])]
+              [:a {:href (str "https://www.youtube.com/watch?v=" youtube-id)}
+               [:img {:src (if thumb
+                             (str "https://tonsky.me/talks/content/" thumb)
+                             (str "https://i.ytimg.com/vi_webp/" youtube-id "/maxresdefault.webp")
+                             ; (str "https://i1.ytimg.com/vi/" youtube-id "/hqdefault.jpg")
+                             )}]]
+              ; [:iframe
+              ;  {:width           "560"
+              ;   :height          "315"
+              ;   :src             (str "https://www.youtube-nocookie.com/embed/" youtube-id)
+              ;   :frameborder     "0"
+              ;   :allow           "autoplay; encrypted-media; picture-in-picture"
+              ;   :allowfullscreen true}]
+              )]
 
            [:p [:raw-html desc]]
            

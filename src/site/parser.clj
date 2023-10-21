@@ -28,9 +28,9 @@
 
 (def parse
   (instaparse/parser
-    "<root>       = meta? (block? <#' *(\n|$)'>)+
+    "<root>       = meta? !'---' (block? <#' *(\n|$)'>)*
      
-     meta         = <#'--- *\n'> meta-item* <#'--- *\n'>
+     meta         = <#'--- *\n'> meta-item* <#'--- *(\n|$)'>
      meta-item    = meta-key <#' *: *'> (<'\\''> meta-value <'\\''> | <'\"'> meta-value <'\"'> | meta-value) <'\n'>
      <meta-key>   = #'[a-zA-Z0-9_\\-\n]+'
      <meta-value> = #'[^\"\n]*'
