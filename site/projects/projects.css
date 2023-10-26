@@ -17,7 +17,7 @@ blockquote > p:nth-child(1)::after { content: " "; position: absolute; width: 10
 .project-img img { width: 100%; height: auto; border-radius: 10px; box-shadow: 0 10px 20px var(--gray-line); }
 
 .project-details { width: calc(var(--width) - 40px - 560px); display: flex; flex-direction: column; gap: 15px; }
-h2 { margin-top: 0; display: flex; gap: var(--gap); }
+h2 { margin-top: 0; display: flex; gap: var(--gap); align-items: baseline; }
 
 .stars { color: var(--gray-text); }
 .stars::before { display: inline-block; content: ""; width: 32px; height: 33px; vertical-align: bottom; background-size: 100%; background-image: url('star.svg'); }
