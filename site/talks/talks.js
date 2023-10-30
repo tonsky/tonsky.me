@@ -41,7 +41,7 @@ function talks_render_version(talk, version) {
                +  ">"
                +    "<span class='talk-version-lang'>" + lang + "</span> "
                +    date
-               +    ((event === null || event === "") ? "" : " × " + event)
+               +    ((event === null || event === "") ? "" : " @ " + event)
                +  "</div>";
     }
     html = html.substring(0, idx) + "<div class='talk-versions'>" + suffix + "</div>" + html.substring(idx);
