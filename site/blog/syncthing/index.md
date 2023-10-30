@@ -10,7 +10,7 @@ starred: true
 cover.gif
 Illustration by [Julia Litvin](https://www.behance.net/julia_litvin)
 
-_Translations: [Russian](https://habr.com/ru/company/itelma/blog/550404/)_
+_Translations: [Russian](https://habr.com/ru/company/itelma/blog/550404/) [Chinese](https://blog.xinshijiededa.men/syncthing/)_
 
 I’ve been struggling with file sync solutions [for years](https://tonsky.livejournal.com/323469.html). In the beginning, Dropbox was great, but in the last few years, they started to bloat up. I moved to iCloud, but it was even worse. Finally, a few days ago, after iCloud [cryptically broke again](https://twitter.com/nikitonsky/status/1269741673715810304), I decided it’s time to try something different.
 
