@@ -168,8 +168,10 @@
 (defn schedule-in-a-month [_]
   (let [when (-> (LocalDate/now core/UTC)
                (.withDayOfMonth 6)
-               (.plusMonths 1)
-               (.atStartOfDay core/UTC))]
+               (.atStartOfDay core/UTC))
+        when (if (neg? (compare when (ZonedDateTime/now core/UTC)))
+               (.plusMonths when 1)
+               when)]
     (println "Scheduling patrons fetching at" (core/format-temporal when "yyyy-MM-dd HH:mm:ssX"))
     (core/schedule-once fetch-members when)))
 
