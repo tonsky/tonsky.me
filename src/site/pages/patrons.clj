@@ -1,17 +1,22 @@
 (ns site.pages.patrons
   (:require
     [cheshire.core :as json]
-    [toml-clj.core :as toml]
+    [clojure.edn :as edn]
     [clojure.java.io :as io]
     [clojure.math :as math]
     [clojure.string :as str]
     [mount.core :as mount]
     [org.httpkit.client :as http]
     [site.cache :as cache]
-    [site.core :as core])
+    [site.core :as core]
+    [toml-clj.core :as toml])
   (:import
     [java.io File]
     [java.time LocalDate ZonedDateTime]))
+
+(def config
+  (edn/read-string
+    (slurp "config.edn")))
 
 (defn print-progress [prefix percent]
   (let [percent-int (int (* percent 20))]
@@ -26,9 +31,9 @@
 
 (defn fetch-patrons []
   (let [url     "https://www.patreon.com/api/oauth2/v2/campaigns/2077079/members"
-        token   (System/getenv "PATREON_ACCESS_TOKEN")
+        token   (:patreon-token config)
         _       (when (str/blank? token)
-                  (throw (ex-info "PATREON_ACCESS_TOKEN is not set" {})))
+                  (throw (ex-info ":patreon-token is not set" {})))
         headers {"Authorization" (str "Bearer " token)}
         query   {"fields[member]" (str/join ","
                                     ["currently_entitled_amount_cents"
@@ -110,9 +115,9 @@
 
 (defn fetch-sponsors []
   (let [url     "https://api.github.com/graphql"
-        token   (System/getenv "GITHUB_TOKEN_SPONSORS")
+        token   (:github-token config)
         _       (when (str/blank? token)
-                  (throw (ex-info "GITHUB_TOKEN_SPONSORS is not set" {})))
+                  (throw (ex-info ":github-token is not set" {})))
         headers {"Authorization" (str "Bearer " token)}]
     (print-progress "Fetching sponsors" 0)
     (loop [cursor   nil
