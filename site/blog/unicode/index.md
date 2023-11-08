@@ -249,10 +249,17 @@ The fact that <code class="emoji">🤦🏼‍♂️</code> consists of 5 code po
 
 For all intents and purposes, this is an atomic unit of text. Internally, it could be encoded whatever, but for user-facing API, it should be treated as a whole.
 
-The only modern language that gets it right is Swift:
+The only two modern languages that get it right are Swift:
 
 ```
 print("🤦🏼‍♂️".count)
+// => 1
+```
+
+and Elixir:
+
+```
+String.length("🤦🏼‍♂️")
 // => 1
 ```
 
