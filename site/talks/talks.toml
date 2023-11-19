@@ -1,4 +1,11 @@
 [[talk]]
+date    = 2023-11-18
+title   = "Escaping Software Disenchantment"
+event   = "Software Unscripted"
+desc    = "Richard talks with Nikita Prokopov about some of the reasons he'd felt a sense of disenchantment with the direction of software in the past, and strategies he's developed for improving things in the future."
+content = "2023-11-18 Software Unscripted.mp3"
+
+[[talk]]
 date    = 2023-10-17
 url     = "https://podlodka.io/342"
 title   = "Рендеринг текста проклят"
