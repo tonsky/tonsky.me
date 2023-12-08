@@ -160,30 +160,15 @@ How do we keep instance of `input` the same (and we want to keep it, because cur
 
 Flutter has a concept of [Global key](https://api.flutter.dev/flutter/widgets/GlobalKey-class.html). It’s similar to key but, you know, global. Again—not a performance optimization, but to keep instances and identity.
 
-## Props migration and instance reuse
+## Lifecycle callbacks
 
-This is kinda weird. So components in React have props. Props are like function arguments for a function. The weird part is, when props change, React will reuse component instance anyway. So this:
+One thing that is not getting praised enough in React is lifecycle callbacks (onMount/onUnmount/onUpdate/onRender). I don’t think they were necessary for their model but sure were a nice addition, and then very quickly became the norm.
 
-```
-<Button text="Submit">
-```
+If you don’t remember, kids, DOM nodes didn’t have any callbacks — if you deleted one, no one will be notified.
 
-when changed to this:
+Why were callbacks important? Because you can now work with resouces reliably! Set up timers, make requests, and then clean up after yourself.
 
-```
-<Button text="Cancel">
-```
-
-will keep the identity, state and everything. In old class-based components, you could even write `componentWillUpdate` method that will be called when instance of your component is reused with new props. In a functional component you’ll get new `text` prop but old state.
-
-It’s weird because it creates a second path of how you component could be created: first is from scratch and second one is through reusing another instance.
-
-create-update-destroy.png
-Illustration from [acko.net](https://acko.net/blog/climbing-mt-effect/)
-
-You can, of course, give your component a key to prevent this from happening, but then, I guess, you’ll have to hand out a lot of keys.
-
-So the design decision here comes to this: sometimes you clearly want your instances to be reused, and sometimes it can happen accidentally and you want to avoid that. React goes with “reuse as much as you can” route but maybe there’s a better option here?
+Technically one can argue that such a thing belongs in business logic layer or data fetching layer or in the model. The thing is, you can’t put a callback on a certain key appearing or disappearing in an atom. At least not as easily. Maybe, if you could, nobody would need lifecycle callbacks and people would stop storing state in components. But until that happens, lifecycle is the best we’ve got.
 
 ## Exposing internal state
 
@@ -231,19 +216,11 @@ I think that’s the way [Reagent does local state](https://reagent-project.gith
 
 We can go even further and return map instead of imperative `useEffect`s:
 
-```
-function Comp() {
-  let state = {};
-  return {
-    mount:   () => { ... },
-    unmount: () => { ... },
-    render:  () => {
-      return <>...</>;
-    }
-}
-```
+setup_render.png
 
-That will let us get rid of hooks altogether, which as a Clojure programmer I like (less imperative code that depends on execution context).
+Setup part is called once, on component initialization. Render will be re-called on each render.
+
+Upsdie: it will let us get rid of hooks altogether, which as a Clojure programmer I like (less imperative code that depends on execution context).
 
 ## Hooks composition
 
@@ -277,7 +254,7 @@ function Counter() {
 }
 ```
 
-Which looks great. Can we do the same with maps? We can, in fact, if we allow _multiple_ maps to be returned. Like this:
+Which looks great. Can we do the same with maps? We can, in fact, if we allow multiple maps to be returned. Like this:
 
 ```
 (defn use-interval [cb]
@@ -296,6 +273,138 @@ Which looks great. Can we do the same with maps? We can, in fact, if we allow _m
 ```
 
 The upside of this approach? You don’t need any special “hook rules” to make it work. Use conditionals, loops, whatever you need.
+
+## Instance reuse
+
+This is kinda weird. The entirety of React is built on returning lightweight component description and matching it with stateful component instances. But that problem can’t be solved in general case. 
+
+Consider this:
+
+```
+<Button text="Submit">
+```
+
+Due to some changes somewhere up the stack, after new render, this button now becomes this:
+
+```
+<Button text="Cancel">
+```
+
+Should it be the same component or an entirely new one? Unclear. If I had to guess, it probably depends on a code that generated it. If it was:
+
+```
+return <Button text={props.text}>;
+```
+
+then probably identity should be the same. If it was this, though:
+
+```
+if (props.cond)
+  return <Button text="Submit">;
+else
+  return <Button text="Cancel">;
+```
+
+then I’d say it’s an entirely new button.
+
+But React can’t see that! It only operates on return values, so both are kind of the same from React point of view.
+
+So the design decision here comes to this: sometimes you clearly want your instances to be reused, and sometimes it can happen accidentally and you want to avoid that. React is going with “reuse as much as you can” by default, offering keys as opt-out mechanism. But maybe there’s something better here?
+
+One option we have in Clojure that JS people don’t have is using code position as “default key”. Something like this:
+
+```
+(def *cnt
+  (volatile! 0))
+
+(defmacro defcomp [name args & body]
+  `(defn ~name ~args
+     ~@(clojure.walk/postwalk
+         #(if (vector? %)
+            (with-meta % {::key (vswap! *cnt inc)})
+            %)
+         body)))
+```
+
+Now each vector returned from our component will have unique `::key` assigned to it at compile time. It’ll still be a guess, maybe a marginally better one.
+
+## Props migration
+
+Instance reuse can be a reason for subtle bugs. Consider:
+
+```
+function Comp(props) {
+  let [state, setState] = useState(props.init);
+  ...
+}
+```
+
+First render is fine:
+
+```
+{init: 1} -> new state (1)
+```
+
+Subsequent renders are also fine:
+
+```
+{init: 1} -> same stored state (1)
+```
+
+But if we render with new props, did we wanted to create new instance? Or reuse the same one? Anyways, in this particular example, passing new init value will not affect anything:
+
+```
+{init: 2} -> same stored state (1)
+```
+
+It’s weird because it creates a second path of how you component could be created: first is from scratch and second one is through reusing another instance. Might be tricky to spot, too.
+
+Can something be done about it? It’s hard to tell. One option I was thinking about is using custom macro to detect which props were used during setup and which were used during render:
+
+```
+(defcomp Comp [{:keys [init]}]
+  (let [*state (atom init)]
+    {:render
+     (fn [{:keys [text]}]
+       [Label (str text ": " @*state)])}))
+```
+
+In theory, we can statically figure out that if `text` is changing, we can reuse instance, but if `init` is new than we have to re-run setup phase, too.
+
+Problem is, nothing is stopping Clojure people from writing it like this:
+
+```
+(defcomp Comp [props]
+  (let [init (:init props)]
+    ...))
+```
+
+and then we’ll completely fail on our guess.
+
+Another option could be specifying dependencies manually, similar to how `memo` does it in React:
+
+```
+(defcomp Comp [props] [:init]
+  (let [init (:init props)]
+    ...))
+```
+
+which feels very unnatural.
+
+Or maybe allowing components to redefine `shouldComponentUpdate`, like in good old days?
+
+```
+(defcomp Comp [props]
+  (let [init (:init props)]
+    {:can-reuse?
+     (fn [before after]
+       (= (:init before) (:init after)))
+     :render
+     (fn [props]
+       ...)}))
+```
+
+Yes, I know that both `shouldComponentUpdate` and `memo` are for deciding whether we should re-run render, not setup, but React doesn’t have setup phase, so they are the best analogy I can come up with.
 
 ## Callback identity problem
 
@@ -325,15 +434,7 @@ It works fine, as long as you don’t mess up dependencies (`[count]`) or don’
 
 The only upside here is: if you mess it up, it’ll still work, maybe, less performant. That’s a design principle I can get behind.
 
-## Lifecycle callbacks
-
-One thing that is not getting praised enough in React is lifecycle callbacks (onMount/onUnmount/onUpdate/onRender). I don’t think they were necessary for their model but sure were a nice addition, and then very quickly became the norm.
-
-If you don’t remember, kids, DOM nodes didn’t have any callbacks — if you deleted one, no one will be notified.
-
-Why were callbacks important? Because you can now work with resouces reliably! Set up timers, make requests, and then clean up after yourself.
-
-Technically one can argue that such a thing belongs in business logic layer or data fetching layer or in the model. The thing is, you can’t put a callback on a certain key appearing or disappearing in an atom. At least not as easily. Maybe, if you could, nobody would need lifecycle callbacks and people would stop storing state in components. But until that happens, lifecycle is the best we’ve got.
+In our case, with separate setup phase, it should be less of a problem, unless we (either me or you, Humble users) fuck up instance reuse.
 
 ## Point updates
 
