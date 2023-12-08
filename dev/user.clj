@@ -1,6 +1,7 @@
 (ns user
   (:require
     [clojure.core.server :as server]
+    [clojure.java.io :as io]
     [clojure.string :as str]
     [clojure.test :as test]
     [clojure.tools.namespace.repl :as ns]
@@ -53,13 +54,18 @@
   (require 'site.core)
   (reload)
   (let [args (apply array-map args)
-        port (parse-long (get args "--repl-port" "5555"))]
+        port (or
+               (some-> (get args "--repl-port") parse-long)
+               (+ 1024 (rand-int 64512)))
+        file (io/file ".repl-port")]
     (server/start-server
       {:name          "repl"
        :port          port
        :accept        'clojure.core.server/repl
        :server-daemon false})
-    (println "Started Socket REPL server on port" port)))
+    (println "Started Socket REPL server on port" port)
+    (spit file port)
+    (.deleteOnExit file)))
 
 (defn test-all []
   (reload)
