@@ -40,7 +40,7 @@ When you bring your routes from multiple modules, the order in which you import 
   api-routes)
 ```
 
-I don’t like it! In an app with hundrets of routes, it’s too easy to forget about something and make a mistake. I simply don’t want to think about it, the same way I don’t have think about the order in which I define Java classes (sorry, Clojure, I can’t make an example out of you here).
+I don’t like it! In an app with hundreds of routes, it’s too easy to forget about something and make a mistake. I simply don’t want to think about it, the same way I don’t have think about the order in which I define Java classes (sorry, Clojure, I can’t make an example out of you here).
 
 # Overlapping routes
 
