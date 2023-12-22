@@ -671,7 +671,7 @@ Now the app UI. Main app:
 (defn app [state]
   [column
    [text-field {:on-submit add-item}]
-   (for [item-comp (:items state)]
+   (for [item (:items state)]
      ^{:key (:id item)} [item-comp item])])
 ```
 
