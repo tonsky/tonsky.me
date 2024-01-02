@@ -1,6 +1,7 @@
 ---
 title: "Humble Chronicles: Managing State with VDOM"
 summary: "An experiment of using VDOM for managing state in Humble UI"
+published: 2023-12-21
 ---
 
 This post follows the implementation of VDOM for Humble UI. We look at various aspects of the problem, weigh our options, and decide on the solution. In some cases, it’s not clear how to proceed, so we just state the problem.
@@ -34,25 +35,25 @@ Laziness is best described in [Elm documentation](https://guide.elm-lang.org/opt
 
 This works because UI rarely changes all at once. If I changed one part there’s no reason to re-generate another, especially if we know it’s going to be the same. Less work for diffing, too.
 
-In React components themselves are lazy boundaries. You don’t create or return components — you only return the description, and React expands it for you if it thinks it should be diffed.
+In React components themselves are lazy boundaries. You don’t create or return components — you only return the description, and React expands it for you later.
 
 ## O(N) diff
 
 Good general-purpose diff is algorithmically expensive, so one of the insights of React was to use fast linear diff that does a good enough job at comparing sequences.
 
-It works well in practice because most of our UIs are trees with very few siblings at each level.
+It works well in practice because most UIs are trees with very few siblings at each level.
 
 ## State management
 
-Now, with the optimization above you can already have a working and useful VDOM implementation. I might be a bit off, but I think that’s exactly what Elm has, and it’s enough to build real-world apps.
+Now, with the optimization above you can already have a working and useful VDOM implementation. I might be a bit off, but I think that’s all that Elm has, and it’s enough to build real-world apps.
 
-But that forces you to store all state somewhere external, pass all of it down from the top, and always have top-down rendering.
+But that forces you to store all state somewhere external, pass all of it down from the top, and always have full top-down rendering.
 
-For the rest of us living in non-pure land, we want to have a local state. If some text field needs to blink its cursor, or a collapsible panel needs to store its collapsed state, sometimes it’s just way more convenient not to put it in a global atom, but let the framework manage that state for you and keep things local.
+For the rest of us living in non-pure land, we want to have local state. If some text field needs to blink its cursor, or a collapsible panel needs to store its collapsed state, sometimes it’s just way more convenient not to put it in a global atom, but let the framework manage that state for you and keep things local.
 
-Therefore, we need the local state. But how?
+Therefore, we need local state. But how?
 
-Original React put it as a class field:
+Original React puts it as a class field:
 
 ```
 class Counter extends Component {
@@ -88,7 +89,7 @@ but then it’s unclear where to put the default value.
 
 ## State persistence
 
-The heavy lifting that React does for you is keeping your state in sync with your instances. Remember: you return lightweight “descriptions” from your render, there’s no notion of state or anything. It comes later when `render` is called by React:
+The heavy lifting that React does for you is keeping your state in sync with your instances. Remember: you return lightweight “descriptions” from your render, there’s no notion of state or anything. It all comes later when `render` is called by React:
 
 ```
 function Parent(num) {
@@ -127,7 +128,7 @@ Child() // <= state2
 Child() // <= state3
 ```
 
-Again. Entirely new render. Entirely new description. But the first two components keep reference to the very same state reference they had before.
+Again. Entirely new render. Entirely new description. But the first two components keep reference to the very same state they had before.
 
 That’s the main proposition of React. You do a lightweight description with no notion of state, and the framework does all the instance management for you.
 
@@ -168,7 +169,7 @@ Flutter has a concept of [Global key](https://api.flutter.dev/flutter/widgets/Gl
 
 ## Shape of component
 
-How should arguments to component function look like? There are two approaches, React and Reagen.
+How should arguments to component function look like? There are two approaches, React and Reagent.
 
 In React, each component accepts a `props` map with an optional `children` key.
 
@@ -230,7 +231,9 @@ If you don’t remember, kids, DOM nodes didn’t have any callbacks — if you 
 
 Why were callbacks important? Because you can now work with resources reliably! Set up timers, make requests, and then clean up after yourself.
 
-Technically one can argue that such a thing belongs in a business logic layer or data fetching layer or in the model. The thing is, you can’t put a callback on a certain key appearing or disappearing in an atom. At least not as easily. Maybe, if you could, nobody would need lifecycle callbacks and people would stop storing state in components. But until that happens, lifecycle is the best we’ve got.
+Technically one can argue that such a thing belongs in the business logic layer or data fetching layer or in the model.
+
+The thing is, you can’t put a callback on a certain key appearing or disappearing in an atom. At least not as easily. Maybe, if you could, nobody would need lifecycle callbacks and people would stop storing state in components. But until that happens, lifecycle is the best we’ve got.
 
 ## Exposing internal state
 
@@ -260,7 +263,7 @@ function Comp() {
 }
 ```
 
-It’s an elegant decision to bring mutability and state transitions to “pure” functions. Especially given that later hooks can depend on local variables defined via earlier hooks.
+It’s an elegant decision to bring mutability and state transitions to “pure” functions. Especially given that subsequent hooks can depend on local variables defined via earlier hooks.
 
 The problem is, they execute on every render. Say, you use `useEffect` to do something when a component mounts. But for every subsequent render, `useEffect` will be called too! And the function you pass to `useEffect` will be created anew each time. Sounds like a waste, doesn't it?
 
@@ -276,7 +279,7 @@ function Comp() {
 }
 ```
 
-The cool thing about it is that you don’t even need anything special for the local state. Local state is just a variable captured by render closure. That’s the way [Reagent does it](https://reagent-project.github.io/).
+The cool thing about it is that you don’t even need anything special for the local state. Local state is just a variable captured by the render closure. That’s the way [Reagent does it](https://reagent-project.github.io/).
 
 We can go even further and return a map instead of imperative `useEffect`s:
 
@@ -323,17 +326,17 @@ Which looks great. Can we do the same with maps? We can if we allow multiple map
 ```
 (defn use-interval [cb]
   (let [*ref (atom nil)]
-    {:on-mount  #(...)
-     :on-render #(...)}))
+    {:after-mount #(...)
+     :after-draw  #(...)}))
 
 (defn timer []
   (let [state    (atom 0)
         interval (use-interval #(...))]
     [interval
-     {:on-mount   #(...)
-      :on-unmount #(...)
-      :render     (fn []
-                    [...])}]))
+     {:before-mount  #(...)
+      :after-unmount #(...)
+      :render        (fn []
+                       [...])}]))
 ```
 
 The upside of this approach? You don’t need any special “hook rules” to make it work. Use conditionals, loops, whatever you need.
@@ -375,9 +378,9 @@ else
 
 then I’d say it’s an entirely new button.
 
-But React can’t see that! It only operates on return values, so both are kind of the same from a React point of view.
+But React can’t see that! It only operates on return values, so both cases look the same from React’s point of view.
 
-So the design decision here comes to this: sometimes you want your instances to be reused, and sometimes it can happen accidentally and you want to avoid that. React is going with “reuse as much as you can” by default, offering keys as an opt-out mechanism. But maybe there’s something better here?
+The design decision here comes to this: sometimes you want your instances to be reused, and sometimes it can happen accidentally and you want to avoid that. React is going with “reuse as much as you can” by default, offering keys as an opt-out mechanism. But maybe there’s something better here?
 
 One option we have in Clojure that JS people don’t have is using code position as the “default key”. Something like this:
 
@@ -389,12 +392,23 @@ One option we have in Clojure that JS people don’t have is using code position
   `(defn ~name ~args
      ~@(clojure.walk/postwalk
          #(if (vector? %)
-            (with-meta % {::key (vswap! *cnt inc)})
+            (with-meta % {:implicit-key (vswap! *cnt inc)})
             %)
          body)))
 ```
 
-Now each vector returned from our component will have a unique `::key` assigned to it at compile time. It’ll still be a guess, maybe a marginally better one.
+This is how it works:
+
+```
+(defcomp comp []
+  [column  ;; ← :implicit-key == 0
+   [Child] ;; ← :implicit-key == 1
+   [Child] ;; ← :implicit-key == 2
+   (for [i (range 10)]
+     [Child])]) ;; ← :implicit-key == 3
+```
+
+Now each vector returned from our component will have a unique `:implicit-key` assigned to it at compile time. It’ll still be a guess, but maybe a marginally better one.
 
 ## Props migration
 
@@ -449,7 +463,7 @@ The problem is, nothing is stopping Clojure people from writing it like this:
 
 and then we’ll completely fail on our guess.
 
-Another option could be specifying dependencies manually, similar to how `memo` does it in React:
+Another option could be to specify dependencies manually, similar to how `memo` does it in React:
 
 ```
 (defcomp Comp [props] [:init]
@@ -464,15 +478,30 @@ Or maybe allowing components to redefine `shouldComponentUpdate`, like in the go
 ```
 (defcomp Comp [props]
   (let [init (:init props)]
-    {:can-reuse?
-     (fn [before after]
-       (= (:init before) (:init after)))
+    {:should-setup?
+     (fn [props']
+       (not= init (:init props')))
      :render
-     (fn [props]
+     (fn [props']
        ...)}))
 ```
 
 Yes, I know that both `shouldComponentUpdate` and `memo` are for deciding whether we should re-run render, not set up, but React doesn’t have a setup phase, so they are the best analogy I can come up with.
+
+We can skip re-renders too, btw:
+
+```
+(defcomp Comp [props]
+  {:should-render?
+   (fn [props']
+     (not=
+       (select-keys props [:a :b :c])
+       (select-keys props' [:a :b :c])))
+   :render
+   (fn [props']
+     ...)}))
+```
+
 
 ## Callback identity problem
 
@@ -502,15 +531,24 @@ It works fine, as long as you don’t mess up the dependencies (`[count]`) or do
 
 The only upside here: even if you mess it up, it’ll still work, maybe, less performant. That’s a design principle I can get behind.
 
-In our case, with a separate setup phase, it should be less of a problem, unless we (either me or you, Humble users) fuck up instance reuse.
+In our case, with a separate setup phase, it should be less of a problem, unless we (either me or you, Humble users) fuck up instance reuse:
+
+```
+(defn comp []
+  (let [on-click (fn [_]
+                   (println "Clicked"))]
+    (fn []
+      [button {:on-click on-click}
+       "Click me"])))
+```
 
 ## Point updates
 
-The idea of having a local state is actually to allow you to update only a small portion of the UI without going all the way down from the top. If I only need to blink a cursor, no need to diff App, LeftPanel, ContentArea, Center, Column, Padding, TextField, and finally Cursor. It’s just a waste of resources.
+The idea of having a local state is to allow you to update only a small portion of the UI without going all the way from the top. If I only need to blink a cursor, no need to diff App, LeftPanel, ContentArea, Center, Column, Padding, TextField, and finally Cursor. It’s just a waste of resources.
 
 subtree_update.png
 
-Now, if we combine it with Lazy, we do only the minimum amount of work needed: update one component directly, without touching its parents or children.
+Now, if we combine it with Lazy and `:should-render?`, we do only the minimum amount of work needed: update one component directly, without touching its parents or children.
 
 point_update.png
 
@@ -518,7 +556,7 @@ point_update.png
 
 React has been sleeping on these, but everyone else is pretty much on board. We’ve been talking about them in [Humble Chronicles: Managing State with Signals](/blog/humble-signals/).
 
-The upside of signal (for me) is that components automatically subscribe to updates when they use them. So you can bring an external state and have point updates somewhere deep down in the tree without triggering full top-down re-render. Ultimately, signals solve props drilling.
+The upside of signals (for me) is that components automatically subscribe to updates when they use them. So you can bring an external state and have point updates somewhere deep down in the tree without triggering full top-down re-render. Ultimately, signals solve props drilling.
 
 The downside was the complexity of corner cases and subscription management. Now, with lifecycle callbacks, components can finally reliably unsubscribe when destroyed. With that solved, I think there are no downsides to having signals, at least as an option.
 
@@ -564,25 +602,25 @@ export default function Form() {
 }
 ```
 
-Seems like an okay approach?
+Seems like an okay approach? In our case, we don’t even need to make it that special:
+
+```
+(defn comp []
+  (let [*ref (atom nil)]
+    ^{:ref *ref} [button {} "OK"]))
+```
 
 ## Materialized components
 
 Any sufficiently complex app will sooner or later need to “measure a DOM node” or do something bizarre like that. React lets you do that by giving you access to browser DOM, which, well, is materialized after the first render (that’s why `useEffect`s happen _after_ the render).
 
-This is fine, but not clean enough for me because it gives you one frame of rendering where these constraints are not known, and what do you do then? Flickering!
+This is fine, but not clean enough for me because it gives you one frame of rendering where these constraints are not known, and what do you get then? Flickering!
 
 An interesting example I think about is this:
 
-```
-(defn RowOfButtons []
-  [Row
-   [Button "Ok"]
-   [Button "Apply"]
-   [Button "Cancel"]])
-```
+win95.webp
 
-Which looks like
+What’s so interesting about it? All buttons are the same width! If you do it naively on the web, you’ll get this:
 
 buttons_1.png
 
@@ -590,29 +628,27 @@ What if I want to make all three have the same width? And not just the fixed wid
 
 buttons_2.png
 
-How do I do that? I imagine something like
+I imagine something like:
 
 ```
-(defn RowOfButtons []
-  (let [comps  (for [text ["Ok" "Apply" "Cancel"]]
-                 (hui/make-comp
-                   [Button text]))
-        cs     (hui/make-size
-                 Float/MAX_VALUE
-                 Float/MAX_VALUE)
+(defn row-of-buttons []
+  (let [labels ["Ok" "Apply" "Cancel"]
+        comps  (for [label labels]
+                 (make [button {} label]))
+        cs     (core/isize
+                 Integer/MAX_VALUE
+                 Integer/MAX_VALUE)
         width  (->> comps
-                 (map #(hui/measure % cs))
+                 (map #(measure % *ctx* cs))
                  (map :width)
                  (reduce max 0))]
-  {:render
-   (fn []
-    [Row
-     (for [comp comps]
-      [Width {:width width}
-       comp])])}))
+  [row
+   (for [comp comps]
+    [width {:width width}
+     comp])])})
 ```
 
-The trick is, of course, to make `hui/make-comp` work outside of the normal render tree, but take into account all the styles nested up to this point.
+The trick is, of course, to make `make` work outside of the normal render tree, but take into account all the styles nested up to this point.
 
 Another trick is being able to _return_ a materialized component as part of an element (“description”) tree. If I’ve already created a component instance, might as well use it, right?
 
@@ -632,46 +668,46 @@ With all of the above, let’s see what TodoMVC might look like. First, we start
 Now the app UI. Main app:
 
 ```
-(defn App [state]
-  [Column
-   [TextField {:on-submit add-item}]
+(defn app [state]
+  [column
+   [text-field {:on-submit add-item}]
    (for [item (:items state)]
-     ^{:key (:id item)} [Item item])])
+     ^{:key (:id item)} [item-comp item])])
 ```
 
 Item:
 
 ```
-(defn Item [item]
+(defn item-comp [item]
   (let [{:keys [id checked text]} item]
-    [Row
-     [Checkbox {:checked   checked
+    [row
+     [checkbox {:checked   checked
                 :on-change #(toggle id)}]
-     [Label text]]))
+     [label text]]))
 ```
 
 One thing we want is an edit state: items could be edited. Let’s see if can keep this local:
 
 ```
-(defn Item [item]
+(defn item-comp [item]
   (let [{:keys [id checked text]} item
         *edited (atom false)]
     {:render
      (fn []
-       [Row
-        [Checkbox {:checked checked
+       [row
+        [checkbox {:checked checked
                    :on-change (fn [_]
                                 (toggle id))}]
         (if @*edited
-          [TextField
+          [text-field
            {:text text
             :on-submit (fn [text']
                          (change-text id text')
                          (reset! *edited false))}]
-          [Clickable
+          [clickable
            {:on-click (fn [_]
                         (reset! *edited true))}
-           [Label text]])])}))
+           [label text]])])}))
 ```
 
 We also want TextField to become focused once the user clicks on a Todo, so we extract it into a separate component:
@@ -679,13 +715,13 @@ We also want TextField to become focused once the user clicks on a Todo, so we e
 ```
 (defn todo-edit [item]
   (let [{:keys [id checked text]} item
-        *ref (hui/make-ref)]
-    {:unmount #(focus @*ref)
+        *ref (atom nil)]
+    {:after-unmount #(focus @*ref)
      :render
      (fn []
-       [TextField
-        {:ref  *ref
-         :text text
+       ^{:ref *ref}
+       [text-field
+        {:text text
          :on-submit
          (fn [text']
            (change-text id text')
@@ -697,10 +733,12 @@ And finally, we use watcher over state atom to trigger re-render:
 ```
 (add-watch *state ::redraw
   (fn [_ _ _ _]
-    (render app-root [App])))
+    (render app-root [app])))
 ```
 
-If we replace the state with signals:
+That’s it. Seems doable and pretty straightforward. Should be familiar to anyone who’ve seen React, too, I hope.
+
+We can simplify a little by replacing atom with signals:
 
 ```
 (def *state
@@ -718,6 +756,6 @@ The re-rendering will happen automatically and when e.g. toggling an item it won
 
 Overall I like both the idea of VDOM and the design we have arrived at. I also like that the approach itself is both well-understood and battle-proven, being implemented in frameworks like React, Flutter, SwiftUI, and Elm.
 
-You can play with a toy version at [HumbleUI/dev/vdom.clj](https://github.com/HumbleUI/HumbleUI/blob/main/dev/vdom.clj)
+You can play with a toy version at [HumbleUI/dev/vdom_2.clj](https://github.com/HumbleUI/HumbleUI/blob/main/dev/vdom_2.clj)
 
-Now to implement it 🙈
+Now to move it all to main HumbleUI 🙈
