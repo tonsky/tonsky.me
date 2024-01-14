@@ -144,7 +144,7 @@ Todo es solo un montón de código que apenas funciona encima de otro código qu
 
 Para tener un ecosistema saludable _necesitas_ ir atrás y revisitarlo. _Necesitas_ ocasionalmente deshacerte de código y reemplazarlo con otro mejor.
 
-../design_process.jpg
+../design_process@2x.jpg
 
 Pero, ¿quién tiene tiempo para eso? No hemos hecho nuevos sistemas operativos desde hace cuánto, ¿25 años? Simplemente ya es demasiado complejo para reescribirlo. Los navegadores están tan llenos de casos extremos y precedentes históricos, que nadie se atreve a escribir el motor de diseño entero desde cero.
 
