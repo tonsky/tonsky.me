@@ -5,7 +5,8 @@
     [clojure.math :as math]
     [clojure.string :as str]
     [site.cache :as cache]
-    [site.core :as core])
+    [site.core :as core]
+    [site.render :as render])
   (:import
     [java.io File]
     [java.time LocalDate]))
@@ -17,10 +18,22 @@
       (when-some [[_ year] (re-matches #"(\d{4})-.*" (:img design))]
         (parse-long year)))))
 
+(defn set-dates [version]
+  (cond-> version
+    (:date version)
+    (assoc
+      :published (.atStartOfDay ^LocalDate (:date version) core/UTC)
+      :modified (.atStartOfDay ^LocalDate (:date version) core/UTC))))
+
 (defn set-slug [design]
   (assoc design :slug
     (let [[_ slug] (re-matches #"(.*)\.\w+" (:img design))]
       slug)))
+
+(defn set-title [design]
+  (if-some [[_ title] (re-matches #".*<a [^>]+>([\w\d\s]+)</a>.*" (:desc design))]
+    (assoc design :title title)
+    design))
 
 (def designs
   (core/memoize-by
@@ -32,7 +45,9 @@
         :design
         (->>
           (map set-year)
+          (map set-dates)
           (map set-slug)
+          (map set-title)
           vec)))))
 
 (defn page []
@@ -42,10 +57,11 @@
      :styles ["/design/design.css"]
      :content
      [:.content
-      (for [[year designs] (group-by :year designs)]
+      (for [[year designs] (->> (group-by :year designs)
+                             (core/rsort-by first))]
         (list
           [:h1 year]
-          (for [design (sort-by :img core/reverse-compare designs)]
+          (for [design (core/rsort-by :date designs)]
             (list
               [:figure
                (core/some-map
@@ -53,3 +69,17 @@
                  :class (:class design))
                [:img {:src (str "images/" (:img design))}]]
               [:p [:raw-html (:desc design)]]))))]}))
+
+(defn render-atom [design]
+  (let [url  (str "https://tonsky.me/design/#" (:slug design))]
+    [:entry
+     [:title "Logo: " (:title design)]
+     [:link {:rel "alternate" :type "text/html" :href url}]
+     [:id url]
+     [:published (core/format-temporal (:published design) core/atom-date-format)]
+     [:updated (core/format-temporal (:modified design) core/atom-date-format)]
+     [:content {:type "html"}
+      [:CDATA (render/render-inner-html (:desc design))]]
+     [:author
+      [:name "Nikita Prokopov"]
+      [:email "niki@tonsky.me"]]]))

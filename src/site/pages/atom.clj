@@ -4,6 +4,7 @@
     [clojure.string :as str]
     [clojure.walk :as walk]
     [site.core :as core]
+    [site.pages.design :as design]
     [site.pages.index :as index]
     [site.pages.post :as post]
     [site.pages.talks :as talks]
@@ -22,8 +23,13 @@
     (mapcat identity)
     (map #(assoc % :type :talk))))
 
+(defn designs []
+  (->> (design/designs)
+    (filter :date)
+    (map #(assoc % :type :design))))
+
 (defn feed []
-  (let [entries (->> (concat (posts) (talks))
+  (let [entries (->> (concat (posts) (talks) (designs))
                   (core/rsort-by :published)
                   (take 5))]
     [:feed {:xmlns       "http://www.w3.org/2005/Atom"
@@ -49,5 +55,6 @@
      
      (for [entry entries]
        (case (:type entry)
-         :post (post/render-atom entry)
-         :talk (talks/render-atom entry)))]))
+         :post   (post/render-atom entry)
+         :talk   (talks/render-atom entry)
+         :design (design/render-atom entry)))]))

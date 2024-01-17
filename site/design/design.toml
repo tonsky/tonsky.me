@@ -1,4 +1,14 @@
 [[design]]
+date  = 2024-01-17
+img   = "2024-01-london-clojurians.svg"
+desc  = "<a href='https://www.meetup.com/London-Clojurians/'>London Clojurians</a> is an open and friendly community that supports the adoption and practice of Clojure in any of its forms."
+
+[[design]]
+date  = 2022-05-01
+img   = "2022-05-humble-ui.svg"
+desc  = "<a href='https://github.com/HumbleUI/HumbleUI'>Humble UI</a> is a  Clojure Desktop UI framework."
+
+[[design]]
 date  = 2021-12-13
 img   = "2021-12-clojure-sublimed.png"
 desc  = "<a href='https://github.com/tonsky/Clojure-Sublimed'>Clojure Sublimed</a> is a Clojure development environment for Sublime Text."
