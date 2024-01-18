@@ -71,7 +71,9 @@
               [:p [:raw-html (:desc design)]]))))]}))
 
 (defn render-atom [design]
-  (let [url  (str "https://tonsky.me/design/#" (:slug design))]
+  (let [url   (str "https://tonsky.me/design/#" (:slug design))
+        file  (cache/find-file nil (str "/design/images/" (:img design)))
+        [w h] (core/image-dimensions file)]
     [:entry
      [:title "Logo: " (:title design)]
      [:link {:rel "alternate" :type "text/html" :href url}]
@@ -79,7 +81,15 @@
      [:published (core/format-temporal (:published design) core/atom-date-format)]
      [:updated (core/format-temporal (:modified design) core/atom-date-format)]
      [:content {:type "html"}
-      [:CDATA (render/render-inner-html (:desc design))]]
+      [:CDATA
+       (render/render-inner-html
+         (list
+           [:img {:src    (str "https://tonsky.me/design/images/" (:img design))
+                  :style  (str "aspect-ratio: " w "/" h "; ")
+                  :width  1000
+                  :height (-> h (/ w) (* 1000) int)}]
+           [:br]
+           [:raw-html (:desc design)]))]]
      [:author
       [:name "Nikita Prokopov"]
       [:email "niki@tonsky.me"]]]))

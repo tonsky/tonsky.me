@@ -30,7 +30,7 @@
       (for [style (:styles page)]
         [:link {:href style :rel "stylesheet" :type "text/css"}])
       [:title (:title page) " @ tonsky.me"]
-      [:link {:href "/blog/atom.xml" :rel "alternate" :title "Nikita Prokopov’s blog" :type "application/atom+xml"}]
+      [:link {:href "/atom.xml" :rel "alternate" :title "Nikita Prokopov’s blog" :type "application/atom+xml"}]
       [:meta {:name "author" :content "Nikita Prokopov"}]
       [:meta {:property "og:title" :content (:title page)}]
       [:meta {:property "og:url" :content (str "https://tonsky.me" (:uri page))}]

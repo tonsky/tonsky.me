@@ -39,7 +39,7 @@
      [:title "tonsky.me"]
      [:subtitle "Nikita Prokopov’s blog"]
      [:link {:type "application/atom+xml"
-             :href "https://tonsky.me/blog/atom.xml"
+             :href "https://tonsky.me/atom.xml"
              :rel "self"}]
      [:link {:rel "alternate"
              :type "text/html"
