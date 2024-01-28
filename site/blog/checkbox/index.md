@@ -1,7 +1,7 @@
 ---
 title: In Loving Memory of Square Checkbox
 summary: "History of checkboxes and radio buttons in user interfaces"
-published: 2024-01-29
+published: 2024-01-28
 ---
 
 This is a checkbox:
@@ -65,6 +65,8 @@ Turbo Pascal 7.0 (1992)
 
 norton_commander_5@2x.png
 Norton Commander 5 (1993)
+
+(Guess where `[x]` is used now? In Markdown! What a comeback, huh?)
 
 And since then, every major operating system followed this tradition. From Windows 3.11:
 
