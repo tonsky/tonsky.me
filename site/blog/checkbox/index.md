@@ -2,6 +2,7 @@
 title: In Loving Memory of Square Checkbox
 summary: "History of checkboxes and radio buttons in user interfaces"
 published: 2024-01-28
+hackernews_id: 39161339
 ---
 
 This is a checkbox:
