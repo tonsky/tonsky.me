@@ -135,7 +135,7 @@
         (router/routes
           "GET /"          []   (resp-html (index/index))
           "GET /atom.xml"  []   {:status  200
-                                 :headers {}
+                                 :headers {"Content-Type" "application/atom+xml; charset=UTF-8"}
                                  :body    (render/render-xml (atom/feed))}
           "GET /blog/**"   [id] (when (.exists (io/file (str "site/blog/" id "/index.md")))
                                   (resp-html (post/post (parser/parse-md (str "/blog/" id)))))
