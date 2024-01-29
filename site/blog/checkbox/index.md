@@ -87,7 +87,7 @@ Windows 11 (2021)
 from Mac OS 4:
 
 radio_mac_os_7.5@2x.png
-Mac OS 4 (1987)
+System 4 (1987)
 
 till macOS Sonoma:
 
@@ -97,7 +97,7 @@ macOS Sonoma (2023)
 There was a brief confusion up until 1986 when Apple used rounded rectangles instead of circles:
 
 radio_mac_os_3@2x.png
-Mac OS 3 (1986)
+System 3 (1986)
 
 but it was quickly resolved.
 
