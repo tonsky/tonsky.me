@@ -129,7 +129,7 @@
 
 (defn talk [talk]
   [:.talk.talk_hidden
-   (let [default (first (filter #(% "default") talk))]
+   (let [default (first (filter :default talk))]
      [:.talk-inner {:id (:id default)}
       [:.talk-view]
       (talk-details default)])
