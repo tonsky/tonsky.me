@@ -198,14 +198,14 @@
                           (frequencies)
                           (sort-by second core/reverse-compare)
                           first)]
-         [:li "Busiest year: " year " " (core/pluralize cnt "{1} event" "{1} events")])
+         [:li "Busiest year: " year " (" (core/pluralize cnt "{1} event" "{1} events") ")"])
        
        (let [[month cnt] (->> versions
                            (map #(core/format-temporal (:date %) "MMMM yyyy"))
                            (frequencies)
                            (sort-by second core/reverse-compare)
                            first)]
-         [:li "Busiest month: " month " " (core/pluralize cnt "{1} event" "{1} events")])
+         [:li "Busiest month: " month " (" (core/pluralize cnt "{1} event" "{1} events") ")"])
        
        (let [dates    (->> versions (map :date) sort distinct)
              pauses   (map #(.between java.time.temporal.ChronoUnit/DAYS %1 %2) dates (next dates))
