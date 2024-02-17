@@ -2,6 +2,7 @@
   (:require
     [clojure.edn :as edn]
     [clojure.java.io :as io]
+    [clojure.math :as math]
     [clojure.string :as str]
     [clojure.walk :as walk]
     [instaparse.core :as instaparse]
@@ -53,10 +54,12 @@
      <qli>      = <#'> +'> p
      figure     = <#' *'> #'(?i)[^ \n]+\\.(png|jpg|jpeg|gif|webp)' figlink? figalt? figcaption?
      video      = <#' *'> #'(?i)[^ \n]+\\.(mp4|webm)' figlink? figalt? figcaption?
-     youtube    = <#'(?i) *https?://(www\\.)?(youtube\\.com|youtu\\.be)/[^ \n]+[?&]v='> #'[a-zA-Z0-9_\\-]{11}' <#'[^ \n]*'> figcaption?
+     youtube    = <#'(?i) *https?://(www\\.)?(youtube\\.com|youtu\\.be)/[^ \n]+[?&]v='> #'[a-zA-Z0-9_\\-]{11}' <#'[^ \n]*'> figcaption? figattrs*
      figlink    = <#' +'> #'https?://[^ \n]+'
      figalt     = <#' +'> !'https://' #'[^ \n][^\n]*[^ \n]'
      figcaption = <#' *\n *'> inline
+     figattrs   = <#' +'> figattr <'='> figattr
+     <figattr>  = #'[a-zA-Z0-9_\\-\\.]+'
      p          = class+ <#' *'> / class+ <#' +'> pbody / class+ <#' +'> inline / <#' *'> inline
      class      = <'.'> #'[a-zA-Z0-9_\\-]+'
      <pbody>    = !'.' inline
@@ -124,11 +127,15 @@
      :title  alt)])
 
 (defn normalize-figure [args]
-  (reduce
-    (fn [m [tag & values]]
-      (assoc m tag values))
-    {}
-    args))
+  (let [m (reduce
+            (fn [m [tag & values]]
+              (assoc m tag values))
+            {}
+            args)]
+    (reduce
+      (fn [m [k v]]
+        (assoc m (keyword k) v))
+      (dissoc m :figattrs) (partition 2 (:figattrs m)))))
 
 (defn transform-figure [url & args]
   (let [{[figlink]  :figlink
@@ -171,11 +178,14 @@
        [:figcaption figcaption])]))
 
 (defn transform-youtube [id & args]
-  (let [figcaption (:figcaption (normalize-figure args))]
+  (let [{:keys [figcaption aspect]} (normalize-figure args)
+        aspect (or (some-> aspect parse-double) 16/9)
+        width  635]
+    (println aspect)
     [:figure
      ;; TODO fetch width/height from YouTube
-     [:iframe {:width           "635"
-               :height          "358"
+     [:iframe {:width           (str width)
+               :height          (-> width (/ aspect) math/ceil int str)
                :src             (str "https://www.youtube-nocookie.com/embed/" id)
                :frameborder     "0"
                :allow           "autoplay; encrypted-media; picture-in-picture"
