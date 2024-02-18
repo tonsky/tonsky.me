@@ -241,7 +241,7 @@ It might be really hard to spot these errors during long development sessions.
 
 # Comparison: `(require ... :reload-all)`
 
-Cloujure has `:reload` and `:reload-all` options for `require`. They do track upstream dependencies, but that’s about it.
+Clojure has `:reload` and `:reload-all` options for `require`. They do track upstream dependencies, but that’s about it.
 
 In our original example, if we do
 
