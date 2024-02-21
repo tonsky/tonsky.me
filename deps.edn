@@ -12,7 +12,9 @@
   {:jvm-opts ["-ea"]
    :extra-paths ["dev" "test"]
    :extra-deps 
-   {org.clojure/tools.namespace {:mvn/version "1.3.0"}}}
+   {io.github.tonsky/clj-reload {:mvn/version "0.1.3"}
+    io.github.tonsky/duti {:git/sha "8c3c6cdff5fbc909db6da4b2711f9ec2e91dcfb1"
+                           #_#_:local/root "/Users/tonsky/ws/duti"}}}
   :uberdeps
   {:replace-deps {uberdeps/uberdeps {:mvn/version "1.3.0"}}
    :replace-paths []}}}

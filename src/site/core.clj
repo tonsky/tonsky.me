@@ -51,25 +51,6 @@
     (butlast args)
     (last args)))
 
-(defn reindent ^String [s indent]
-  (let [lines    (str/split-lines s)
-        butfirst (->> lines
-                   next
-                   (remove str/blank?))]
-    (if (seq butfirst)
-      (let [prefix (->> butfirst
-                     (map #(count (second (re-matches #"( *).*" %))))
-                     (reduce min))]
-        (str/join "\n"
-          (cons
-            (str indent (first lines))
-            (map #(if (str/blank? %) "" (str indent (subs % prefix))) (next lines)))))
-      s)))
-
-(defn ml [s]
-  (assert (string? s))
-  (reindent s ""))
-
 (defn sh [& args]
   (let [{:keys [exit] :as res} (apply shell/sh args)]
     (if (= 0 exit)
@@ -322,3 +303,6 @@
        (println (format "[ %4d ms ] %s" (- (System/currentTimeMillis) t#) ~name))
        res#)
      (do ~@body)))
+
+(defn before-ns-unload []
+  (mount/stop #'timer))

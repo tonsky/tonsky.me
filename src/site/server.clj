@@ -186,3 +186,6 @@
 (defn -main [& args]
   (core/apply-args args)
   (mount/start))
+
+(defn before-ns-unload []
+  (mount/stop #'server))

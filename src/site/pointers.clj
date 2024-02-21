@@ -112,3 +112,6 @@
   (core/schedule broadcast 0 1000)
   :stop
   (core/cancel-task broadcast-task))
+
+(defn before-ns-unload []
+  (mount/stop #'broadcast-task))

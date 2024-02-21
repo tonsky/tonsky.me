@@ -261,3 +261,6 @@
            (for [member (sort-by (juxt #(- (:pledge %)) :name) members)]
              [:li (:name member)])]))
       [:h2 "— Thank you!"]]}))
+
+(defn before-ns-unload []
+  (mount/stop #'fetch-members-task))
