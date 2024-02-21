@@ -1,6 +1,7 @@
 (ns site.watcher
   (:require
     [clojure.java.io :as io]
+    [clojure.string :as str]
     [mount.core :as mount]
     [org.httpkit.server :as http]
     [site.core :as core])
@@ -10,9 +11,6 @@
 
 (def *callbacks
   (atom {}))
-
-(def *watcher
-  (atom nil))
 
 (defn path ^Path [x & xs]
   (Path/of x (into-array String xs)))
@@ -24,16 +22,14 @@
     (filter #(.isDirectory ^File %))
     (mapv str)))
 
-(def dirs
-  (vec (mapcat expand ["site" "src"])))
-
-(defn watch-dirs [dirs]
-  (let [service (-> (FileSystems/getDefault) .newWatchService)]
+(defn watch-dirs [& dirs]
+  (let [dirs'   (vec (mapcat expand dirs))
+        service (-> (FileSystems/getDefault) .newWatchService)]
     (future
-      (println "Watcher started")
+      (println "Started watcher on" (str/join ", " dirs))
       (try
         (let [keys (into {}
-                     (for [dir dirs
+                     (for [dir dirs'
                            :let [key (.register (path dir) service (into-array WatchEvent$Kind [StandardWatchEventKinds/ENTRY_MODIFY]))]]
                        [key dir]))]
           (loop []
@@ -45,34 +41,38 @@
                 (callback arg))
               (when (.reset key)
                 (recur)))))
+        ; (catch Throwable t
+        ;   (println t)
+        ;   (throw t))
         (finally
-          (println "Watcher stopped"))))
+          (println "Stopped watcher"))))
     service))
 
-(add-watch *callbacks :watcher
-  (fn [_ _ old new]
-    ; (prn old "->" new)
-    (cond
-      (and (empty? old) (not (empty? new)))
-      (reset! *watcher (watch-dirs dirs))
-      
-      (and (not (empty? old)) (empty? new))
-      (swap! *watcher #(do (.close ^WatchService %) nil)))))
+(mount/defstate watcher
+  :start
+  (watch-dirs "site" "src")
+  :stop
+  (.close ^WatchService watcher))
 
-(def routes
-  {"GET /watcher"
-   (fn [req]
-     (if core/dev?
-       (http/as-channel req
-         {:on-open
-          (fn [ch]
-            (swap! *callbacks assoc ch #(http/send! ch %)))
-          :on-close
-          (fn [ch status]
-            (swap! *callbacks dissoc ch))})
-       {:status 404
-        :body   "Not found"}))})
-   
+(defn wrap-watcher [handler]
+  (if core/dev?
+    (fn [req]
+      (if (= "/watcher" (:uri req))
+        (http/as-channel req
+          {:on-open
+           (fn [ch]
+             (println "Connected" ch)
+             (swap! *callbacks assoc ch #(http/send! ch %)))
+           :on-close
+           (fn [ch status]
+             (println "Disconnected" status ch)
+             (swap! *callbacks dissoc ch))})
+        (handler req)))
+    handler))
+
+(defn before-ns-unload []
+  (mount/stop #'watcher))
+
 (comment
   (watch-dirs ["site" "src"] prn)
   (swap! *callbacks assoc :prn prn)

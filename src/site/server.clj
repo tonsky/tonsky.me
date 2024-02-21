@@ -131,7 +131,6 @@
     (router/router
       (merge
         pointers/routes
-        watcher/routes
         (router/routes
           "GET /"          []   (resp-html (index/index))
           "GET /atom.xml"  []   {:status  200
@@ -166,6 +165,7 @@
        (fn [req]
          (or (router req) (handler req)))))
     wrap-redirects
+    watcher/wrap-watcher
     wrap-decode-uri
     ring-params/wrap-params
     ring-head/wrap-head))

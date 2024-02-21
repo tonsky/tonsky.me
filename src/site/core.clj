@@ -4,6 +4,7 @@
     [clojure.java.io :as io]
     [clojure.java.shell :as shell]
     [clojure.string :as str]
+    [duti.all] ;; #ml
     [mount.core :as mount])
   (:import
     [java.io File]
