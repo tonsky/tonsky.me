@@ -2,6 +2,7 @@
 title: JavaScript Bloat in 2024
 summary: "What is the average size of JavaScript code downloaded per website? Fuck around and find out!"
 published: 2024-02-22
+hackernews_id: 39471221
 ---
 
 I was a bit out of touch with modern front-end development. I also remembered articles about web bloat, how the average web page size was approaching several megabytes!
@@ -263,6 +264,8 @@ Finally, this blew my mind. Somehow [react.dev](https://react.dev/blog/2023/03/1
 react@2x.mp4
 
 What is going on there? Even if it unloads and downloads parts of that blog post, how is it growing so quickly? The text itself is probably only 50 KB (0.05 MB).
+
+UPD: It has been brought to my attention that this behavior is not, in fact, representative of normal user experience. Normally embedded code editors will be cached after first load and subsequent loads will be served from disk cache. So as you scroll, you will see no network traffic, but these 100 MB of JS will still be parsed, evaluated and initialized over and over as you scroll.
 
 # How fast are we degrading?
 
