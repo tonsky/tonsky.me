@@ -3,7 +3,8 @@ date    = 2024-01-17
 title   = "Как разрабатывают Open Source и ЧТО ЭТО ТАКОЕ"
 event   = "АйТиБорода"
 desc    = "Что такое Open Source, как тут программировать и получать опыт, как зарабатывать и стоит ли вкатываться"
-content = "https://www.youtube.com/watch?v=LEQg3gJkhi8"
+content = "2024-01-17 АйТиБорода.webm"
+hosted  = "https://www.youtube.com/watch?v=LEQg3gJkhi8"
 thumb   = "2024-01-17 АйТиБорода.webp"
 
 [[talk]]
@@ -11,7 +12,8 @@ date    = 2024-01-16
 title   = "Desktop GUI Made Easy"
 event   = "London Clojurians"
 desc    = "Introduction to Humble UI, a new JVM Clojure library for desktop GUI applications. Why is it needed, how is it implemented, how deep is the rabbit hole, who could it be useful to, and what can you build with it?"
-content = "https://www.youtube.com/watch?v=HZTrfz-2yW4"
+hosted  = "https://www.youtube.com/watch?v=HZTrfz-2yW4"
+content = "2024-01-16 London Clojurians.webm"
 thumb   = "2024-01-16 London Clojurians.webp"
 
 [[talk]]
@@ -27,7 +29,8 @@ url     = "https://podlodka.io/342"
 title   = "Рендеринг текста проклят"
 event   = "Podlodka"
 desc    = "Преобразования, которые происходят с текстом для его отображения на экране"
-content = "https://www.youtube.com/watch?v=Ij8D7WLfZIc"
+hosted  = "https://www.youtube.com/watch?v=Ij8D7WLfZIc"
+content = "2023-10-17 Podlodka.webm"
 thumb   = "2023-10-17 Podlodka.webp"
 
 [[talk]]
@@ -36,7 +39,8 @@ url     = "https://podlodka.io/339"
 title   = "Кодировки текста"
 event   = "Podlodka"
 desc    = "История развития, принципы работы, странные проблемы"
-content = "https://www.youtube.com/watch?v=Dr2njmnRLrE"
+hosted  = "https://www.youtube.com/watch?v=Dr2njmnRLrE"
+content = "2023-09-25 Podlodka.webm"
 thumb   = "2023-09-25 Podlodka.webp"
 
 [[talk]]
@@ -52,7 +56,8 @@ date    = 2022-12-19
 title   = "Как мы попали в IT"
 event   = "Разрабы"
 desc    = "Как влиять на технологии и делать значимый опенсорс"
-content = "https://www.youtube.com/watch?v=6B92JkMWajw"
+hosted  = "https://www.youtube.com/watch?v=6B92JkMWajw"
+content = "2022-12-19 Разрабы.webm"
 thumb   = "2022-12-19 Разрабы.webp"
 
 [[talk]]
@@ -62,7 +67,8 @@ event   = "Dutch Clojure Days"
 city    = "Amsterdam"
 country = "Netherlands"
 desc    = "Introducing Humble UI, a desktop UI framework for Clojure"
-content = "https://www.youtube.com/watch?v=cM5e_tJqbT8"
+hosted  = "https://www.youtube.com/watch?v=cM5e_tJqbT8"
+content = "2022-10-29 Dutch Clojure Days.webm"
 thumb   = "2022-10-29 Dutch Clojure Days.webp"
 
 [[talk]]
@@ -70,7 +76,9 @@ date    = 2022-04-29
 title   = "Your frontend needs a database"
 event   = "Have you tried rubbing a database on it"
 desc    = "Communication between frontend and backend should be handled by database"
-content = "https://www.youtube.com/watch?v=KC0HUOlsXzk"
+hosted  = "https://www.youtube.com/watch?v=KC0HUOlsXzk"
+content = "2022-04-29 Have you tried rubbing a database on it.webm"
+thumb   = "2022-04-29 Have you tried rubbing a database on it.webp"
 
 [[talk]]
 date    = 2022-03-30
@@ -85,7 +93,9 @@ date    = 2021-11-17
 title   = "Мы обречены"
 event   = "Мы обречены"
 desc    = "Разочарование в софте, разочарование в Дюне Вильнева"
-content = "https://www.youtube.com/watch?v=1qDyWccmcuY"
+hosted  = "https://www.youtube.com/watch?v=1qDyWccmcuY"
+content = "2021-11-17 Мы обречены.webm"
+thumb   = "2021-11-17 Мы обречены.webp"
 
 [[talk]]
 date    = 2021-04-10
@@ -108,7 +118,9 @@ date    = 2020-12-23
 title   = "SciCloj #18: Introducing Skija"
 event   = "SciCloj"
 desc    = "What Skija is about, how does it work, what is it good for."
-content = "https://www.youtube.com/watch?v=t1X-Oln1u24"
+hosted  = "https://www.youtube.com/watch?v=t1X-Oln1u24"
+content = "2020-12-23 SciCloj.mp4"
+thumb   = "2020-12-23 SciCloj.webp"
 
 [[talk]]
 date    = 2020-07-03
@@ -150,7 +162,9 @@ event   = "FPURE"
 city    = "Kazan"
 country = "Russia"
 desc    = "Применяем дизайн-подход к программированию: подсветке кода, форматированию, шрифту. Определяем проблему и решение само себя находит."
-content = "https://www.youtube.com/watch?v=e6_OJefvmf0"
+hosted  = "https://www.youtube.com/watch?v=e6_OJefvmf0"
+content = "2019-05-30 FPURE.webm"
+thumb   = "2019-05-30 FPURE.webp"
 [[talk.version]]
 date    = 2019-04-19
 title   = "Building My Own Clojure Tools"
@@ -158,7 +172,9 @@ event   = "Clojure/north"
 city    = "Toronto"
 country = "Canada"
 desc    = "I’m using my own font, my own syntax grammar, my own color scheme, my own indentation rules. Why? Let’s explore what’s wrong with existing ones and how hard it is to build your own. Spoiler: not hard at all."
-content = "https://www.youtube.com/watch?v=l1b7Da2DnPo"
+hosted  = "https://www.youtube.com/watch?v=l1b7Da2DnPo"
+content = "2019-04-19 Clojure north.webm"
+thumb   = "2019-04-19 Clojure north.webp"
 slides  = "2019.04 Toronto.pdf"
 
 [[talk]]
@@ -183,7 +199,9 @@ date    = 2018-10-13
 event   = "YouCon"
 city    = "Saratov"
 country = "Russia"
-content = "https://www.youtube.com/watch?v=zXy6BzDCZag"
+hosted  = "https://www.youtube.com/watch?v=zXy6BzDCZag"
+content = "2018-10-13 YouCon.webm"
+thumb   = "2018-10-13 YouCon.webp"
 slides  = "2018.10 YouCon.pdf"
 
 [[talk]]
@@ -239,31 +257,41 @@ slides  = "2018.11 DevFest.pdf"
 date    = 2018-10-08
 event   = "AppsConf"
 city    = "Moscow"
-content = "https://www.youtube.com/watch?v=ZKB0oaeF3_Q"
+hosted  = "https://www.youtube.com/watch?v=ZKB0oaeF3_Q"
+content = "2018-10-08 AppsConf.webm"
+thumb   = "2018-10-08 AppsConf.webp"
 slides  = "2018.10 AppsConf.pdf"
 [[talk.version]]
 date    = 2018-05-20
 event   = "HolyJS"
 city    = "Saint Petersburg"
-content = "https://www.youtube.com/watch?v=f6LsU1zotPI"
+hosted  = "https://www.youtube.com/watch?v=f6LsU1zotPI"
+content = "2018-05-20 HolyJS.webm"
+thumb   = "2018-05-20 HolyJS.webp"
 slides  = "2018.05 HolyJS.pdf"
 [[talk.version]]
 date    = 2018-04-30
 event   = "AlphaTalk"
 city    = "Cheboksary"
-content = "https://www.youtube.com/watch?v=ObHrsSrfJJk"
+hosted  = "https://www.youtube.com/watch?v=ObHrsSrfJJk"
+content = "2018-04-30 AlphaTalk.webm"
+thumb   = "2018-04-30 AlphaTalk.webp"
 slides  = "2018.04 Cheboskary.pdf"
 [[talk.version]]
 date    = 2018-04-27
 event   = "OrelRB"
 city    = "Orel"
-content = "https://www.youtube.com/watch?v=WzSu3dHmAPQ"
+hosted  = "https://www.youtube.com/watch?v=WzSu3dHmAPQ"
+content = "2018-04-27 OrelRB.mp4"
+thumb   = "2018-04-27 OrelRB.webp"
 slides  = "2018.04 Orel.pdf"
 [[talk.version]]
 date    = 2018-03-29
 event   = "Deep Refactoring"
 city    = "Voronezh"
-content = "https://www.youtube.com/watch?v=Fwr2E7nYWLA"
+hosted  = "https://www.youtube.com/watch?v=Fwr2E7nYWLA"
+content = "2018-03-29 Deep Refactoring.webm"
+thumb   = "2018-03-29 Deep Refactoring.webp"
 slides  = "2018.03 Voronezh.pdf"
 
 [[talk]]
@@ -271,7 +299,9 @@ date    = 2018-03-22
 title   = "Web, JavaScript и цирк с конями"
 event   = "Senior Software Vlogger"
 desc    = "О веб-разработке, веб-экосистеме и веб-будущем"
-content = "https://www.youtube.com/watch?v=QB5kN6gqfDk"
+hosted  = "https://www.youtube.com/watch?v=QB5kN6gqfDk"
+content = "2018-03-22 Senior Software Vlogger.webm"
+thumb   = "2018-03-22 Senior Software Vlogger.webp"
 
 [[talk]]
 date    = 2017-11-24
@@ -280,7 +310,9 @@ event   = "ReactJS"
 city    = "Vienna"
 country = "Austria"
 desc    = "What if we use conflict-free text editing data structures (OT/CRDT) for version control?"
-content = "https://www.youtube.com/watch?v=HpZYqUmK3_M"
+hosted  = "https://www.youtube.com/watch?v=HpZYqUmK3_M"
+content = "2017-11-24 ReactJS.webm"
+thumb   = "2017-11-24 ReactJS.webp"
 slides  = "2017.10 Vienna.pdf"
 
 [[talk]]
@@ -291,30 +323,40 @@ country = "Russia"
 date    = 2018-05-19
 event   = "UWDC"
 city    = "Chelyabinsk"
-content = "https://www.youtube.com/watch?v=103yo-pB_0c"
+hosted  = "https://www.youtube.com/watch?v=103yo-pB_0c"
+content = "2018-05-19 UWDC.mp4"
+thumb   = "2018-05-19 UWDC.webp"
 [[talk.version]]
 date    = 2018-03-29
 event   = "Deep Refactoring"
 city    = "Voronezh"
-content = "https://www.youtube.com/watch?v=tUjFsKREc34"
+hosted  = "https://www.youtube.com/watch?v=tUjFsKREc34"
+content = "2018-03-29 Deep Refactoring-2.mp4"
+thumb   = "2018-03-29 Deep Refactoring-2.webp"
 slides  = "2017.10 Reactive.pdf"
 [[talk.version]]
 date    = 2017-06-05
 event   = "FrontendConf"
 city    = "Moscow"
-content = "https://www.youtube.com/watch?v=0nL6T-OPtM8"
+hosted  = "https://www.youtube.com/watch?v=0nL6T-OPtM8"
+content = "2017-06-05 FrontendConf.webm"
+thumb   = "2017-06-05 FrontendConf.webp"
 slides  = "2017.06 FrontendConf.pdf"
 [[talk.version]]
 date    = 2017-04-14
 event   = "DUMP"
 city    = "Yekaterinburg"
-content = "https://www.youtube.com/watch?v=m-siXL-mbbE"
+hosted  = "https://www.youtube.com/watch?v=m-siXL-mbbE"
+content = "2017-04-14 DUMP.webm"
+thumb   = "2017-04-14 DUMP.webp"
 slides  = "2017.04 Dump.pdf"
 [[talk.version]]
 date    = 2017-04-02
 event   = "CodeFest"
 city    = "Novosibirsk"
-content = "https://www.youtube.com/watch?v=uHGeI9_fgUw"
+hosted  = "https://www.youtube.com/watch?v=uHGeI9_fgUw"
+content = "2017-04-02 CodeFest.webm"
+thumb   = "2017-04-02 CodeFest.webp"
 slides  = "2017.04 Codefest.pdf"
 [[talk.version]]
 title   = "Client and Server need to talk"
@@ -323,7 +365,9 @@ date    = 2017-10-25
 event   = "ReactiveConf"
 city    = "Bratislava"
 country = "Slovakia"
-content = "https://www.youtube.com/watch?v=ZjbeBIkaESM"
+hosted  = "https://www.youtube.com/watch?v=ZjbeBIkaESM"
+content = "2017-10-25 ReactiveConf.webm"
+thumb   = "2017-10-25 ReactiveConf.webp"
 slides  = "2017.10 Reactive.pdf"
 [[talk.version]]
 title   = "Client and Server need to talk"
@@ -340,7 +384,9 @@ date    = 2017-05-15
 event   = "RigaDevDays"
 city    = "Riga"
 country = "Latvia"
-content = "https://www.youtube.com/watch?v=7ShYs5FQ6uc"
+hosted  = "https://www.youtube.com/watch?v=7ShYs5FQ6uc"
+content = "2017-05-15 RigaDevDays.mp4"
+thumb   = "2017-05-15 RigaDevDays.webp"
 slides  = "2017.05 RigaDevDays.pdf"
 
 [[talk]]
@@ -350,7 +396,9 @@ event   = "Moscow Clojure Meetup"
 city    = "Moscow"
 country = "Russia"
 desc    = "Как сделать Clojure код еще лучше. Организация кода, стиль, соглашения, читаемость, опасные конструкции"
-content = "https://www.youtube.com/watch?v=oeA7k4XYJGs"
+hosted  = "https://www.youtube.com/watch?v=oeA7k4XYJGs"
+content = "2017-03-03 Moscow Clojure Meetup.mp4"
+thumb   = "2017-03-03 Moscow Clojure Meetup.webp"
 slides  = "2017.02 Moscow Clojure Meetup.pdf"
 
 [[talk]]
@@ -361,7 +409,9 @@ event   = "HolyJS"
 city    = "Moscow"
 country = "Russia"
 desc    = "Архитектурное устройство современных коллаборативных веб-приложений. Модель данных, нормализация, клиентские хранилища, синхронизация данных, журналы событий, оптимистичный UI, совместная работа"
-content = "https://www.youtube.com/watch?v=x9yYlDNHI2Y"
+hosted  = "https://www.youtube.com/watch?v=x9yYlDNHI2Y"
+content = "2016-12-11 HolyJS.webm"
+thumb   = "2016-12-11 HolyJS.webp"
 slides  = "2016.12 HolyJS Moscow.pdf"
 [[talk.version]]
 date    = 2016-12-10
@@ -370,7 +420,9 @@ event   = "f(by)"
 city    = "Minsk"
 country = "Belarus"
 desc    = "High-level architecture overview of modern collaborative web apps. Data model, normalization, decoupling, client storages, data sync, event sourcing, optimistic UI, collaboration"
-content = "https://www.youtube.com/watch?v=bDBRY4e81Tk"
+hosted  = "https://www.youtube.com/watch?v=bDBRY4e81Tk"
+content = "2016-12-10 f(by).webm"
+thumb   = "2016-12-10 f(by).webp"
 slides  = "2016.12 funcby.pdf"
 
 [[talk]]
@@ -387,7 +439,9 @@ date    = 2016-09-10
 event   = "clojuTRE"
 city    = "Tampere"
 country = "Finland"
-content = "https://www.youtube.com/watch?v=2fLx4fu9VV8"
+hosted  = "https://www.youtube.com/watch?v=2fLx4fu9VV8"
+content = "2016-09-10 clojuTRE.webm"
+thumb   = "2016-09-10 clojuTRE.webp"
 slides  = "2016.09 clojureTRE.pdf"
 
 [[talk]]
@@ -397,7 +451,9 @@ date    = 2016-10-25
 event   = "ViennaJS"
 city    = "Vienna"
 country = "Austria"
-content = "https://www.youtube.com/watch?v=0q_ldbQ5tL4"
+hosted  = "https://www.youtube.com/watch?v=0q_ldbQ5tL4"
+content = "2016-10-25 ViennaJS.webm"
+thumb   = "2016-10-25 ViennaJS.webp"
 
 [[talk]]
 title   = "LambdaNsk митап"
@@ -406,7 +462,9 @@ date    = 2016-01-30
 event   = "LambdaNsk meetup"
 city    = "Novosibirsk"
 country = "Russia"
-content = "https://www.youtube.com/watch?v=EYBjZmU3nU0"
+hosted  = "https://www.youtube.com/watch?v=EYBjZmU3nU0"
+content = "2016-01-30 LambdaNsk meetup.mp4"
+thumb   = "2016-01-30 LambdaNsk meetup.webp"
 
 [[talk]]
 title   = "Подкаст DevZen, эпизод 99"
@@ -421,7 +479,9 @@ title   = "Rum workshop"
 desc    = "Capabilities, design philosophy, usage scenarios and lots of code examples"
 date    = 2016-06-23
 event   = "Cognician"
-content = "https://www.youtube.com/watch?v=RqHnxkU9TZE"
+hosted  = "https://www.youtube.com/watch?v=RqHnxkU9TZE"
+content = "2016-06-23 Cognician.webm"
+thumb   = "2016-06-23 Cognician.webp"
 
 [[talk]]
 title   = "Данные на фронтенде"
@@ -430,7 +490,9 @@ date    = 2016-06-05
 event   = "HolyJS"
 city    = "Saint Petersburg"
 country = "Russia"
-content = "https://www.youtube.com/watch?v=ZWNtxmrA4UY"
+hosted  = "https://www.youtube.com/watch?v=ZWNtxmrA4UY"
+content = "2016-06-05 HolyJS.mp4"
+thumb   = "2016-06-05 HolyJS.webp"
 slides  = "2016.06 holyjs.pdf"
 
 [[talk]]
@@ -440,7 +502,9 @@ date    = 2015-11-04
 event   = "ReactiveConf"
 city    = "Bratislava"
 country = "Slovakia"
-content = "https://www.youtube.com/watch?v=5DyQwMQbWvs"
+hosted  = "https://www.youtube.com/watch?v=5DyQwMQbWvs"
+content = "2015-11-04 ReactiveConf.webm"
+thumb   = "2015-11-04 ReactiveConf.webp"
 slides  = "2015.11 reactive.pdf"
 
 [[talk]]
@@ -459,7 +523,9 @@ date    = 2015-08-15
 event   = "FPConf"
 city    = "Moscow"
 country = "Russia"
-content = "https://www.youtube.com/watch?v=cRWrrHPrk9g"
+hosted  = "https://www.youtube.com/watch?v=cRWrrHPrk9g"
+content = "2015-08-15 FPConf.webm"
+thumb   = "2015-08-15 FPConf.webp"
 slides  = "2015.08 fpconf.pdf"
 [[talk.version]]
 title   = "Web UI with Database in a Browser"
@@ -468,7 +534,9 @@ date    = 2015-07-04
 event   = "PolyConf"
 city    = "Poznań"
 country = "Poland"
-content = "https://www.youtube.com/watch?v=1dr-CzMMDD8"
+hosted  = "https://www.youtube.com/watch?v=1dr-CzMMDD8"
+content = "2015-07-04 PolyConf.webm"
+thumb   = "2015-07-04 PolyConf.webp"
 slides  = "2015.07 polyconf.pdf"
 
 [[talk]]
@@ -479,14 +547,18 @@ date    = 2015-05-22
 event   = "FrontendConf"
 city    = "Moscow"
 country = "Russia"
-content = "https://www.youtube.com/watch?v=6XzYYrQTsks"
+hosted  = "https://www.youtube.com/watch?v=6XzYYrQTsks"
+content = "2015-05-22 FrontendConf.mp4"
+thumb   = "2015-05-22 FrontendConf.webp"
 slides  = "2015.05 FrontendConf/"
 [[talk.version]]
 date    = 2015-03-28
 event   = "CodeFest"
 city    = "Novosibirsk"
 country = "Russia"
-content = "https://www.youtube.com/watch?v=CohpRapbXqA"
+hosted  = "https://www.youtube.com/watch?v=CohpRapbXqA"
+content = "2015-03-28 CodeFest.mp4"
+thumb   = "2015-03-28 CodeFest.webp"
 slides  = "2015.03 CodeFest/"
 
 [[talk]]
@@ -503,7 +575,9 @@ title   = "ToDo list in DataScript (webinar)"
 desc    = "Creating ToDo app from scratch using DataScript and React.js"
 date    = 2014-12-16
 event   = "ClojureScript NYC user group"
-content = "https://vimeo.com/114688970"
+hosted  = "https://vimeo.com/114688970"
+content = "2014-12-16 ClojureScript NYC user group.mp4"
+thumb   = "2014-12-16 ClojureScript NYC user group.jpg"
 
 [[talk]]
 title   = "Как спорить о языках программирования"
@@ -550,7 +624,9 @@ date    = 2014-05-19
 title   = "DataScript хэнгаут"
 event   = "Clojure Russia"
 desc    = "Обзор, возможности, ответы на вопросы"
-content = "https://www.youtube.com/watch?v=jhBC81pczZY"
+hosted  = "https://www.youtube.com/watch?v=jhBC81pczZY"
+content = "2014-05-19 Clojure Russia.webm"
+thumb   = "2014-05-19 Clojure Russia.jpg"
 
 [[talk]]
 date    = 2014-05-17
@@ -569,7 +645,9 @@ date    = 2013-03-31
 event   = "CodeFest"
 city    = "Novosibirsk"
 country = "Russia"
-content = "https://www.youtube.com/watch?v=jZI1aZcRHCI"
+hosted  = "https://www.youtube.com/watch?v=jZI1aZcRHCI"
+content = "2013-03-31 CodeFest.webm"
+thumb   = "2013-03-31 CodeFest.jpg"
 slides  = "2013.03 Codefest.pdf"
 
 [[talk]]
@@ -596,14 +674,18 @@ title   = "Clojure @ Echo 02"
 desc    = "Библиотеки, web-стек, ClojureScript"
 url     = "http://tonsky.livejournal.com/266915.html"
 date    = 2012-08-09
-content = "https://vimeo.com/47224529"
+hosted  = "https://vimeo.com/47224529"
+content = "2012-08-09 Echo.mp4"
+thumb   = "2012-08-09 Echo.jpg"
 slides  = "2012.07 clojure at echo 02.pdf"
 [[talk.version]]
 title   = "Clojure @ Echo 01"
 desc    = "Структуры данных, полиморфизм, интероп"
 url     = "http://tonsky.livejournal.com/265621.html"
 date    = 2012-07-15
-content = "https://vimeo.com/45778765"
+hosted  = "https://vimeo.com/45778765"
+content = "2012-07-15 Echo.mp4"
+thumb   = "2012-07-15 Echo.jpg"
 slides  = "2012.06 clojure at echo 01.pdf"
 [[talk.version]]
 default = true
@@ -611,7 +693,9 @@ title   = "Clojure @ Echo 00"
 desc    = "Обзор, concurrency"
 url     = "http://tonsky.livejournal.com/265218.html"
 date    = 2012-07-01
-content = "https://vimeo.com/45018095"
+hosted  = "https://vimeo.com/45018095"
+content = "2012-07-01 Echo.mp4"
+thumb   = "2012-07-01 Echo.jpg"
 slides  = "2012.06 clojure at echo 00.pdf"
 
 [[talk]]
@@ -622,7 +706,7 @@ date    = 2011-09-25
 event   = "ProfitConf"
 city    = "Novosibirsk"
 country = "Russia"
-content = "//www.slideshare.net/slideshow/embed_code/key/EqGuGjZtz5fpjo"
+hosted  = "//www.slideshare.net/slideshow/embed_code/key/EqGuGjZtz5fpjo"
 slides  = "2011.09 ProfitConf.pdf"
 
 [[talk]]
@@ -634,7 +718,9 @@ url     = "http://lib.custis.ru/1a2-philosophy-of-simplicity-prokopov"
 date    = 2011-04-29
 event   = "ADDConf"
 city    = "Saint Petersburg"
-content = "https://vimeo.com/23726142"
+hosted  = "https://vimeo.com/23726142"
+content = "2011-04-29 ADDConf.mp4"
+thumb   = "2011-04-29 ADDConf.jpg"
 slides  = "2011.05 ADDconf.pdf"
 [[talk.version]]
 title   = "Мы ведь тоже люди. Еретическая лекция про юзабилити инструментов разработчика"
@@ -642,7 +728,7 @@ url     = "https://2011.codefest.ru/lecture/453"
 date    = 2011-03-19
 event   = "CodeFest"
 city    = "Novosibirsk"
-content = "//www.slideshare.net/slideshow/embed_code/key/iZzUkk0CZ9mkvP"
+hosted  = "//www.slideshare.net/slideshow/embed_code/key/iZzUkk0CZ9mkvP"
 slides  = "2011.03 Codefest.pdf"
 
 [[talk]]
@@ -652,5 +738,5 @@ date    = 2010-10-02
 event   = "DevPoint"
 city    = "Novosibirsk"
 country = "Russia"
-content = "//www.slideshare.net/slideshow/embed_code/key/zhcVpOeuYz6OWH"
+hosted  = "//www.slideshare.net/slideshow/embed_code/key/zhcVpOeuYz6OWH"
 slides  = "2010.10 Devpoint.pdf"

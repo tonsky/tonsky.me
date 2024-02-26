@@ -4,6 +4,7 @@
     [clojure.java.io :as io]
     [clojure.math :as math]
     [clojure.string :as str]
+    [ring.util.mime-type :as ring-mime]
     [site.core :as core]
     [site.render :as render])
   (:import
@@ -70,51 +71,32 @@
        "Slides")]))
 
 (defn talk-view [version]
-  (let [{:keys [event content]} version]
+  (let [{:keys [event content thumb]} version
+        [_ ext] (re-matches #".*\.([^.]+)" (str/lower-case (or content "")))]
     [:.talk-view
      (core/cond+
        (nil? content)
        [:.talk-view-stub
         (slides-link version)]
 
-       (str/ends-with? content ".mp3")
-       [:.podcast {:background-image (str "covers/" event ".png")}
-        [:audio {:controls true}
+       (= "mp3" ext)
+       [:.podcast {:background-image (str "covers/" event ".webp")}
+        [:audio {:preload  "none"
+                 :controls true}
          [:source
           {:src  (str "content/" content)
            :type "audio/mpeg"}]]]
-         
-       (str/index-of content "slideshare.net/slideshow/embed_code")
-       [:iframe
-        {:src             content
-         :width           "560"
-         :height          "456"
-         :frameborder     "0"
-         :marginwidth     "0"
-         :marginheight    "0"
-         :scrolling       "no"
-         :allowfullscreen true}]
-         
-       :let [youtube-id (core/youtube-id content)]
-       youtube-id
-       [:iframe
-        {:width           "560"
-         :height          "315"
-         :src             (str "https://www.youtube-nocookie.com/embed/" youtube-id)
-         :frameborder     "0"
-         :allow           "autoplay; encrypted-media; picture-in-picture"
-         :allowfullscreen true}]
        
-       :let [vimeo-id (core/vimeo-id content)]         
-       vimeo-id
-       [:iframe
-        {:width           "560"
-         :height          "315"
-         :src             (str "https://player.vimeo.com/video/" vimeo-id "?title=0&byline=0&portrait=0")
-         :frameborder     "0"
-         :allow           "autoplay; encrypted-media; picture-in-picture"
-         :allowfullscreen true}]
-           
+       (#{"webm" "mp4"} ext)
+       (let [mime (ring-mime/default-mime-types ext)]
+         [:video
+          {:poster   (str "content/" thumb)
+           :preload  "none"
+           :controls true}
+          [:source
+           {:src  (str "content/" content)
+            :type mime}]])
+
        :else
        [:raw-html content])]))
 
@@ -242,34 +224,6 @@
      [:id url]
      [:published (core/format-temporal published core/atom-date-format)]
      [:updated (core/format-temporal modified core/atom-date-format)]
-     
-     ; (when youtube-id
-     ;   (list
-     ;     [:yt:videoId youtube-id]
-     ;     [:media:group
-     ;      [:media:title title]
-     ;      [:media:content
-     ;       {:url    (str "https://www.youtube.com/v/" youtube-id "?version=3")
-     ;        :type   "application/x-shockwave-flash"
-     ;        :width  "640"
-     ;        :height "390"}]
-     ;      [:media:thumbnail
-     ;       {:url    (str "https://i1.ytimg.com/vi/" youtube-id "/hqdefault.jpg")
-     ;        :width  "480" 
-     ;        :height "360"}]
-     ;      [:media:description [:raw-html desc]]]))
-     
-     ; (when (str/ends-with? content ".mp3")
-     ;   (when-some [file (or
-     ;                      (core/file "site/talks/content" content)
-     ;                      (core/file "files/talks/content" content))]
-     ;     [:link {:rel      "enclosure"
-     ;             :xml:lang (str/lower-case lang)
-     ;             :title    title
-     ;             :type     "audio/mpeg"
-     ;             :href     (str "https://tonsky.me/talks/content/" content)
-     ;             :length   (.length ^File file)}]))
-     
      [:content {:type "html"}
       [:CDATA
        (render/render-inner-html
@@ -278,26 +232,22 @@
             (cond
               (str/ends-with? content ".mp3")
               [:img {:src (str "https://tonsky.me/talks/covers/" event ".png")}
-               [:audio {:controls true}
+               [:audio {:controls true
+                        :preload  "none"}
                 [:source
                  {:src  (str "https://tonsky.me/talks/content/" content)
                   :type "audio/mpeg"}]]]
                
-              youtube-id
-              [:a {:href (str "https://www.youtube.com/watch?v=" youtube-id)}
-               [:img {:src (if thumb
-                             (str "https://tonsky.me/talks/content/" thumb)
-                             (str "https://i.ytimg.com/vi_webp/" youtube-id "/maxresdefault.webp")
-                             ; (str "https://i1.ytimg.com/vi/" youtube-id "/hqdefault.jpg")
-                             )}]]
-              ; [:iframe
-              ;  {:width           "560"
-              ;   :height          "315"
-              ;   :src             (str "https://www.youtube-nocookie.com/embed/" youtube-id)
-              ;   :frameborder     "0"
-              ;   :allow           "autoplay; encrypted-media; picture-in-picture"
-              ;   :allowfullscreen true}]
-              )]
+              (or
+                (str/ends-with? content ".webm")
+                (str/ends-with? content ".mp4"))
+              [:video
+               {:poster   (str "https://tonsky.me/talks/content/" thumb)
+                :preload  "none"
+                :controls true}
+               [:source
+                {:src  (str "https://tonsky.me/talks/content/" content)
+                 :type (ring-mime/ext-mime-type content)}]])]
 
            [:p [:raw-html desc]]
            

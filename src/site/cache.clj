@@ -84,7 +84,7 @@
     (.getLong java.time.temporal.ChronoField/INSTANT_SECONDS)
     (* 1000)))
 
-(defn wrap-cached [handler]
+(defn wrap-cached-impl [handler]
   (let [*cache (volatile! {})]
     (fn [req]
       (binding [*touched* (volatile! #{})]
@@ -119,3 +119,8 @@
             ;; serve cached
             :else
             resp))))))
+
+(defn wrap-cached [handler]
+  (if core/dev?
+    handler
+    (wrap-cached-impl handler)))

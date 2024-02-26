@@ -3,6 +3,7 @@ title: JavaScript Bloat in 2024
 summary: "What is the average size of JavaScript code downloaded per website? Fuck around and find out!"
 published: 2024-02-22
 hackernews_id: 39471221
+starred: true
 ---
 
 I was a bit out of touch with modern front-end development. I also remembered articles about web bloat, how the average web page size was approaching several megabytes!

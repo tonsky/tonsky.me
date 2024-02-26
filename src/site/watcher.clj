@@ -61,11 +61,11 @@
         (http/as-channel req
           {:on-open
            (fn [ch]
-             (println "Connected" ch)
+             ; (println "Connected" ch)
              (swap! *callbacks assoc ch #(http/send! ch %)))
            :on-close
            (fn [ch status]
-             (println "Disconnected" status ch)
+             ; (println "Disconnected" status ch)
              (swap! *callbacks dissoc ch))})
         (handler req)))
     handler))
