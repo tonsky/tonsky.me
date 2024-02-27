@@ -1,10 +1,12 @@
 var watcher;
+var watcherWasConnected = false;
 
 function watcherConnect() {
   console.log("Connecting to ws://" + location.host + "/watcher...");
   watcher = new WebSocket("ws://" + location.host + "/watcher");
   watcher.addEventListener("open", (event) => {
     console.log("Connected to ws://" + location.host + "/watcher");
+    watcherWasConnected = true;
   });
   watcher.addEventListener("message", (event) => {
     console.log("Refreshing because of", event.data);
@@ -12,11 +14,13 @@ function watcherConnect() {
   });
   watcher.addEventListener("close", (event) => {
     watcher = undefined;
-    setTimeout(() => {
-      watcherConnect();
-      console.log("Refreshing because of disconnect");
-      document.location.reload();
-    }, 1000);
+    if (watcherWasConnected) {
+      setTimeout(() => {
+        watcherConnect();
+        console.log("Refreshing because of disconnect");
+        document.location.reload();
+      }, 1000);
+    }
   });
 }
 
