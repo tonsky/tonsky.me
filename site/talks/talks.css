@@ -2,7 +2,7 @@
 .talks > * { width: 96vw; max-width: var(--width); }
 .talk-inner { display: flex; flex-direction: row; gap: 20px; }
 @media (max-width: 1000px) {
-  .talk-inner { flex-direction: column; }
+  .talk-inner { flex-direction: column; align-items: center; }
 }
 .content > ul { gap: 4px; }
 
