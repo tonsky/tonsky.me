@@ -12,9 +12,9 @@
   {:dirs ["src" "dev" "test"]
    :no-reload #{'user}})
 
-(defn reload []
+(defn reload [& [opts]]
   (set! *warn-on-reflection* true)
-  (let [res (reload/reload)
+  (let [res (reload/reload opts)
         cnt (count (:loaded res))]
     ((requiring-resolve 'site.core/apply-args) *command-line-args*)
     (mount/start)
@@ -29,12 +29,11 @@
     (duti/start-socket-repl {:port (some-> port parse-long)})))
 
 (defn test-all []
-  (require 'site.parser-test)
-  (reload)
+  (reload {:only #"site\..*-test"})
   (duti/test-throw #"site\..*-test"))
 
 (defn -test-main [_]
-  (require 'clj-reload.parser-test)
+  (reload {:only #"site\..*-test"})
   (duti/test-exit #"site\..*-test"))
 
 (comment

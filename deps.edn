@@ -13,7 +13,7 @@
   {:jvm-opts ["-ea"]
    :extra-paths ["dev" "test"]
    :extra-deps 
-   {io.github.tonsky/clj-reload {:mvn/version "0.2.0"}
+   {io.github.tonsky/clj-reload {:mvn/version "0.3.0"}
     io.github.tonsky/duti       {:git/sha "1ed88c121b27c7980dc5a86cb6c445b8581e8d06"}}}
   :uberdeps
   {:replace-deps {uberdeps/uberdeps {:mvn/version "1.3.0"}}
