@@ -5,7 +5,7 @@
     [clojure.java.io :as io]
     [clojure.string :as str]
     [clojure.test :as test]
-    [duti.all :as duti]
+    [duti.core :as duti]
     [mount.core :as mount]))
 
 (reload/init

@@ -4,7 +4,6 @@
     [clojure.java.io :as io]
     [clojure.java.shell :as shell]
     [clojure.string :as str]
-    [duti.all] ;; #ml
     [mount.core :as mount])
   (:import
     [java.io File]
@@ -51,6 +50,25 @@
   (concatv
     (butlast args)
     (last args)))
+
+(defn reindent ^String [s indent]
+  (let [lines    (str/split-lines s)
+        butfirst (->> lines
+                   next
+                   (remove str/blank?))]
+    (if (seq butfirst)
+      (let [prefix (->> butfirst
+                     (map #(count (second (re-matches #"( *).*" %))))
+                     (reduce min))]
+        (str/join "\n"
+          (cons
+            (str indent (first lines))
+            (map #(if (str/blank? %) "" (str indent (subs % prefix))) (next lines)))))
+      s)))
+
+(defn ml [s]
+  (assert (string? s))
+  (reindent s ""))
 
 (defn sh [& args]
   (let [{:keys [exit] :as res} (apply shell/sh args)]
