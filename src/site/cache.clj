@@ -87,38 +87,46 @@
 (defn wrap-cached-impl [handler]
   (let [*cache (volatile! {})]
     (fn [req]
-      (binding [*touched* (volatile! #{})]
-        (let [{:keys [last-modified files resp]} (@*cache (:uri req))
-              modified (transduce (map #(.lastModified ^File %)) max 0 files)
-              modified (max modified (midnight-milli))]
-          (core/cond+
-            ;; invalidate cache
-            (or (nil? resp) (> modified last-modified))
-            (when-some [resp (handler req)]
-              (let [formatted (-> modified
-                                (Instant/ofEpochMilli)
-                                (core/format-temporal DateTimeFormatter/RFC_1123_DATE_TIME))
-                    etag      (str "W/\"" (-> modified (Long/toString 16)) "\"")
-                    headers   {"Last-Modified" formatted
-                               "ETag"          etag
-                               "Cache-Control" "no-cache, max-age=315360000"}
-                    resp      (update resp :headers merge headers)]
-                (vswap! *cache assoc (:uri req)
-                  {:last-modified modified
-                   :files         @*touched*
-                   :resp          resp})
-                resp))
+      (cond 
+        (str/starts-with? (:uri req) "/ptrs")
+        (handler req)
+        
+        (str/starts-with? (:uri req) "/watcher")
+        (handler req)
+        
+        :else
+        (binding [*touched* (volatile! #{})]
+          (let [{:keys [last-modified files resp]} (@*cache (:uri req))
+                modified (transduce (map #(.lastModified ^File %)) max 0 files)
+                modified (max modified (midnight-milli))]
+            (core/cond+
+              ;; invalidate cache
+              (or (nil? resp) (> modified last-modified))
+              (when-some [resp (handler req)]
+                (let [formatted (-> modified
+                                  (Instant/ofEpochMilli)
+                                  (core/format-temporal DateTimeFormatter/RFC_1123_DATE_TIME))
+                      etag      (str "W/\"" (-> modified (Long/toString 16)) "\"")
+                      headers   {"Last-Modified" formatted
+                                 "ETag"          etag
+                                 "Cache-Control" "no-cache, max-age=315360000"}
+                      resp      (update resp :headers merge headers)]
+                  (vswap! *cache assoc (:uri req)
+                    {:last-modified modified
+                     :files         @*touched*
+                     :resp          resp})
+                  resp))
             
-            ;; serve Not-Modified
-            (#'ring-modified/cached-response? req resp)
-            (assoc resp
-              :status  304
-              :headers {"Content-Length" 0}
-              :body    nil)
+              ;; serve Not-Modified
+              (#'ring-modified/cached-response? req resp)
+              (assoc resp
+                :status  304
+                :headers {"Content-Length" 0}
+                :body    nil)
             
-            ;; serve cached
-            :else
-            resp))))))
+              ;; serve cached
+              :else
+              resp)))))))
 
 (defn wrap-cached [handler]
   (if core/dev?
