@@ -6,6 +6,8 @@ hackernews_id: 39471221
 starred: true
 ---
 
+_Translations: [Russian](https://habr.com/ru/companies/ruvds/articles/796595/)_
+
 I was a bit out of touch with modern front-end development. I also remembered articles about web bloat, how the average web page size was approaching several megabytes!
 
 So all this time I was living under impression that, for example, if the average web page size is 3 MB, then JavaScript bundle should be around 1 MB. Surely content should still take the majority, no?
