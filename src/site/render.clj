@@ -66,7 +66,7 @@
         (cond
           (= true v)  (append sb " " (name k) "=\"\"")
           (= false v) :nop
-          :else       (append sb " " (name k) "=\"" (escape v) "\"")))
+          :else       (append sb " " (name k) "=\"" v "\"")))
 
       ;; insides
       (when (seq content)
