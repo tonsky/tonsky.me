@@ -31,7 +31,7 @@
       slug)))
 
 (defn set-title [design]
-  (if-some [[_ title] (re-matches #".*<a [^>]+>([\w\d\s]+)</a>.*" (:desc design))]
+  (if-some [[_ title] (re-matches #".*<a [^>]+>([\w\d\s!@#\$%\^&\*\(\)\-=\[\]_+\{\}'\",\.<>/\?]+)</a>.*" (:desc design))]
     (assoc design :title title)
     design))
 
