@@ -3,7 +3,9 @@
     [clojure.java.io :as io]
     [clojure.string :as str]
     [clojure.walk :as walk]
-    [site.core :as core]))
+    [site.core :as core])
+  (:import
+    [java.net URLEncoder]))
 
 (def about
   [:.about
@@ -45,10 +47,10 @@
           (list
             [:meta {:property "og:type" :content "website"}]
             [:meta {:property "og:image"
-                    :content "https://dynogee.com/gen?id=p9nh5iszh052l9n&title=That yellow website"}]
+                    :content "https://dynogee.com/gen?id=p9nh5iszh052l9n&title=That+yellow+website"}]
             [:meta {:name "twitter:card" :content "summary_large_image"}]
             [:meta {:name "twitter:image"
-                    :content "https://dynogee.com/gen?id=w4bfc9z4wl0fbk8&title=That yellow website"}]))
+                    :content "https://dynogee.com/gen?id=w4bfc9z4wl0fbk8&title=That+yellow+website"}]))
         (when post?
           (list
             [:meta {:property "article:published_time" :content (:published page)}]
@@ -57,12 +59,12 @@
             [:meta {:property "og:image"
                     :content (str "https://dynogee.com/gen"
                                "?id=" (if long? "p9nh5iszh052l9n" "dhqv5e0x3kfz7dy")
-                               "&title=" (:title page))}]
+                               "&title=" (URLEncoder/encode (:title page)))}]
             [:meta {:name "twitter:card" :content "summary_large_image"}]
             [:meta {:name "twitter:image"
                     :content (str "https://dynogee.com/gen"
                                "?id=" (if long? "n2dmiwwxhvcsz7b" "w4bfc9z4wl0fbk8")
-                               "&title=" (:title page))}]))
+                               "&title=" (URLEncoder/encode (:title page)))}]))
         (when-some [summary (:summary page)]
           (list
             [:meta {:property "og:description" :content summary}]

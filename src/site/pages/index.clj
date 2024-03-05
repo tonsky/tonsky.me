@@ -11,8 +11,9 @@
 (defn posts []
   (for [^File dir (core/list-files "site/blog")
         :when (.isDirectory dir)
-        :let [file   (io/file dir "index.md")
-              uri    (str "/blog/" (.getName dir) "/")
+        :let [file (io/file dir "index.md")]
+        :when (.exists file)
+        :let [uri    (str "/blog/" (.getName dir) "/")
               parsed (parser/parse-md uri)]]
     (assoc parsed
       :published (some-> (:published parsed)
