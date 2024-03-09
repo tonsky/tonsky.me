@@ -47,10 +47,10 @@
           (list
             [:meta {:property "og:type" :content "website"}]
             [:meta {:property "og:image"
-                    :content "https://dynogee.com/gen?id=p9nh5iszh052l9n&title=That+yellow+website"}]
+                    :content "https://dynogee.com/gen?id=24m2qx9uethuw6p&title=That+yellow+website"}]
             [:meta {:name "twitter:card" :content "summary_large_image"}]
             [:meta {:name "twitter:image"
-                    :content "https://dynogee.com/gen?id=w4bfc9z4wl0fbk8&title=That+yellow+website"}]))
+                    :content "https://dynogee.com/gen?id=nm509093bpj50lv&title=That+yellow+website"}]))
         (when post?
           (list
             [:meta {:property "article:published_time" :content (:published page)}]
@@ -58,12 +58,12 @@
             [:meta {:property "og:type" :content "article"}]
             [:meta {:property "og:image"
                     :content (str "https://dynogee.com/gen"
-                               "?id=" (if long? "p9nh5iszh052l9n" "dhqv5e0x3kfz7dy")
+                               "?id=" (if long? "niutqf5hxi7rjlw" "24m2qx9uethuw6p")
                                "&title=" (URLEncoder/encode (:title page)))}]
             [:meta {:name "twitter:card" :content "summary_large_image"}]
             [:meta {:name "twitter:image"
                     :content (str "https://dynogee.com/gen"
-                               "?id=" (if long? "n2dmiwwxhvcsz7b" "w4bfc9z4wl0fbk8")
+                               "?id=" (if long? "awabsokfn29i8xt" "nm509093bpj50lv")
                                "&title=" (URLEncoder/encode (:title page)))}]))
         (when-some [summary (:summary page)]
           (list
