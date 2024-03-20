@@ -6,7 +6,7 @@ hackernews_id: 39471221
 starred: true
 ---
 
-_Translations: [Russian](https://habr.com/ru/companies/ruvds/articles/796595/)_
+_Translations: [Korean](https://velog.io/@sehyunny/js-bloat-in-2024) [Russian](https://habr.com/ru/companies/ruvds/articles/796595/)_
 
 I was a bit out of touch with modern front-end development. I also remembered articles about web bloat, how the average web page size was approaching several megabytes!
 
