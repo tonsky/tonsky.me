@@ -2,6 +2,7 @@
 title: "Daylight Saving Time is a perfect test for UI designer"
 summary: "Unique challenges that DST presents for clock/watch designers"
 published: 2024-03-31
+hackernews_id: 39885773
 ---
 
 I have five clocks in my house. All of them I have to change manually twice a year: one hour back in the Autumn and one hour forward in the Spring. Today was one of these days.
