@@ -96,7 +96,10 @@
         
         :else
         (binding [*touched* (volatile! #{})]
-          (let [{:keys [last-modified files resp]} (@*cache (:uri req))
+          (let [key (cond-> (:uri req)
+                      (= "true" (-> req :cookies (get "dark") :value))
+                      (str "?dark"))
+                {:keys [last-modified files resp]} (@*cache key)
                 modified (transduce (map #(.lastModified ^File %)) max 0 files)
                 modified (max modified (midnight-milli))]
             (core/cond+
@@ -111,7 +114,7 @@
                                  "ETag"          etag
                                  "Cache-Control" "no-cache, max-age=315360000"}
                       resp      (update resp :headers merge headers)]
-                  (vswap! *cache assoc (:uri req)
+                  (vswap! *cache assoc key
                     {:last-modified modified
                      :files         @*touched*
                      :resp          resp})
