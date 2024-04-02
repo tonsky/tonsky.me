@@ -181,7 +181,6 @@
   (let [{:keys [figcaption aspect]} (normalize-figure args)
         aspect (or (some-> aspect parse-double) 16/9)
         width  635]
-    (println aspect)
     [:figure
      ;; TODO fetch width/height from YouTube
      [:iframe {:width           (str width)

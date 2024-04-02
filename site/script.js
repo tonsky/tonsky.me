@@ -38,26 +38,68 @@ window.addEventListener("load", (event) => {
 
 /** FLASHLIGHT **/
 
+var mousePos;
+
 function updateFlashlight(e) {
-  var style = document.body.style;
-  style.backgroundPositionX = e.pageX - 250 + 'px';
-  style.backgroundPositionY = e.pageY - 250 + 'px';
+  mousePos = {clientX: e.clientX,
+              clientY: e.clientY,
+              pageX: e.pageX,
+              pageY: e.pageY};
+
+  flashlight.style.left = mousePos.clientX - 250 + 'px';
+  flashlight.style.top = mousePos.clientY - 250 + 'px';
+
+  const centerX = darkModeGlow.offsetLeft + 38;
+  const centerY = darkModeGlow.offsetTop + 12;
+  const dist = Math.hypot(mousePos.pageX - centerX, mousePos.pageY - centerY);
+  const opacity = Math.max(0, Math.min(1, (dist - 50) / (200 - 50)));
+  darkModeGlow.style.opacity = opacity;
+}
+
+function updateDarkMode(e) {
+  const body = document.body;
+  if (body.classList.contains('dark')) {
+    document.cookie = 'dark=true; SameSite=lax; path=/';
+    updateFlashlight(e);
+    ['mousemove', 'touchstart', 'touchmove', 'touchend'].forEach(function(s) {
+      document.documentElement.addEventListener(s, updateFlashlight, false);
+    });
+  } else {
+    document.cookie = 'dark=false; SameSite=lax; path=/';
+    ['mousemove', 'touchstart', 'touchmove', 'touchend'].forEach(function(s) {
+      document.documentElement.removeEventListener(s, updateFlashlight, false);
+    });
+  }
+}
+
+function readCookie(name) {
+  var cookies = document.cookie ? document.cookie.split('; ') : []
+  for (var i = 0; i < cookies.length; ++i) {
+      var parts = cookies[i].split('=')
+      if (parts[0] === name)
+        return parts[1];
+  }
 }
 
 window.addEventListener("load", (event) => {
   document.querySelector('.dark_mode').onclick = function(e) {
-    var body = document.body;
+    const body = document.body;
     body.classList.toggle('dark');
-    if (body.classList.contains('dark')) {
-      updateFlashlight(e);
-      ['mousemove', 'touchstart', 'touchmove', 'touchend'].forEach(function(s) {
-        document.documentElement.addEventListener(s, updateFlashlight, false);
-      });
-    } else {
-      ['mousemove', 'touchstart', 'touchmove', 'touchend'].forEach(function(s) {
-        document.documentElement.removeEventListener(s, updateFlashlight, false);
-      });
-    }
+    updateDarkMode(e);
+  };
+
+  // first time initialization
+  const cookie = readCookie('mousePos');
+  if (cookie) {
+    updateDarkMode(JSON.parse(cookie));
+  } else {
+    updateDarkMode({clientX: 0, clientY: 0, pageX: 0, pageY: 0});
+  }
+});
+
+window.addEventListener("beforeunload", (event) => {
+  if (mousePos) {
+    document.cookie = 'mousePos=' + JSON.stringify(mousePos) + '; SameSite=lax; path=/';
   }
 });
 

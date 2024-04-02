@@ -4,6 +4,7 @@
     [clojure.java.io :as io]
     [mount.core :as mount]
     [org.httpkit.server :as http]
+    [ring.middleware.cookies :as ring-cookies]
     [ring.middleware.head :as ring-head]
     [ring.middleware.params :as ring-params]
     [ring.util.codec :as ring-codec]
@@ -107,14 +108,20 @@
 ;             (swap! *cache assoc key [modified val])
 ;             (assoc resp :body val)))))))
 
-(defn resp-html [page]
-  {:status  200
-   :headers {"Content-Type" "text/html; charset=UTF-8"}
-   :body    (-> page
-              default/default
-              cache/timestamp
-              :content
-              render/render-html)})
+(defn resp-html
+  ([page]
+   (resp-html nil page))
+  ([req page]
+   (let [page (cond-> page
+                (= "true" (-> req :cookies (get "dark") :value))
+                (assoc :dark true))]
+     {:status  200
+      :headers {"Content-Type" "text/html; charset=UTF-8"}
+      :body    (-> page
+                 default/default
+                 cache/timestamp
+                 :content
+                 render/render-html)})))
 
 (defn redirect [loc]
   {:status 301
@@ -132,20 +139,21 @@
       (merge
         pointers/routes
         (router/routes
-          "GET /"          []   (resp-html (index/index))
+          "GET /"          req   (resp-html req (index/index))
           "GET /atom.xml"  []   {:status  200
                                  :headers {"Content-Type" "application/atom+xml; charset=UTF-8"}
                                  :body    (render/render-xml (atom/feed))}
-          "GET /blog/**"   [id] (when (.exists (io/file (str "site/blog/" id "/index.md")))
-                                  (resp-html (post/post (parser/parse-md (str "/blog/" id)))))
-          "GET /talks"     []   (resp-html (talks/page))
-          "GET /design"    []   (resp-html (design/page))
-          "GET /patrons"   []   (resp-html (patrons/page))
-          "GET /projects"  []   (resp-html (projects/page))
-          "GET /subscribe" []   (-> (parser/parse-md "/subscribe/")
+          "GET /blog/**"   req  (let [[id] (:path-params req)]
+                                  (when (.exists (io/file (str "site/blog/" id "/index.md")))
+                                    (resp-html req (post/post (parser/parse-md (str "/blog/" id))))))
+          "GET /talks"     req  (resp-html req (talks/page))
+          "GET /design"    req  (resp-html req (design/page))
+          "GET /patrons"   req  (resp-html req (patrons/page))
+          "GET /projects"  req  (resp-html req (projects/page))
+          "GET /subscribe" req  (-> (parser/parse-md "/subscribe/")
                                   post/post
                                   (dissoc :categories)
-                                  resp-html)
+                                  (->> (resp-html req)))
           "GET /blog/how-to-subscribe/" [] (redirect "/subscribe/")
           "GET /blog/atom.xml"          [] (redirect "/atom.xml")
           "GET /about"                  [] (redirect "/projects/")
@@ -167,6 +175,7 @@
     wrap-redirects
     watcher/wrap-watcher
     wrap-decode-uri
+    ring-cookies/wrap-cookies
     ring-params/wrap-params
     ring-head/wrap-head))
 

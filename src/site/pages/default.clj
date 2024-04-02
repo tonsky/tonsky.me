@@ -81,7 +81,7 @@
           [:script {:src script :defer true :async true}])
         (when core/dev?
           [:script {:src "/watcher.js" :defer true :async true}])]
-       [:body
+       [:body {:class (when (:dark page) "dark")}
         [:.page
          [:ul {:class "menu"}
           (for [[url title] [["/"          "Blog"]
@@ -94,7 +94,8 @@
                            (and post? (= url "/")) "inside")}
              [:a {:href url} title]])
           [:div {:class "spacer"}]
-          [:div {:class "dark_mode"}]]
+          [:div {:class "dark_mode"}
+           [:#darkModeGlow]]]
       
          (when index?
            about)
@@ -104,5 +105,5 @@
          (when post?
            about)]
       
-        [:.preload]
+        [:img#flashlight {:src "/i/flashlight.webp"}]
         [:.pointers]]])))
