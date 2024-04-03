@@ -58,14 +58,17 @@ function updateFlashlight(e) {
 
 function updateDarkMode(e) {
   const body = document.body;
+  const theme = document.querySelector("meta[name=theme-color]");
   if (body.classList.contains('dark')) {
     document.cookie = 'dark=true; SameSite=lax; path=/';
+    theme.content = "#000";
     updateFlashlight(e);
     ['mousemove', 'touchstart', 'touchmove', 'touchend'].forEach(function(s) {
       document.documentElement.addEventListener(s, updateFlashlight, false);
     });
   } else {
     document.cookie = 'dark=false; SameSite=lax; path=/';
+    theme.content = "#FDDB29";
     ['mousemove', 'touchstart', 'touchmove', 'touchend'].forEach(function(s) {
       document.documentElement.removeEventListener(s, updateFlashlight, false);
     });
