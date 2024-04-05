@@ -22,8 +22,8 @@
 
 (defn -main [& args]
   (alter-var-root #'*command-line-args* (constantly args))
-  (require 'site.server)
   ((requiring-resolve 'site.core/apply-args) *command-line-args*)
+  (require 'site.server)
   (mount/start)
   (let [{port "--repl-port"} args]
     (duti/start-socket-repl {:port (some-> port parse-long)})))
