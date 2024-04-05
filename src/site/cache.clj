@@ -96,9 +96,7 @@
         
         :else
         (binding [*touched* (volatile! #{})]
-          (let [key (cond-> (:uri req)
-                      (= "true" (-> req :cookies (get "dark") :value))
-                      (str "?dark"))
+          (let [key (:uri req)
                 {:keys [last-modified files resp]} (@*cache key)
                 modified (transduce (map #(.lastModified ^File %)) max 0 files)
                 modified (max modified (midnight-milli))]

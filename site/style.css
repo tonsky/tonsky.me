@@ -127,8 +127,8 @@ blockquote { display: flex; flex-direction: column; gap: var(--gap); margin: var
 .btn-subscribe > img { width: 21px; height: 21px; display: inline-block; vertical-align: bottom; }
 
 /* FLASHLIGHT */
-#flashlight { visibility: hidden; width: 500px; height: 500px; pointer-events: none; z-index: 10; }
-body.dark #flashlight { visibility: visible; position: fixed; box-shadow: 0 0 0 9999px #000; }
+#flashlight { display: none; width: 500px; height: 500px; pointer-events: none; z-index: 10; }
+body.dark #flashlight { display: block; position: fixed; box-shadow: 0 0 0 9999px #000; }
 
 /* POINTERS */
 .pointer { width: 16px; height: 24px; position: absolute; background-image: url(/i/pointers.png); background-size: 300% 100%; transition: 200ms; transition-timing-function: ease-in-out; pointer-events: none; }

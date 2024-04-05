@@ -81,7 +81,7 @@
           [:script {:src script :defer true :async true}])
         (when core/dev?
           [:script {:src "/watcher.js" :defer true :async true}])]
-       [:body {:class (when (:dark page) "dark")}
+       [:body
         [:.page
          [:ul {:class "menu"}
           (for [[url title] [["/"          "Blog"]

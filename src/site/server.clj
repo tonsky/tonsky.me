@@ -112,16 +112,13 @@
   ([page]
    (resp-html nil page))
   ([req page]
-   (let [page (cond-> page
-                (= "true" (-> req :cookies (get "dark") :value))
-                (assoc :dark true))]
-     {:status  200
-      :headers {"Content-Type" "text/html; charset=UTF-8"}
-      :body    (-> page
-                 default/default
-                 cache/timestamp
-                 :content
-                 render/render-html)})))
+   {:status  200
+    :headers {"Content-Type" "text/html; charset=UTF-8"}
+    :body    (-> page
+               default/default
+               cache/timestamp
+               :content
+               render/render-html)}))
 
 (defn redirect [loc]
   {:status 301
@@ -139,7 +136,7 @@
       (merge
         pointers/routes
         (router/routes
-          "GET /"          req   (resp-html req (index/index))
+          "GET /"          req  (resp-html req (index/index))
           "GET /atom.xml"  []   {:status  200
                                  :headers {"Content-Type" "application/atom+xml; charset=UTF-8"}
                                  :body    (render/render-xml (atom/feed))}

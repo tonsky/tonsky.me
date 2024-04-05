@@ -57,17 +57,17 @@ function updateFlashlight(e) {
 }
 
 function updateDarkMode(e) {
-  const body = document.body;
   const theme = document.querySelector("meta[name=theme-color]");
-  if (body.classList.contains('dark')) {
-    document.cookie = 'dark=true; SameSite=lax; path=/';
+  if (document.body.classList.contains('dark')) {
+    localStorage.setItem('dark', 'true');
     theme.content = "#000";
     updateFlashlight(e);
     ['mousemove', 'touchstart', 'touchmove', 'touchend'].forEach(function(s) {
       document.documentElement.addEventListener(s, updateFlashlight, false);
     });
   } else {
-    document.cookie = 'dark=false; SameSite=lax; path=/';
+    localStorage.removeItem('dark');
+    localStorage.removeItem('mousePos');
     theme.content = "#FDDB29";
     ['mousemove', 'touchstart', 'touchmove', 'touchend'].forEach(function(s) {
       document.documentElement.removeEventListener(s, updateFlashlight, false);
@@ -75,34 +75,27 @@ function updateDarkMode(e) {
   }
 }
 
-function readCookie(name) {
-  var cookies = document.cookie ? document.cookie.split('; ') : []
-  for (var i = 0; i < cookies.length; ++i) {
-      var parts = cookies[i].split('=')
-      if (parts[0] === name)
-        return parts[1];
-  }
-}
-
 window.addEventListener("load", (event) => {
   document.querySelector('.dark_mode').onclick = function(e) {
-    const body = document.body;
-    body.classList.toggle('dark');
+    document.body.classList.toggle('dark');
     updateDarkMode(e);
   };
 
   // first time initialization
-  const cookie = readCookie('mousePos');
-  if (cookie) {
-    updateDarkMode(JSON.parse(cookie));
-  } else {
-    updateDarkMode({clientX: 0, clientY: 0, pageX: 0, pageY: 0});
+  if (localStorage.getItem('dark')) {
+    document.body.classList.toggle('dark');
+    var mousePos = {clientX: 0, clientY: 0, pageX: 0, pageY: 0};
+    const stored = localStorage.getItem('mousePos');
+    if (stored) {
+      mousePos = JSON.parse(stored);
+    }
+    updateDarkMode(mousePos);
   }
 });
 
 window.addEventListener("beforeunload", (event) => {
-  if (mousePos) {
-    document.cookie = 'mousePos=' + JSON.stringify(mousePos) + '; SameSite=lax; path=/';
+  if (document.body.classList.contains('dark') && mousePos) {
+    localStorage.setItem('mousePos', JSON.stringify(mousePos));
   }
 });
 
