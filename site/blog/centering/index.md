@@ -250,3 +250,77 @@ That’s exactly why people love web programming so much. There’s always a cha
 
 # Icon fonts
 
+Aligning rectangles is relatively easy. Aligning text is hard. Icons are rectangles. So what if we put icons into font file?
+
+Now we can’t align anything:
+
+icon_fonts@2x.webp
+
+Neither can we set icon size! In the example above, all icons were set to the same font-size and line-height. As you can see, all of them come out different size, with different paddings, and none were properly aligned.
+
+Despite many shortcomings and almost no upsides, companies rushed to add icon fonts everywhere. The result is this:
+
+calculators@2x.png
+macOS 10.14 → macOS 10.15
+
+Notice how operators are not vertically aligned anymore, and also blurry. All because of switching to icon font.
+
+Apple was so commited to icon fonts they even ruined QuickTime record button:
+
+quicktime@2x.webp
+
+Just look at it:
+
+quicktime_button@2x.webp
+
+Yes, it actually looks like this to this day. As does calculator.
+
+But they are far from being the only ones. One:
+
+icon_1@2x.webp
+
+Two:
+
+android@2x.webp
+
+Three:
+
+icon_3@2x.webp
+
+Four:
+
+icon_4@2x.webp
+
+Five:
+
+icon_5@2x.webp
+
+Six:
+
+icon_6@2x.webp
+
+Seven:
+
+icon_7@2x.webp
+
+Eight:
+
+icon_8@2x.webp
+
+Same as with text alignment, there’s an endless supply of poorly aligned icons.
+
+Solution?
+
+STOP.
+
+USING.
+
+FONTS.
+
+FOR.
+
+ICONS.
+
+Use normal image format. The one with dimensions, you know? Width and height?
+
+Again: nothing is easier than aligning two rectangles inside one another. Nothing is harder that trying to align text that has arbitrary amount of empty space around it.
