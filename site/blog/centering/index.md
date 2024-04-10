@@ -1,5 +1,5 @@
 ---
-title: We lost the secret of centering things
+title: Hardest Problem in Computer Science: Centering Things
 ---
 
 This is my claim: we, as a civilization, forgot how to center things.
@@ -67,10 +67,6 @@ Apple can’t do it:
 
 apple_buttons_big_sur@2x.png
 
-Event though they knew how in the past, that secret is long gone:
-
-spotlight@2x.webp
-
 Microsoft can’t do it:
 
 windows@2x.webp
@@ -87,18 +83,6 @@ Slack can’t do it:
 
 slack_button@2x.webp
 
-Sometimes I think they don’t even try:
-
-slack@2x.webp
-
-Notion can’t do it:
-
-notion@2x.webp
-
-YouTube can’t do it:
-
-youtube@2x.webp
-
 Telegram can’t do it:
 
 telegram@2x.webp
@@ -107,7 +91,11 @@ Google Maps can’t do it:
 
 google_maps@2x.webp
 
-I can do this all day, but I think you get the idea. Companies big and small, native or web, none of them are safe from text centering problem.
+Honestly, I can provide an endless supply of poorly-aligned buttons without even having to look for them:
+
+buttons@2x.png
+
+I think you get the idea. Companies big and small, native or web, none of them are safe from text centering problem.
 
 So what _is_ the problem?
 
@@ -138,6 +126,10 @@ Percentages are of cap-height
 
 10% is not a small number. It’s a whole pixel on font-size 13! Two, if you have retina! It’s easily noticeable.
 
+Basically, Segoe UI is the reason why Github on Windows looks like this:
+
+github@2x.webp
+
 The solution is simple: make tight bounding boxes and centering will become trivial:
 
 text_bounding_box_5.png
@@ -158,6 +150,103 @@ font_metrics@2x.png
 
 Important! You don’t have to _actually_ extend your ascenders/descenders to these boundaries. As you can see in the picture, my ascender space, for example, is way underutilized. Just make the numbers match.
 
+For both web and native, to avoid headache, choose a font that already follows this rule. SF Pro Text, Inter and Martian Mono seem to do this already, so they will center perfectly with no extra effort.
+
 See [Font size is useless; let’s fix it](https://tonsky.me/blog/font-size/) for more information.
 
+# Line height
+
+If font metrics are not enough, next problem on our way to perfect centering is line height.
+
+Line height is... complicated. Canonical article to learn about it is Vincent De Oliveira’s [Deep dive CSS: font metrics, line-height and vertical-align](https://iamvdo.me/en/blog/css-font-metrics-line-height-and-vertical-align).
+
+This is how it looks applied in practice. Slack:
+
+slack@2x.webp
+
+Notion:
+
+notion@2x.webp
+
+AirBnB:
+
+airbnb@2x.webp
+
+YouTube:
+
+youtube@2x.webp
+
+Aligning two things in different containers is almost impossible:
+
+name@2x.webp
+
+Although many have tried:
+
+american_airlines@2x.webp
+
+Not many have succedeed:
+
+addons@2x.webp
+
+CSS might get in the way (different controls having different defaults which you have to undo before even starting trying to align):
+
+controls@2x.webp
+
+No easy solution here, just roll up your sleeves and delve into specifications.
+
+# Icons
+
+Icons are like small rectangles put in line with text. So all problems caused by text AND line-height apply here. Aligning icons next to text is a notoriously hard task.
+
+Atom:
+
+atom@2x.webp
+
+Platform formely known as Twitter:
+
+twitter@2x.webp
+
+iOS:
+
+ios@2x.webp
+
+YouTube:
+
+youtube_likes@2x.webp
+
+Sometimes icon wins over text:
+
+meet@2x.webp
+
+Sometimes text wins over icon:
+
+ical@2x.webp
+
+Sometimes both lose:
+
+name_button@2x.webp
+
+Some icons are just plain old HTML form controls:
+
+git_butler@2x.webp
+
+Sometimes people will get creative to achieve perfect alignment:
+
+github_close@2x.webp
+
+But overall it’s a pretty hopeless game:
+
+apple_id@2x.webp
+
+Problem is, CSS doesn’t help us either. There are 13 possible values for `vertical-align` property, but none would align icon in a meaningful way:
+
+text_align@2x.png
+
+`text-align: middle` comes closest, but it aligns by x-height, not cap-height, which still looks unbalanced:
+
+middle@2x.webp
+
+That’s exactly why people love web programming so much. There’s always a challenge.
+
+# Icon fonts
 
