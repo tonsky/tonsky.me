@@ -218,6 +218,10 @@ iOS:
 
 ios@2x.webp
 
+Mozilla:
+
+mozilla@2x.webp
+
 YouTube:
 
 youtube_likes@2x.webp
