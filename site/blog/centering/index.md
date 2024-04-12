@@ -61,7 +61,7 @@ So what’s happening? Let’s find out.
 
 # Fonts
 
-Fonts are one of the biggest offenders. You can see poorly aligned text everywhere.
+Fonts are one of the biggest offenders. You can see poorly aligned text everywhere. Let me showcase.
 
 Apple can’t do it:
 
@@ -95,7 +95,7 @@ Honestly, I can provide an endless supply of poorly-aligned buttons without even
 
 buttons@2x.png
 
-I think you get the idea. Companies big and small, native or web, neither are safe from text-centering problems.
+I think you get the idea. Myriad of companies big and small, native or web, and none are safe from text-centering problems.
 
 So what _is_ the problem?
 
@@ -204,7 +204,7 @@ No easy solution here, just roll up your sleeves and delve into specifications.
 
 # Icons
 
-Icons are like small rectangles put in line with text. So all problems caused by text AND line height apply here. Aligning icons next to text is a notoriously hard task.
+Icons are like small rectangles put in line with text. Therefore all problems caused by text AND line height apply here. Aligning icons next to text is a notoriously hard task.
 
 Atom:
 
@@ -346,7 +346,7 @@ Even a simple act of putting a circle inside another circle becomes impossible:
 
 name_circle@2x.webp
 
-Again: nothing is easier than aligning two rectangles. Nothing is harder than trying to align text that has an arbitrary amount of empty space around it.
+Let me highlight: nothing is easier than aligning two rectangles. Nothing is harder than trying to align text that has an arbitrary amount of empty space around it.
 
 This is a game that can’t be won.
 
@@ -362,7 +362,7 @@ The problem with icons is that sometimes you have to take their shape into accou
 apple_logo@2x.webp
 Bad centering / good centering
 
-Triangle is particularly tricky:
+Triangle is notably tricky:
 
 triangle@2x.webp
 
@@ -414,6 +414,6 @@ spinner.mp4
 
 Aligning a thing inside another thing sounds deceptively simple on paper, while in practice it can’t be further from it.
 
-Maybe in the era when pixels were huge and interfaces hand-crafted, we knew how to calculate distances from the edge and make them equal. It seems we can’t do it anymore.
+Maybe in the era when pixels were huge and interfaces hand-crafted, we knew how to calculate distances from the edge and make robust UIs. It seems we can’t do it anymore.
 
 This is how our civilization falls. Not with a bang, but with poorly centered rectangles.
