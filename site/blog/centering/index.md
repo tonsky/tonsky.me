@@ -196,7 +196,7 @@ as can native frameworks:
 
 win@2x.webp
 
-This is a shame because properly aligned text can make you UI sing:
+This is a shame because properly aligned text can make your UI sing:
 
 win_fix@2x.webp
 
