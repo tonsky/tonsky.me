@@ -2,6 +2,7 @@
 title: Hardest Problem in Computer Science: Centering Things
 summary: "Somehow we forgot how to center rectangles and must find our way back"
 published: 2024-04-16
+hackernews_id: 40069599
 ---
 
 This is my claim: we, as a civilization, forgot how to center things.
