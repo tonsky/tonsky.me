@@ -1,4 +1,12 @@
 [[talk]]
+date    = 2024-04-26
+url     = "https://t.me/ilyabirman_channel/10261"
+title   = "Компьютеры не особо рассчитаны на людей"
+event   = "Думаем дальше"
+desc    = "Илья рассказывает, как мы просрали многозадачность, а Никита ругает консольный интерфейс Гита."
+content = "2024-04-26 Думаем дальше.mp3"
+
+[[talk]]
 date    = 2024-04-03
 url     = "https://podlodka.io/364"
 title   = "Дата и время"
@@ -7,6 +15,14 @@ desc    = "Дата и время — не самый простой домен.
 hosted  = "https://www.youtube.com/watch?v=Yd44P3DUrp8"
 content = "2024-04-03 Podlodka.mp4"
 thumb   = "2024-04-03 Podlodka.webp"
+
+[[talk]]
+date    = 2024-01-22
+url     = "https://t.me/ilyabirman_channel/9972"
+title   = "Красиво разлетаются брызги по твоей мисочке"
+event   = "Думаем дальше"
+desc    = "обсудили, что две главные фичи нового Макоса, виджеты и видеообои, сделаны через жопу."
+content = "2024-01-22 Думаем дальше.mp3"
 
 [[talk]]
 date    = 2024-01-17
@@ -25,6 +41,30 @@ desc    = "Introduction to Humble UI, a new JVM Clojure library for desktop GUI 
 hosted  = "https://www.youtube.com/watch?v=HZTrfz-2yW4"
 content = "2024-01-16 London Clojurians.mp4"
 thumb   = "2024-01-16 London Clojurians.webp"
+
+[[talk]]
+date    = 2024-01-13
+url     = "https://t.me/ilyabirman_channel/9941"
+title   = "Ты явно хочешь гуй"
+event   = "Думаем дальше"
+desc    = "Обсудили ещё деталей интерфейса текстового ввода, зачем люди пользуются терминалом и анимацию."
+content = "2024-01-13 Думаем дальше.mp3"
+
+[[talk]]
+date    = 2024-01-02
+url     = "https://t.me/ilyabirman_channel/9906"
+title   = "Ощущается как ненастоящие ёлочные игрушки"
+event   = "Думаем дальше"
+desc    = "Выпуск про то, что в Эпле теряются даже те знания о дизайне, которые они же сами и принесли в мир."
+content = "2024-01-02 Думаем дальше.mp3"
+
+[[talk]]
+date    = 2023-12-25
+url     = "https://t.me/ilyabirman_channel/9883"
+title   = "Тексту положено быть быстрым"
+event   = "Думаем дальше"
+desc    = "Простое и сложное, быстрое и небыстрое."
+content = "2023-12-25 Думаем дальше.mp3"
 
 [[talk]]
 date    = 2023-11-18
@@ -56,7 +96,7 @@ thumb   = "2023-09-25 Podlodka.webp"
 [[talk]]
 date    = 2022-12-23
 url     = "https://soundcloud.com/javaswag/e40"
-title   = "Подкаст Java Swag, эпизод 40"
+title   = "Подкаст Java Swag, эпизод 40"
 event   = "Java Swag"
 desc    = "Разочарование в Java, простота Clojure и опенсорс проекты"
 content = "2022-12 Java Swag.mp3"
@@ -151,7 +191,7 @@ content = "2019-11 ClojureStream Rum.mp3"
 [[talk]]
 date    = 2019-08-09
 url     = "https://devzen.ru/episode-0245/"
-title   = "Подкаст DevZen, эпизод 245"
+title   = "Подкаст DevZen, эпизод 245"
 event   = "DevZen"
 desc    = "Обсуждаем физические принципы клавиатур, виды раскладок, как клавиатура приводит к RSI и как этого избежать, как правильно собрать свою клавиатуру."
 content = "2019-08 DevZen Keyboards.mp3"
@@ -159,7 +199,7 @@ content = "2019-08 DevZen Keyboards.mp3"
 [[talk]]
 date    = 2019-05-20
 url     = "https://t.me/KgOfHedgehogs/509"
-title   = "Подкаст Высший Клик, эпизод 2"
+title   = "Подкаст Высший Клик, эпизод 2"
 event   = "Высший клик"
 desc    = "Обсуждаем эргономику клавиатур и отвечаем на <a target='_blank' href='https://tonsky.livejournal.com/321097.html'>вопросы из комментариев.</a>"
 content = "2019-05 Podcast Keyboards.mp3"
@@ -601,7 +641,7 @@ slides  = "2014.11 fby.pdf"
 
 [[talk]]
 date    = 2014-10-11
-title   = "Подкаст DevZen, эпизод 12"
+title   = "Подкаст DevZen, эпизод 12"
 url     = "https://devzen.ru/episode-0012/"
 desc    = "ClojureCup, Transit, transducers, ClojureScript rationale, React"
 event   = "DevZen"
