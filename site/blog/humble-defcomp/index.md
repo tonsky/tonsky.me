@@ -1,5 +1,5 @@
 ---
-title: "Humble Chronicles: Shape of the component"
+title: "Humble Chronicles: Shape of the Component"
 summary: "Looking for an ergonomic way to define components"
 published: 2024-04-30
 ---
