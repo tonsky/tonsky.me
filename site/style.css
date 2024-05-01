@@ -57,7 +57,7 @@ body { margin: calc(var(--cap-height) * 4) 0; background-color: #FDDB29; color: 
 body.dark .dark_mode { background-position: 0 0; }
 #darkModeGlow { background-position: 0 -24px; outline: 1.5px solid #15FB1F; box-shadow: 0 0 10px 1.5px #15FB1F; z-index: 20; opacity: 0; position: absolute; }
 body.dark #darkModeGlow { opacity: 1; }
-@media (any-pointer: coarse) {
+@media (any-hover: none) {
   .dark_mode, #darkModeGlow { display: none; }
 }
 
