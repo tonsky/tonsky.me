@@ -56,7 +56,7 @@ Oh, we also have a list of premieres so you would know what’s coming. But that
 
 # What about the interface?
 
-There isn’t one. I mean, there is, of course, but I tried to make it as invisible as possible. There’s no logo. No menu. No footer. No pagination. No “See more”. No ads, of course.
+There isn’t one. I mean, there is, of course, but I tried to make it as invisible as possible. There’s no logo. No menu. No footer. No pagination. No “See more”. No cookie banners (because no cookies). No ads, of course.
 
 Why? Because people don’t care about that stuff. They care about function. And our UI is a pure function.
 
