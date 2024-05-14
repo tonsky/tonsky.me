@@ -66,7 +66,7 @@ Well, Ctrl+F, of course. We are too humble, too lazy, and too smart to try to co
 
 # Wait, what about page size?
 
-It’s totally fine. I mean, for Berlin, for example, we serve 600 KB of HTML. 2 MB with posters. It’s fine. 
+It’s totally fine. I mean, for Berlin, for example, we serve 1.4 MB of HTML. 3 MB with posters. It’s fine. 
 
 Slack loads 50 MB (yes, MEGA bytes) to show you a list of 10 chats. AirBnB loads 15 MB, including 500 KB HTML, just to show 20 images. LinkedIn loads 1.5 MB of just HTML (37 MB total) for a fraction of the data we’re showing. So we are fine.
 
