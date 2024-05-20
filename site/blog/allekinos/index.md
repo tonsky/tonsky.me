@@ -2,6 +2,7 @@
 title: Going to the cinema is a data visualization problem
 summary: "How I build a website for choosing movies"
 published: 2024-05-14
+hackernews_id: 40367566
 ---
 
 Do you like going to the cinema? I do. But I also like to know where I am going and which movie I am going to see. But how do you choose?
