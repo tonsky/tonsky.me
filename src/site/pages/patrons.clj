@@ -177,10 +177,12 @@
     (core/schedule-once fetch-members when)))
 
 (mount/defstate fetch-members-task
-  :start (schedule-in-a-month nil)
-  :stop  (do
-           (println "Stopping patrons fetching")
-           (core/cancel-task fetch-members-task)))
+  :start
+  (core/schedule-once fetch-members (ZonedDateTime/now core/UTC))
+  :stop 
+  (do
+    (println "Stopping patrons fetching")
+    (core/cancel-task fetch-members-task)))
 
 (defn merge-members [m1 m2]
   (-> m1
