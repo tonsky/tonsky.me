@@ -168,7 +168,8 @@
 (defn schedule-in-a-month [_]
   (let [when (-> (LocalDate/now core/UTC)
                (.withDayOfMonth 6)
-               (.atStartOfDay core/UTC))
+               (.atStartOfDay core/UTC)
+               (.minusHours 1))
         when (if (neg? (compare when (ZonedDateTime/now core/UTC)))
                (.plusMonths when 1)
                when)]
@@ -212,6 +213,9 @@
     (catch Exception e
       (alter-var-root #'fetch-members-task schedule-soon)
       (throw e))))
+
+(comment
+  (fetch-members))
 
 ;; PAGE
 
