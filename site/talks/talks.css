@@ -12,6 +12,7 @@
 @media (max-width: 560px) {
   .talk-view { width: 96vw; }
 }
+.talk-view > video { width: 100%; height: auto; border-radius: var(--radius); }
 .podcast { height: 100%; background-size: cover; background-position: center; display: flex; flex-direction: column; justify-content: flex-end; border-radius: var(--radius); }
 .podcast audio { margin: 0 5px 5px 5px; width: calc(100% - 10px); border-radius: calc(var(--radius) - 5px); }
 iframe { display: block; border-radius: var(--radius); }
