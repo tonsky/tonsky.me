@@ -18,6 +18,8 @@
 iframe { display: block; border-radius: var(--radius); }
 .talk-view-stub { height: 100%; background: var(--gray-bg); border-radius: var(--radius); display: flex; align-items: center; justify-content: center; }
 
+.talk-description > br { display: block; margin: 0.5em 0; }
+
 .popup { color: inherit; }
 .popup:hover { color: #000; }
 .popup::after { content: " "; margin: 0 0 0 5px; display: inline-block; width: 15px; height: 13px; background-image: url('data:image/svg+xml;utf8,<svg width="15px" height="13px" viewBox="0 0 15 13" version="1.1" xmlns="http://www.w3.org/2000/svg"><g stroke="%2300000033" fill="none" stroke-width="1.5"><polyline points="11 9 11 12 1 12 1 4 4 4"></polyline><rect x="4" y="1" width="10" height="8"></rect></g></svg>'); }
