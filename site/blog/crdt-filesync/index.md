@@ -16,25 +16,25 @@ But first, some context.
 
 # What is local-first?
 
-For the long version, go to Ink & Switch who coined the term: https://www.inkandswitch.com/local-first/
+For the long version, go to Ink & Switch, who coined the term: https://www.inkandswitch.com/local-first/
 
 Here’s my short version:
 
-- It’s a software.
+- It’s software.
 - That prefers keeping your data local.
-- But it still goes to the internet occasionally to sync with other users, fetch data, backup, etc.
+- But it still goes to the internet occasionally to sync with other users, fetch data, back up, etc.
 
 If it doesn’t go to the internet at all, it’s just local software.
 
 If it doesn’t work offline with data it already has, then it’s just normal cloud software. You all know the type — sorry, Dave, I can’t play the song I just downloaded because your internet disappeared for one second...
 
-But somewhere in the middle — local-first. We love it because it’s good for the end user, you and me, not for the corporations that produced it.
+But somewhere in the middle — local-first. We love it because it’s good for the end user, you and me, not for the corporations that produce it.
 
 # What’s the problem with local-first?
 
-The goal of the local-first software is to get control back into the hands of user, right? You own the data (literally, it’s on your device), yada-yada-yada. That part works great.
+The goal of local-first software is to get control back into the hands of the user, right? You own the data (literally, it’s on your device), yada-yada-yada. That part works great.
 
-However local-first software still has this online component. E.g. personal local-first software still needs to sync between your own devices. And syncing doesn’t work without a server...
+However, local-first software still has this online component. For example, personal local-first software still needs to sync between your own devices. And syncing doesn’t work without a server...
 
 So here we have a problem: somebody writes local-first software. Everybody who bought it can use it until the heat death of the universe. They _own_ it.
 
@@ -50,13 +50,13 @@ The solution is to use something widely available that will probably outlive our
 
 And what’s the most common end-user application of cloud sync?
 
-Dropbox! Well, not necessarily Dropbox, but any cloud-based file-syncing solution. iCloud Drive, One Drive, Google Drive, [Syncthing](https://tonsky.me/blog/syncthing/), etc.
+Dropbox! Well, not necessarily Dropbox, but any cloud-based file-syncing solution. iCloud Drive, OneDrive, Google Drive, [Syncthing](https://tonsky.me/blog/syncthing/), etc.
 
-It’s perfect — many people already have it. There are multiple implementations, so if Microsoft or Apple goes out of business, people can always switch to alternatives. File syncing is a commodity.
+It’s perfect — many people already have it. There are multiple implementations, so if Microsoft or Apple go out of business, people can always switch to alternatives. File syncing is a commodity.
 
-But file syncing is a “dumb” protocol. You can’t “hook” into sync events, or update notifications, or conflict resolution. There isn’t much API, you just save files and they get synced. In case of conflict, best case, you get two files. Worst — you get only one :)
+But file syncing is a “dumb” protocol. You can’t “hook” into sync events, or update notifications, or conflict resolution. There isn’t much API; you just save files and they get synced. In case of conflict, best case, you get two files. Worst — you get only one :)
 
-This simplicity has an upside and a downside. The upside is: if you can work on that, you would work everywhere. That’s the interoperability part from Martin’s talk.
+This simplicity has an upside and a downside. The upside is: if you can work with that, you would work everywhere. That’s the interoperability part from Martin’s talk.
 
 The downside is: you can’t do much with it, and it probably won’t be optimal. But will it be enough?
 
@@ -74,17 +74,17 @@ naive_conflict.webp
 
 Normally, it would’ve been a problem. But it’s not if you are using CRDT!
 
-> CRDT is a collection of data types that all share a very nice property: they can always be merged. It’s not always the perfect merge, and not everything can be made into CRDT, but IF you can put your data into CRDT, you can be sure: all merges will go without conflicts.
+> CRDT is a collection of data types that all share a very nice property: they can always be merged. It’s not always the perfect merge, and not everything can be made into a CRDT, but IF you can put your data into a CRDT, you can be sure: all merges will go without conflicts.
 
 With CRDT, we can solve conflicts by opening both files, merging states, and saving back to `state.xml`. Simple!
 
-Even in this form, Dropbox as a common sync layer works! There are some downsides though:
+Even in this form, Dropbox as a common sync layer works! There are some downsides, though:
 
 - conflicting file names are different between providers,
 - some providers might not handle conflicts at all,
 - it needs state-based CRDT.
 
-# Verson 2: A file per client
+# Version 2: A file per client
 
 The only way to avoid conflicts is to always edit locally. So let’s give each client its own file!
 
@@ -124,12 +124,12 @@ Under the hood, it uses Automerge for merging text edits. So it’s a proper CRD
 
 # Conclusion
 
-If you set to build a local-first application that users have complete control and ownership over, you need something to solve data sync.
+If you set out to build a local-first application that users have complete control and ownership over, you need something to solve data sync.
 
 Dropbox and other file-sync services, while very basic, offer enough to implement it in a simple but working way.
 
 Sure, it won’t be as real-time as a custom solution, but it’s still better for casual syncs. Think Apple Photos: only your own photos, not real-time, but you know they will be everywhere by the end of the day. And that’s good enough!
 
-Imagine if Obsidian Sync was just “put your files in the folder” and it will give you conflict-free sync? For free? Forever? Just bring your own cloud?
+Imagine if Obsidian Sync was just “put your files in the folder” and it would give you conflict-free sync? For free? Forever? Just bring your own cloud?
 
 I’d say it sounds pretty good.
