@@ -1,30 +1,60 @@
 [[project]]
+name     = "AlleKinos.de"
+desc     = "No-nonsense movie showtimes site for every cinema in Germany"
+link     = "https://allekinos.de"
+img      = "allekinos.webp"
+roles    = ["Creator"]
+period   = "May 2024"
+status   = "Launched"
+stack    = "Clojure, DataScript"
+
+[[project]]
+name     = "clj-reload"
+desc     = "Clojure library for dependency-aware code reloading during REPL sessions"
+link     = "https://github.com/tonsky/clj-reload"
+img      = "clj-reload.webp"
+roles    = ["Creator"]
+period   = "Jan 2024 — Feb 2024"
+status   = "Launched"
+stack    = "Clojure"
+stars    = 177
+
+[[project]]
 name     = "Humble UI"
-desc     = "Clojure UI framework for cross-platform desktop apps."
+desc     = "Clojure UI framework for cross-platform desktop apps"
 link     = "https://github.com/HumbleUI/HumbleUI"
 img      = "humble-ui.webp"
 roles    = ["Creator"]
 period   = "Oct 2021 — now"
 status   = "Ongoing"
 stack    = "Clojure"
-stars    = 891
+stars    = 1163
 
 [[project]]
 name     = "Clojure Sublimed"
-desc     = "Clojure development environment (syntax, indentener, REPL) for Sublime Text 4."
+desc     = "#1 Clojure development environment (syntax, indentener, REPL) for Sublime Text 4"
 link     = "https://github.com/tonsky/Clojure-Sublimed"
 img      = "clojure-sublimed.webp"
 roles    = ["Creator"]
 period   = "Dec 2021 — now"
-status   = "Ongoing"
+status   = "Launched"
 stack    = "Python"
-installs = 1528
+installs = 1942
 [[project.quote]]
 text     = "This is an exceptionally well thought out set of points on REPL use for a lang like Clojure."
 source   = "<a href='https://news.ycombinator.com/item?id=29551320'>rajandatta</a> on Hacker News"
 [[project.quote]]
 text     = "Some features I wish existed on CIDER, since I’m more used to Emacs. Nice job!"
 source   = "<a href='https://www.reddit.com/r/Clojure/comments/rflhxf/sublime_clojure/hoemcoe/'>Comment on Reddit</a>"
+
+[[project]]
+name     = "Roam Research"
+desc     = "Optimized DataScript persistence to reduce graph loading times down to several times"
+link     = "https://roamresearch.com/"
+img      = "roam.webp"
+roles    = ["Consultant"]
+period   = "May 2021 — July 2023"
+stack    = "ClojureScript, DataScript"
 
 [[project]]
 name     = "JWM"
@@ -35,7 +65,7 @@ roles    = ["Creator"]
 period   = "May 2021 — now"
 status   = "Ongoing"
 stack    = "Java, C++, ObjectiveC"
-stars    = 492
+stars    = 544
 
 [[project]]
 name     = "Skija"
@@ -48,7 +78,7 @@ status   = "Ongoing"
 customer = "<a href='https://www.jetbrains.com/company/'>JetBrains GmbH</a>"
 stack    = "Java, C++, OpenGL, Metal, DirectX"
 used-by  = ["Humble UI", "JetBrains Fleet", "Jetpack Compose Desktop"]
-stars    = 366
+stars    = 461
 [[project.quote]]
 text     = "I'm continually impressed by the stuff that comes out of the Clojure community. They really seem to punch above their weight in terms of useful output, novel ideas, interesting projects/products."
 source   = "<a href='https://news.ycombinator.com/item?id=25129608'>uDontKnowMe</a> on Hacker News"
@@ -87,7 +117,7 @@ roles    = ["Developer", "Co-Author"]
 period   = "September 2017 — now"
 status   = "In production, actively used"
 stack    = "Clojure/Script, Rum/React"
-visitors = 25000
+visitors = 32000
 [[project.quote]]
 text     = "If you are into product and design, you should check out grumpy.website. It has a lot of constructive feedback for y'all designers. (Think LittleBigDetails.com with a Slavic spin 😓)"
 source   = "<a href='https://twitter.com/NotionHQ/status/979088664339689472'>Notion</a>, the all-in-one workspace"
@@ -124,7 +154,7 @@ source   = "<a href='https://twitter.com/RobStuttaford/status/984832783469219842
 link     = "https://github.com/tonsky/AnyBar"
 img      = "anybar.webp"
 name     = "AnyBar"
-stars    = 5824
+stars    = 5884
 desc     = "General-purpose macOS menubar status indicator."
 roles    = ["Creator"]
 period   = "March 2015 — August 2016"
@@ -134,7 +164,7 @@ status   = "Stable"
 link     = "https://github.com/tonsky/rum"
 name     = "Rum"
 img      = "rum.svg"
-stars    = 1739
+stars    = 1777
 desc     = "Simple, decomplected, isomorphic HTML UI library for ClojureScript (based on React) and Clojure (custom Server-Side Rendering implementation)."
 roles    = ["Creator"]
 used-by  = [
@@ -157,7 +187,7 @@ status = "Stable. Ongoing feature development and maintenance"
 link  = "https://github.com/tonsky/FiraCode"
 img   = "firacode.webp"
 name  = "Fira Code"
-stars = 72741
+stars = 75967
 desc  = "The most popular programming font with ligatures."
 roles = ["Creator"]
 used-by = [
@@ -176,7 +206,7 @@ status = "Stable. Widely used, ongoing improvements"
 link  = "https://github.com/tonsky/datascript"
 img   = "datascript.svg"
 name  = "DataScript"
-stars = 5216
+stars = 5423
 desc  = "Highly-flexible persistent in-memory storage and Datalog query engine for Clojure/Script and JS."
 roles = ["Creator"]
 used-by = [

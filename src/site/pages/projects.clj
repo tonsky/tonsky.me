@@ -47,7 +47,9 @@
      [:.content
       [:figure [:img {:src "images/me.webp"}]]
       [:h1 "Hi there!"]
-      [:p "I’m Niki, Software Engineer with a vast open-source portfolio and strong UI/UX background. I help turning ideas into finished working products with support at all stages."]
+      [:p "I’m Niki, Software Engineer with a vast open-source portfolio and strong UI/UX background."]
+      
+      [:p "I do consulting work on all matters Clojure/Script: JVM, web, backend, Datomic, performance, custom OSS modifications, etc."]
 
       [:dl
        [:dt "Expertise"]
@@ -57,9 +59,9 @@
        [:dt "Contact me"]
        [:dd [:a {:href "mailto:niki@tonsky.me"} "niki@tonsky.me"] " or @" [:a {:href "https://t.me/nikitonsky"} "nikitonsky"]]
        [:dt "Location"]
-       [:dd "Novosibirsk → Moscow → Berlin, Germany (GMT" (offset) ")"]]
+       [:dd "Berlin, Germany (GMT" (offset) ")"]]
 
-      [:h1 "What I worked on"]
+      [:h1 "What I worked on (chronological order)"]
       [:.projects
        (for [{:keys [link img name desc roles team period customer status stack stars installs visitors used-by quote]} projects]
          (list

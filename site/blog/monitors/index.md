@@ -4,12 +4,10 @@ summary: "A non-comprehensive and opinionated guide to best monitor for programm
 published: 2020-06-17
 hackernews_id: 23551983
 starred: true
+cover: cover.gif
 ---
 
-cover.gif
-Illustration by [Julia Litvin](https://www.behance.net/julia_litvin)
-
-_Translations: [Chinese](https://sspai.com/post/61252) [Russian](https://habr.com/ru/post/508824/)_
+_Translations: [Chinese](https://sspai.com/post/61252) [Russian](https://habr.com/ru/post/508824/) • Illustration by [Julia Litvin](https://www.behance.net/julia_litvin)_
 
 I am a programmer. I do not deal with digital painting, photo processing, video editing. I don’t really care for wide gamut or even proper color reproduction. I spend most of my days in a text browser, text editor and text terminal, looking at barely moving letters.
 

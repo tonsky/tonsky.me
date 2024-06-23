@@ -42,8 +42,8 @@ body {
   :root { --cap-height: calc(1rem * 18 / 16); }
 }
 
-body { margin: calc(var(--cap-height) * 4) 0; background-color: #FDDB29; color: var(--text); }
-.page { display: flex; flex-direction: column; gap: calc(var(--cap-height) * 4); align-items: center; }
+body { margin: calc(var(--gap) * 4) 0; background-color: #FDDB29; color: var(--text); }
+.page { display: flex; flex-direction: column; gap: calc(var(--gap) * 4); align-items: center; }
 
 /* MENU */
 .menu { width: min(var(--width), 96vw); display: flex; flex-direction: row; gap: var(--gap); color: var(--gray-text); }
@@ -62,6 +62,10 @@ body.dark #darkModeGlow { opacity: 1; }
 }
 
 /* CONTENT */
+.cover { width: 100vw; display: flex; flex-direction: column; align-items: center; }
+.cover > img { width: auto; max-height: 50vh; }
+.content { margin-top: calc(var(--cap-height) * 2); }
+.cover + .content { margin-top: 0; }
 .content { display: flex; flex-direction: column; gap: var(--gap); align-items: center; }
 .content > * { width: 96vw; max-width: var(--width); }
 
@@ -74,7 +78,7 @@ body.dark #darkModeGlow { opacity: 1; }
 
 /* HEADERS */
 .title, h1, h2, h3 { font-weight: 600; line-height: 1.1; text-wrap: balance; }
-.title { font-size: 2.5em; margin-bottom: var(--gap); }
+.title { font-size: 2.5em; margin: 0 0 var(--gap) 0; }
 h1, h2, h3 { margin-top: calc(2 * var(--gap)); }
 h1:nth-child(1):not(.title) { margin-top: 0; }
 h1 { font-size: 1.7em; }
@@ -148,9 +152,8 @@ blockquote { display: flex; flex-direction: column; gap: var(--gap); margin: var
 .about_photo { float: left; width: 100px; height: 160px; margin-left: -125px; margin-top: -10px; background: url("/i/photo.png"); background-size: 200px; }
 .about_photo:hover { background-position: 100%; }
 .about_inner { font-size: var(--font-small); padding: var(--gap) 25px; border: var(--border) solid var(--gray-line); border-radius: var(--radius); display: flex; flex-direction: column; gap: var(--gap); }
-.btn-subscribe { text-decoration: none; background: var(--gray-bg); border: none; padding: 0px 7px 0 2px; display: inline-block; border-radius: 4px; position: relative; top: -1px; }
-.btn-subscribe:hover { background: rgba(0,0,0,0.2); }
-.btn-subscribe > img { width: calc(1em / 15 * 21); height: calc(1em / 15 * 21); display: inline-block; vertical-align: bottom; }
+.btn-action { text-decoration: none; background: var(--gray-bg); border: none; padding: 0px 7px; display: inline-block; border-radius: 4px; }
+.btn-action:hover { background: rgba(0,0,0,0.2); }
 
 /* FLASHLIGHT */
 #flashlight { display: none; width: 500px; height: 500px; pointer-events: none; z-index: 10; }

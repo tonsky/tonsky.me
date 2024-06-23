@@ -4,12 +4,10 @@ summary: "A collection of anti-patterns seen in big IT companies regarding hirin
 published: 2019-03-11
 hackernews_id: 19541617
 starred: true
+cover: cover@2x.webp
 ---
 
-cover@2x.webp
-Illustrations by [Julia Litvin](https://www.behance.net/julia_litvin)
-
-_Translations: [Korean](https://muchtrans.com/translations/how-not-to-hire-a-software-engineer.ko.html) [Russian](https://habr.com/ru/company/itelma/blog/551152/)_
+_Translations: [Korean](https://muchtrans.com/translations/how-not-to-hire-a-software-engineer.ko.html) [Russian](https://habr.com/ru/company/itelma/blog/551152/) • Illustrations by [Julia Litvin](https://www.behance.net/julia_litvin)_
 
 I’m not an expert in hiring for big companies, but I have extensive experience for small ones and a bit of common sense.
 

@@ -2,6 +2,7 @@
 title: Local, first, forever
 summary: "We explore how to build local-first sync on top of simple file storage"
 published: 2024-06-24
+cover: cover.webp
 ---
 
 So I was at the [Local-First Conf](https://www.localfirstconf.com/) the other day, listening to [Martin Kleppmann](https://www.youtube.com/watch?v=NMq0vncHJvU), and this slide caught my attention:

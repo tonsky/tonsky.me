@@ -5,10 +5,10 @@ published: 2019-02-28
 hackernews_id: 19276113
 reddit_url: "https://www.reddit.com/r/programming/comments/aw7swh/redesigning_the_github_repository_page_tonskyme/"
 starred: true
+cover: 00_cover.png
 ---
 
-00_cover.png
-Illustration by [Julia Litvin](https://www.behance.net/julia_litvin)
+_Illustration by [Julia Litvin](https://www.behance.net/julia_litvin)_
 
 Github design is pretty good: it gets the job done, it’s clean, has consistent visual language, its design is calm and suitable for everyday use.
 

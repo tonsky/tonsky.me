@@ -13,9 +13,9 @@
    [:.about_inner
     [:p "Hi!"]
     [:p "I’m Niki. Here I write about programming and UI design "
-     [:a.btn-subscribe {:href "/subscribe/"}
-      [:img {:src "/i/subscribe.svg"}] " Subscribe"]]
-    [:p "I also create open-source stuff: " [:a {:href "https://github.com/tonsky/FiraCode"} "Fira Code"] ", " [:a {:href "https://github.com/tonsky/DataScript"} "DataScript"] ", " [:a {:href "https://github.com/tonsky/Clojure-Sublimed"} "Clojure Sublimed"] " and " [:a {:href "https://github.com/HumbleUI/HumbleUI"} "Humble UI"] ". If you like what I do and want to get early access to my articles, you should " [:a {:href "https://patreon.com/tonsky"} "support me on Patreon"] "."]]])
+     [:a.btn-action {:href "/subscribe/"} "Subscribe"]]
+    [:p "I consult companies on all things Clojure: web, backend, Datomic, DataScript, performace, etc. Get in touch: " [:a.btn-action {:href "mailto:niki@tonsky.me"} "niki@tonsky.me"]]
+    [:p "I also create open-source stuff: Fira Code, DataScript, Clojure Sublimed, Humble UI. Support it on " [:a.btn-action {:action "_blank" :href "https://patreon.com/tonsky"} "Patreon"] " or " [:a.btn-action {:action "_blank" :href "https://github.com/sponsors/tonsky"} "Github"]]]])
 
 (defn default [page]
   (let [url    (str "https://tonsky.me" (:uri page))
@@ -83,7 +83,7 @@
           [:script {:src "/watcher.js" :defer true :async true}])]
        [:body
         [:.page
-         [:ul {:class "menu"}
+         [:ul.menu
           (for [[url title] [["/"          "Blog"]
                              ["/talks/"    "Talks"]
                              ["/projects/" "Projects"]
