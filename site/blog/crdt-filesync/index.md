@@ -57,7 +57,7 @@ It’s perfect — many people already have it. There are multiple implementatio
 
 But file syncing is a “dumb” protocol. You can’t “hook” into sync events, or update notifications, or conflict resolution. There isn’t much API; you just save files and they get synced. In case of conflict, best case, you get two files. Worst — you get only one :)
 
-This simplicity has an upside and a downside. The upside is: if you can work with that, you would work everywhere. That’s the interoperability part from Martin’s talk.
+This simplicity has an upside and a downside. The upside is: if you can work with that, it would work everywhere. That’s the interoperability part from Martin’s talk.
 
 The downside is: you can’t do much with it, and it probably won’t be optimal. But will it be enough?
 
