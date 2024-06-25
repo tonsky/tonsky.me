@@ -3,6 +3,8 @@ title: Local, first, forever
 summary: "We explore how to build local-first sync on top of simple file storage"
 published: 2024-06-24
 cover: cover.webp
+hackernews_id: 40786425
+starred: true
 ---
 
 So I was at the [Local-First Conf](https://www.localfirstconf.com/) the other day, listening to [Martin Kleppmann](https://www.youtube.com/watch?v=NMq0vncHJvU), and this slide caught my attention:
@@ -17,7 +19,7 @@ But first, some context.
 
 # What is local-first?
 
-For the long version, go to Ink & Switch, who coined the term: https://www.inkandswitch.com/local-first/
+For the long version, go [to Ink & Switch, who coined the term](https://www.inkandswitch.com/local-first/). Or listen for Peter van Hardenberg [explaining it on LocalFirst.fm](https://www.localfirst.fm/1).
 
 Here’s my short version:
 

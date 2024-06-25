@@ -102,7 +102,11 @@
        [:summary {:type "html"}
         [:CDATA summary]])
      [:content {:type "html"}
-      [:CDATA (render/render-inner-html (:content post))]]
+      [:CDATA (render/render-inner-html
+                (list
+                  (when-some [cover (:cover post)]
+                    [:img {:src (absolutize cover (:uri post))}])
+                  (:content post)))]]
      [:author
       [:name "Nikita Prokopov"]
       [:email "niki@tonsky.me"]]]))
