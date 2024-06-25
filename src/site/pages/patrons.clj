@@ -192,7 +192,7 @@
 (defn fetch-members []
   (try
     (let [now  (core/now)
-          file (io/file (str "site/patrons/" (core/format-temporal now "yyyy-MM") "-patrons.toml"))]
+          file (io/file (str "files/patrons/" (core/format-temporal now "yyyy-MM") "-patrons.toml"))]
       (when-not (.exists file)
         (let [patrons  (patrons)
               sponsors (sponsors) 
@@ -222,7 +222,7 @@
 ;; PAGE
 
 (defn last-file ^File []
-  (->> (file-seq (io/file "site/patrons"))
+  (->> (file-seq (io/file "files/patrons"))
     (next)
     (filter #(str/ends-with? (.getName ^File %) ".toml"))
     (sort-by #(.getName ^File %) core/reverse-compare)
