@@ -14,7 +14,7 @@
     [:p "Hi!"]
     [:p "I’m Niki. Here I write about programming and UI design "
      [:a.btn-action {:href "/subscribe/"} "Subscribe"]]
-    [:p "I consult companies on all things Clojure: web, backend, Datomic, DataScript, performace, etc. Get in touch: " [:a.btn-action {:href "mailto:niki@tonsky.me"} "niki@tonsky.me"]]
+    [:p "I consult companies on all things Clojure: web, backend, Datomic, DataScript, performance, etc. Get in touch: " [:a.btn-action {:href "mailto:niki@tonsky.me"} "niki@tonsky.me"]]
     [:p "I also create open-source stuff: Fira Code, DataScript, Clojure Sublimed, Humble UI. Support it on " [:a.btn-action {:action "_blank" :href "https://patreon.com/tonsky"} "Patreon"] " or " [:a.btn-action {:action "_blank" :href "https://github.com/sponsors/tonsky"} "Github"]]]])
 
 (defn default [page]
