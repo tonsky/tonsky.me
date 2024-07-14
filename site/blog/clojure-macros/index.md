@@ -37,9 +37,9 @@ So what if... No, no, it’s too brittle. We shouldn’t even think about it... 
 
 What if our macro read the source file?
 
-Like, actually went to the file system, opened a file, and read its content? We already have the file name conveniently stored in `*file*`.
+Like, actually went to the file system, opened a file, and read its content? We already have the file name conveniently stored in `*file*`, and luckily Clojure keeps sources around.
 
-And this is what I ended up with:
+So this is what I ended up with:
 
 ```
 (defn slurp-source [file key]
@@ -69,6 +69,6 @@ I know it’s bad. I know you shouldn’t do it. I know. I know.
 
 But still. Clojure is the most fun I have ever had with any language. It lets you play with code like never before. Do the craziest, stupidest things. Read the source file of the code you are evaluating? [Fetch code from the internet and splice it into the currently running program?](github.com/tonsky/remote-require/)
 
-In any other language, this would’ve been a project. A preprocessor step, at least. Here—just ten lines of code, on vanilla language, no tooling or setup required.
+In any other language, this would’ve been a project. You’d need a parser, a build step... Here—just ten lines of code, on vanilla language, no tooling or setup required.
 
 Sometimes, a crazy thing is exactly what you need.
