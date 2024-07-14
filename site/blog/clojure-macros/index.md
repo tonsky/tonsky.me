@@ -43,7 +43,7 @@ So this is what I ended up with:
 
 ```
 (defn slurp-source [file key]
-  (let [content      (slurp file)
+  (let [content      (slurp (io/resource file))
         key-str      (pr-str key)
         idx          (str/index-of content key)
         content-tail (subs content (+ idx (count key-str)))
