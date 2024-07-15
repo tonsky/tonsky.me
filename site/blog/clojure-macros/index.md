@@ -67,7 +67,7 @@ after@2x.png
 
 I know it’s bad. I know you shouldn’t do it. I know. I know.
 
-But still. Clojure is the most fun I have ever had with any language. It lets you play with code like never before. Do the craziest, stupidest things. Read the source file of the code you are evaluating? [Fetch code from the internet and splice it into the currently running program?](github.com/tonsky/remote-require/)
+But still. Clojure is the most fun I have ever had with any language. It lets you play with code like never before. Do the craziest, stupidest things. Read the source file of the code you are evaluating? [Fetch code from the internet and splice it into the currently running program?](https://github.com/tonsky/remote-require/)
 
 In any other language, this would’ve been a project. You’d need a parser, a build step... Here—just ten lines of code, on vanilla language, no tooling or setup required.
 
