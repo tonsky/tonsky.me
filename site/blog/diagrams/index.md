@@ -2,6 +2,7 @@
 title: "Where Should Visual Programming Go?"
 summary: "Visual programming and textual code should co-exist next to each other, not replace one another"
 published: 2024-07-18
+hackernews_id: 41080644
 ---
 
 There’s a wonderful article by Sebastian Bensusan: “[We need visual programming. No, not like that.](https://blog.sbensu.com/posts/demand-for-visual-programming/)” (the dot is part of the title ¯\\\_(ツ)\_/¯).
