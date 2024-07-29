@@ -1,4 +1,9 @@
 [[design]]
+date  = 2024-07-29
+img   = "2024-07-squint.svg"
+desc  = "<a href='https://github.com/squint-cljs/squint'>Squint</a> is a light-weight dialect of ClojureScript with a compiler and standard library. “The idea is that when you squint, it still looks like CLJS”."
+
+[[design]]
 date  = 2024-03-01
 img   = "2024-02-clj-reload.png"
 desc  = "<a href='https://github.com/tonsky/clj-reload'>Clj-Reload</a> is smarter way to reload Clojure code during development."
