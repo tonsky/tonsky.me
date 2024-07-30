@@ -6,7 +6,7 @@ hackernews_id: 40069599
 starred: true
 ---
 
-_Translations: [Japanese](https://coliss.com/articles/build-websites/operation/work/about-centering.html) [Russian](https://habr.com/ru/companies/ruvds/articles/810311/)_
+_Translations: [Chinese](https://nptr.cc/posts/tonsky-blog-centering/) [Japanese](https://coliss.com/articles/build-websites/operation/work/about-centering.html) [Russian](https://habr.com/ru/companies/ruvds/articles/810311/)_
 
 This is my claim: we, as a civilization, forgot how to center things.
 
