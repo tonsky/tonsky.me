@@ -14,6 +14,12 @@ img   = "2024-01-london-clojurians.svg"
 desc  = "<a href='https://www.meetup.com/London-Clojurians/'>London Clojurians</a> is an open and friendly community that supports the adoption and practice of Clojure in any of its forms."
 
 [[design]]
+date  = 2023-12-25
+img   = "2023-12-late-mate.svg"
+desc  = "<a href='https://late-mate.com/'>Late Mate</a> is a latency measurment device."
+bg    = "#112233"
+
+[[design]]
 date  = 2022-05-01
 img   = "2022-05-humble-ui.svg"
 desc  = "<a href='https://github.com/HumbleUI/HumbleUI'>Humble UI</a> is a  Clojure Desktop UI framework."

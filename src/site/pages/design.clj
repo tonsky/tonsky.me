@@ -66,7 +66,9 @@
               [:figure
                (core/some-map
                  :id    (:slug design)
-                 :class (:class design))
+                 :class (:class design)
+                 :style (when-some [bg (:bg design)]
+                          (str "background-color: " bg)))
                [:img {:src (str "images/" (:img design))}]]
               [:p [:raw-html (:desc design)]]))))]}))
 
