@@ -225,6 +225,12 @@ Gigabyte M32U (4k @ 144Hz)</span></div>
 
 <div class="row"><img src="works.png" height=64> <span>Gigabyte M32UC with <a href="https://www.amazon.com/dp/B08B3XNZGS?ref=ppx_yo2ov_dt_b_product_details&th=1">JCE-DP/USB C-2m cable</a> at 144Hz and variable 48-144Hz</span></div>
 
+
+## <img src="air_2022.png" height=32> <span>MacBook Air (M3, 2024)</span>
+
+<div class="row"><img src="works.png" height=64> <span>MAG274UPF</span> at 144Hz and variable 48-144Hz with included USB-C cable</div>
+
+
 # How to contribute?
 
 If you have a combination of 4k monitor with 120+ Hz refresh rate and a Mac that’s not listed here, please [open a PR](https://github.com/tonsky/tonsky.me/blob/main/site/blog/monitors-mac/index.md) (don’t worry about graphics/icons, I can add those myself).
