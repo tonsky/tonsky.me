@@ -8,7 +8,8 @@
 
 .content > figure + p { margin-bottom: 48px; }
 
-.content > figure > img { width: 100%; height: auto; }
+.content > figure > img,
+.content > figure > svg { width: 100%; height: auto; }
 
 .content > figure.nobg { background: transparent; padding: 0 0 12px 0; }
 

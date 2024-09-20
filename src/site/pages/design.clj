@@ -69,7 +69,9 @@
                  :class (:class design)
                  :style (when-some [bg (:bg design)]
                           (str "background-color: " bg)))
-               [:img {:src (str "images/" (:img design))}]]
+               (if-some [html (:html design)]
+                 [:raw-html (slurp (str "site/design/images/" html))]
+                 [:img {:src (str "images/" (:img design))}])]
               [:p [:raw-html (:desc design)]]))))]}))
 
 (defn render-atom [design]

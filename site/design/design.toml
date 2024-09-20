@@ -1,6 +1,7 @@
 [[design]]
 date  = 2024-07-29
 img   = "2024-07-squint.svg"
+html  = "2024-07-squint.html"
 desc  = "<a href='https://github.com/squint-cljs/squint'>Squint</a> is a light-weight dialect of ClojureScript with a compiler and standard library. “The idea is that when you squint, it still looks like CLJS”."
 
 [[design]]
