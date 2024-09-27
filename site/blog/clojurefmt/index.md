@@ -167,3 +167,9 @@ As Robert Griesemer put it in [his slides](https://talks.golang.org/2015/gofmt-e
 The point of such formatter is not to produce a style that everybody would love. This is probably impossible. The point is to enforce a style that will free people from arguing and making style decisions *at all*. To accomplish it, it doesn’t need to be smart, or pretty, or sophisticated. It has to be ubiquitous. It has to be everywhere.
 
 Let Clojure community know if you think this formatting is better fit for one-and-only-clojure-default-formatter-that-everyone-has-to-use-no-knobs-no-settings-no-questions-asked. Vote [on Github](https://github.com/clj-commons/formatter/issues/9#issuecomment-445528667), comment on [Hacker News](https://news.ycombinator.com/item?id=18620309) or [on Twitter](https://twitter.com/nikitonsky/status/1070654163288276993).
+
+## UPD (2024): Implementations 
+
+- [Clojure Sublimed](https://github.com/tonsky/Clojure-Sublimed) supports it ouf-of-the-box
+- Through `cljfmt` with [this config](https://github.com/tonsky/Clojure-Sublimed/blob/master/cljfmt.edn)
+- Chris Oakman’s [Standard Clojure Style.js](https://github.com/oakmac/standard-clojure-style-js)
