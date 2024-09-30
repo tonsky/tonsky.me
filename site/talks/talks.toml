@@ -1,4 +1,12 @@
 [[talk]]
+date    = 2024-09-30
+url     = "https://t.me/tfeat/108"
+title   = "Nikitonsky про современные редакторы кода"
+event   = "Тысяча фичей"
+desc    = "Каким должен быть редактор кода в 2024 году? Почему Vim морально устарел, а IDEA, кажется, сдает позиции? Популярность Zed, минимализм SublimeText, гибкость Emacs и многое другое в новом выпуске."
+content = "2024-09-30 Тысяча фичей.mp3"
+
+[[talk]]
 [[talk.version]]
 date    = 2024-06-14
 title   = "Clj-reload: A smarter way to reload code"
