@@ -1,32 +1,33 @@
 (ns site.server
   (:require
-    [clj-simple-router.core :as router]
-    [clojure.java.io :as io]
-    [mount.core :as mount]
-    [org.httpkit.server :as http]
-    [ring.middleware.cookies :as ring-cookies]
-    [ring.middleware.head :as ring-head]
-    [ring.middleware.params :as ring-params]
-    [ring.util.codec :as ring-codec]
-    [ring.util.io :as ring-io]
-    [ring.util.mime-type :as ring-mime]
-    [ring.util.time :as ring-time]
-    [site.cache :as cache]
-    [site.core :as core]
-    [site.pages.atom :as atom]
-    [site.pages.default :as default]
-    [site.pages.design :as design]
-    [site.pages.index :as index]
-    [site.pages.patrons :as patrons]
-    [site.pages.post :as post]
-    [site.pages.projects :as projects]
-    [site.pages.talks :as talks]
-    [site.parser :as parser]
-    [site.pointers :as pointers]
-    [site.watcher :as watcher]
-    [site.render :as render])
+   [clj-simple-router.core :as router]
+   [clojure.java.io :as io]
+   [mount.core :as mount]
+   [org.httpkit.server :as http]
+   [ring.middleware.cookies :as ring-cookies]
+   [ring.middleware.head :as ring-head]
+   [ring.middleware.params :as ring-params]
+   [ring.util.codec :as ring-codec]
+   [ring.util.io :as ring-io]
+   [ring.util.mime-type :as ring-mime]
+   [ring.util.time :as ring-time]
+   [site.cache :as cache]
+   [site.core :as core]
+   [site.pages.atom :as atom]
+   [site.pages.default :as default]
+   [site.pages.design :as design]
+   [site.pages.index :as index]
+   [site.pages.patrons :as patrons]
+   [site.pages.post :as post]
+   [site.pages.projects :as projects]
+   [site.pages.sign-in :as sign-in]
+   [site.pages.talks :as talks]
+   [site.parser :as parser]
+   [site.pointers :as pointers]
+   [site.watcher :as watcher]
+   [site.render :as render])
   (:import
-    [java.io File]))
+   [java.io File]))
 
 (defn find-file ^File [path]
   (let [file ^File (io/file path)]
@@ -147,6 +148,7 @@
           "GET /design"    req  (resp-html req (design/page))
           "GET /patrons"   req  (resp-html req (patrons/page))
           "GET /projects"  req  (resp-html req (projects/page))
+          "GET /sign-in"   req  (resp-html req (sign-in/page req))
           "GET /subscribe" req  (-> (parser/parse-md "/subscribe/")
                                   post/post
                                   (dissoc :categories)

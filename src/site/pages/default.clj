@@ -93,9 +93,10 @@
                            (= (:uri page) url) "selected"
                            (and post? (= url "/")) "inside")}
              [:a {:href url} title]])
-          [:div {:class "spacer"}]
-          [:div {:class "dark_mode"}
-           [:#darkModeGlow]]]
+          [:.spacer]
+          [:.dark_mode
+           [:#darkModeGlow]]
+          [:a.settings {:href "/sign-in/"}]]
       
          (when index?
            about)
