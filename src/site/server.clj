@@ -131,7 +131,7 @@
       (redirect (str uri "/"))
       (handler req))))
 
-(def router
+(def cached-router
   (->
     (router/router
       (merge
@@ -148,7 +148,6 @@
           "GET /design"    req  (resp-html req (design/page))
           "GET /patrons"   req  (resp-html req (patrons/page))
           "GET /projects"  req  (resp-html req (projects/page))
-          "GET /sign-in"   req  (resp-html req (sign-in/page req))
           "GET /subscribe" req  (-> (parser/parse-md "/subscribe/")
                                   post/post
                                   (dissoc :categories)
@@ -158,6 +157,12 @@
           "GET /about"                  [] (redirect "/projects/")
           )))
     cache/wrap-cached))
+
+(def router
+  (router/router
+    (router/routes
+      "GET /sign-in"   req  (resp-html req (sign-in/page req)))))
+
 
 (def app
   (->
@@ -170,7 +175,10 @@
     wrap-range
     ((fn [handler]
        (fn [req]
-         (or (router req) (handler req)))))
+         (or
+           (cached-router req)
+           (router req)
+           (handler req)))))
     wrap-redirects
     watcher/wrap-watcher
     wrap-decode-uri
