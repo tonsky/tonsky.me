@@ -41,7 +41,7 @@ body {
   :root { --cap-height: calc(1rem * 18 / 16); }
 }
 
-body, .page { min-height: calc(100vh - var(--gap) * 8); }
+body, .page { min-height: calc(100svh - var(--gap) * 8); }
 body { margin: calc(var(--gap) * 4) 0; background-color: #FDDB29; color: var(--text); }
 .page { display: flex; flex-direction: column; gap: calc(var(--gap) * 4); align-items: center; }
 
@@ -65,7 +65,7 @@ body.dark #darkModeGlow { opacity: 1; }
 
 /* CONTENT */
 .cover { width: 100%; display: flex; flex-direction: column; align-items: center; }
-.cover > img { width: auto; max-height: 50vh; }
+.cover > img { width: auto; max-height: 50svh; }
 .content { margin-top: calc(var(--cap-height) * 2); }
 .cover + .content { margin-top: 0; }
 .content { display: flex; flex-direction: column; gap: var(--gap); align-items: center; }
