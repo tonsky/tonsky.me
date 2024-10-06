@@ -96,7 +96,8 @@
           [:.spacer]
           [:.dark_mode
            [:#darkModeGlow]]
-          [:a.settings {:href "/sign-in/"}]]
+          [:a.settings {:class (when (= (:uri page) "/sign-in/") "selected")
+                        :href "/sign-in/"}]]
       
          (when index?
            about)

@@ -61,6 +61,7 @@ body.dark #darkModeGlow { opacity: 1; }
   .dark_mode, #darkModeGlow { display: none; }
 }
 .settings { width: 32px; height: 32px; background-image: url("/i/settings.svg"); opacity: 40%; cursor: pointer; border: none; } 
+.settings.selected,
 .settings:hover { opacity: 100%; }
 
 /* CONTENT */
