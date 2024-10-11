@@ -84,14 +84,28 @@ function updateDarkMode(e) {
 }
 
 window.addEventListener("load", (event) => {
+  let cl = document.body.classList;
   document.querySelector('.dark_mode').onclick = function(e) {
-    document.body.classList.toggle('dark');
-    updateDarkMode(e);
+    if (cl.contains('dark')) {
+      cl.remove('dark');
+      cl.add('dark0');
+      updateDarkMode(e);
+      setTimeout(() => {
+        cl.remove('dark0');
+      }, 1000);
+    } else {
+      cl.add('dark0');
+      setTimeout(() => {
+        cl.remove('dark0');
+        cl.add('dark');
+        updateDarkMode(e);
+      }, 34);
+    }
   };
 
   // first time initialization
   if (localStorage.getItem('dark')) {
-    document.body.classList.toggle('dark');
+    cl.toggle('dark');
     var mousePos = {clientX: 0, clientY: 0, pageX: 0, pageY: 0};
     const stored = localStorage.getItem('mousePos');
     if (stored) {

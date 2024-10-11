@@ -234,8 +234,11 @@ button:active, button[disabled] {
 .btn-action:hover { background: rgba(0,0,0,0.2); }
 
 /* FLASHLIGHT */
-#flashlight { display: none; width: 500px; height: 500px; pointer-events: none; z-index: 10; }
+#flashlight { display: none; width: 500px; height: 500px; pointer-events: none; z-index: 10; transition-duration: .75s; transition-timing-function: cubic-bezier(.4,.36,0,1); transition-property: opacity; }
+body.dark0 #flashlight,
 body.dark #flashlight { display: block; position: fixed; box-shadow: 0 0 0 9999px #000; }
+body.dark0 #flashlight { opacity: 0; }
+body.dark #flashlight { opacity: 1; }
 
 /* POINTERS */
 .pointer { width: 16px; height: 24px; position: absolute; background-image: url(/i/pointers.png); background-size: 300% 100%; transition: 200ms; transition-timing-function: ease-in-out; pointer-events: none; }
