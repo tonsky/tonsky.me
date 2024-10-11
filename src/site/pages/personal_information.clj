@@ -61,7 +61,9 @@
     (let [time (-> (java.time.LocalDateTime/now)
                  (.atZone java.time.ZoneOffset/UTC)
                  (->> (.format java.time.format.DateTimeFormatter/RFC_1123_DATE_TIME)))
-          ip   (:remote-addr req)
+          ip   (or
+                 (-> req :headers (get "x-forwarded-for"))
+                 (:remote-addr req))
           ua   (-> req :headers (get "user-agent"))
           auth (-> req :cookies (get "signed_in") :value (= "true"))
           pi   (-> (:body req) slurp str/trim)
