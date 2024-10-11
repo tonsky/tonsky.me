@@ -1,11 +1,11 @@
 (ns site.pages.default
   (:require
-    [clojure.java.io :as io]
-    [clojure.string :as str]
-    [clojure.walk :as walk]
-    [site.core :as core])
+   [clojure.java.io :as io]
+   [clojure.string :as str]
+   [clojure.walk :as walk]
+   [site.core :as core])
   (:import
-    [java.net URLEncoder]))
+   [java.net URLEncoder]))
 
 (def about
   [:.about
@@ -87,8 +87,7 @@
           (for [[url title] [["/"          "Blog"]
                              ["/talks/"    "Talks"]
                              ["/projects/" "Projects"]
-                             ["/design/"   "Logos"]
-                             ["/patrons/"  "Patrons"]]]
+                             ["/design/"   "Logos"]]]
             [:li {:class (cond
                            (= (:uri page) url) "selected"
                            (and post? (= url "/")) "inside")}
@@ -96,8 +95,17 @@
           [:.spacer]
           [:.dark_mode
            [:#darkModeGlow]]
-          [:a.settings {:class (when (= (:uri page) "/sign-in/") "selected")
-                        :href "/sign-in/"}]]
+          [:.hamburger
+           [:input#checkbox {:type "checkbox"}]
+           [:label {:for "checkbox"}]
+           [:ul
+            (for [[url title] [["/sign-in/" "Sign In"]
+                               ; ["/personal-data/" "Personal Data"]
+                               ; ["/scheme/" "Color Scheme"]
+                               ["/patrons/"  "Patrons"]]]
+              [:li [:a {:class (when (= (:uri page) url) "selected")
+                        :href url} title]])]]]
+                 
       
          (when index?
            about)
