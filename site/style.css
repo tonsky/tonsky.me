@@ -55,7 +55,7 @@ body { margin: calc(var(--gap) * 4) 0; background-color: var(--bg); color: var(-
 .menu > li:hover > a { color: #000; border-bottom: var(--border) solid #000; }
 .menu > .spacer { flex-grow: 1; }
 .dark_mode, #darkModeGlow { align-self: center; width: 26px; height: 26px; border-radius: 13px; background-image: url("/i/dark_mode.svg"); background-size: 52px 52px; transition: background-position-x 100ms; cursor: pointer; }
-.dark_mode { opacity: .4; }
+.dark_mode { opacity: .3; }
 .dark_mode:hover, body.dark .dark_mode { opacity: 1; }
 body.dark .dark_mode { background-position: -26px 0; }
 #darkModeGlow { background-position: -26px -26px; background-color: #15FB1F; box-shadow: 0 0 10px 1.5px #15FB1F; z-index: 20; opacity: 0; position: absolute; }
@@ -65,9 +65,9 @@ body.dark #darkModeGlow { opacity: 1; }
 }
 .hamburger { position: relative; margin-left: -0.5em; }
 .hamburger input { display: none; }
-.hamburger label { display: block; width: 32px; height: 32px; background-image: url("/i/hamburger.svg"); background-size: 100%; opacity: 40%; cursor: pointer; border: none; }
+.hamburger label { display: block; width: 32px; height: 32px; background-image: url("/i/hamburger.svg"); background-size: 100%; opacity: .3; cursor: pointer; border: none; }
 .hamburger label:hover,
-.hamburger input:checked ~ label { opacity: 100%; }
+.hamburger input:checked ~ label { opacity: 1; }
 .hamburger ul { display: none; position: absolute; margin: 0.5em -0.5em 0 0; right: 0; background: var(--bg); padding: 0.375em 0; box-shadow: 0 0 0 1.5px #00000030, 4.5px 4.5px 3px #00000030; border-radius: 4px; }
 .hamburger input:checked ~ ul { display: block; }
 .hamburger li { list-style: none; white-space: nowrap; }
