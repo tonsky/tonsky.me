@@ -34,7 +34,9 @@
         [:link {:href "/fonts/fonts.css" :rel "stylesheet" :type "text/css"}]
         [:link {:href "/style.css" :rel "stylesheet" :type "text/css"}]
         (for [style (:styles page)]
-          [:link {:href style :rel "stylesheet" :type "text/css"}])
+          (if (str/ends-with? style ".css")
+            [:link {:href style :rel "stylesheet" :type "text/css"}]
+            [:style [:raw-html style]]))
         [:title (:title page) " @ tonsky.me"]
         [:link {:href "/atom.xml" :rel "alternate" :title "Nikita Prokopov’s blog" :type "application/atom+xml"}]
         [:meta {:name "author" :content "Nikita Prokopov"}]
@@ -100,7 +102,7 @@
            [:label {:for "checkbox"}]
            [:ul
             (for [[url title] [["/sign-in/" "Sign In"]
-                               ; ["/personal-data/" "Personal Data"]
+                               ["/personal-information/" "Personal Information"]
                                ; ["/scheme/" "Color Scheme"]
                                ["/patrons/"  "Patrons"]]]
               [:li [:a {:class (when (= (:uri page) url) "selected")

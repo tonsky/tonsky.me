@@ -18,6 +18,7 @@
    [site.pages.design :as design]
    [site.pages.index :as index]
    [site.pages.patrons :as patrons]
+   [site.pages.personal-information :as personal-information]
    [site.pages.post :as post]
    [site.pages.projects :as projects]
    [site.pages.sign-in :as sign-in]
@@ -147,6 +148,7 @@
           "GET /talks"     req  (resp-html req (talks/page))
           "GET /design"    req  (resp-html req (design/page))
           "GET /patrons"   req  (resp-html req (patrons/page))
+          "GET /personal-information" req (resp-html req (personal-information/page))
           "GET /projects"  req  (resp-html req (projects/page))
           "GET /subscribe" req  (-> (parser/parse-md "/subscribe/")
                                   post/post
@@ -161,8 +163,8 @@
 (def router
   (router/router
     (router/routes
-      "GET /sign-in"   req  (resp-html req (sign-in/page req)))))
-
+      "GET /sign-in" req (resp-html req (sign-in/page req))
+      "POST /personal-information/submit" req (personal-information/submit req))))
 
 (def app
   (->

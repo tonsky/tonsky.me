@@ -10,6 +10,14 @@ window.addEventListener("load", (event) => {
   });
 });
 
+/** BUTTON **/
+
+function onButtonClick(button, text, callback) {
+  button.disabled = true;
+  button.innerHTML = '<img src=\"/i/spinner.svg\"> ' + text;
+  setTimeout(callback, 2000);
+}
+
 /** ANIMATE **/
 
 function animate(el) {
