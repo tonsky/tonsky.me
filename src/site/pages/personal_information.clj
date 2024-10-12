@@ -61,18 +61,12 @@
     (let [time (-> (java.time.LocalDateTime/now)
                  (.atZone java.time.ZoneOffset/UTC)
                  (->> (.format java.time.format.DateTimeFormatter/RFC_1123_DATE_TIME)))
-          ip   (or
-                 (-> req :headers (get "x-forwarded-for"))
-                 (:remote-addr req))
-          ua   (-> req :headers (get "user-agent"))
           auth (-> req :cookies (get "signed_in") :value (= "true"))
           pi   (-> (:body req) slurp str/trim)
           pi   (subs pi 0 (min (count pi) 1000))
-          text (str 
-                 "Timestamp:  " time "\n"
-                 "Address:    " ip "\n"
-                 "User-Agent: " ua "\n"
-                 (when auth "Signed In:  true\n")
+          text (str
+                 "Timestamp: " time "\n"
+                 (when auth "Signed In: true\n")
                  "\n"
                  pi
                  "\n\n--------------------------------------------------------------------------------\n\n")]
