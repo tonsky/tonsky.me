@@ -23,6 +23,7 @@
    [site.pages.projects :as projects]
    [site.pages.sign-in :as sign-in]
    [site.pages.talks :as talks]
+   [site.pages.user-agreement :as user-agreement]
    [site.parser :as parser]
    [site.pointers :as pointers]
    [site.watcher :as watcher]
@@ -150,14 +151,14 @@
           "GET /patrons"   req  (resp-html req (patrons/page))
           "GET /personal-information" req (resp-html req (personal-information/page))
           "GET /projects"  req  (resp-html req (projects/page))
+          "GET /user-agreement/" req (resp-html req (user-agreement/page))
           "GET /subscribe" req  (-> (parser/parse-md "/subscribe/")
                                   post/post
                                   (dissoc :categories)
                                   (->> (resp-html req)))
           "GET /blog/how-to-subscribe/" [] (redirect "/subscribe/")
           "GET /blog/atom.xml"          [] (redirect "/atom.xml")
-          "GET /about"                  [] (redirect "/projects/")
-          )))
+          "GET /about"                  [] (redirect "/projects/"))))
     cache/wrap-cached))
 
 (def router

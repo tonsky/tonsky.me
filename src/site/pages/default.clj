@@ -103,6 +103,7 @@
            [:ul
             (for [[url title] [["/sign-in/" "Sign In"]
                                ["/personal-information/" "Personal Information"]
+                               ["/user-agreement/" "User Agreement"]
                                ; ["/scheme/" "Color Scheme"]
                                ["/patrons/"  "Patrons"]]]
               [:li [:a {:class (when (= (:uri page) url) "selected")
