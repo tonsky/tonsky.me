@@ -33,6 +33,10 @@ Send a PR! Read the contribution guidelines at the end.
 
 This list is about supporting full 4k resolution (3840×2160) at 120Hz only! <span style="padding: 2px 6px; border-radius: 4px; background-color: #4dcf01;">Green</span> icon means this Mac can work with that display at 4k _and_ 120Hz. <span style="padding: 2px 6px; border-radius: 4px; background-color: #ff5835">Red</span> icon means it works, but in compromised settings (60 Hz, 1440p resolution).
 
+## <img src="imac_pro_2017.png" height=32> <span>iMac Pro (2017)</span>
+
+<div class="row"><img src="doesnt_work.png" height=64> <span>Gigabyte M32UC (does not work with <a href="https://a.co/d/7MLoRkb">Maxonar USB C to DisplayPort</a> cable)</span></div>
+
 ## <img src="mini_2018.png" height=32> <span>Mac mini 2018</span>
 
 <div class="row"><img src="doesnt_work.png" height=64> <span>Acer Nitro XV3 (XV273K Pbmiipphzx)</span></div>
