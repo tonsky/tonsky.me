@@ -20,7 +20,7 @@ p, h1, h2, h3 { overflow-wrap: break-word; }
   --gray-line: rgba(0, 0, 0, 0.2);
   --gray-bg: rgba(0, 0, 0, 0.06);
   --text: #000;
-  --bg: #FDDB29;
+  --bg: #6ADCFF;
 }
 
 html {
@@ -227,7 +227,7 @@ button:active, button[disabled] {
 
 /* SUBSCRIBE */
 .about { width: 96vw; max-width: calc(var(--width) + 50px); }
-.about_photo { float: left; width: 100px; height: 160px; margin-left: -125px; margin-top: -10px; background: url("/i/photo.png"); background-size: 200px; }
+.about_photo { float: left; width: 125px; height: 160px; margin-left: -150px; margin-top: -10px; background-image: url("/i/photo.webp"); background-size: 250px; background-blend-mode: multiply; background-color: var(--bg); }
 .about_photo:hover { background-position: 100%; }
 .about_inner { font-size: var(--font-small); padding: var(--gap) 25px; border: var(--border) solid var(--gray-line); border-radius: var(--radius); display: flex; flex-direction: column; gap: var(--gap); }
 .btn-action { text-decoration: none; background: var(--gray-bg); border: none; padding: 0px 7px; display: inline-block; border-radius: 4px; }
