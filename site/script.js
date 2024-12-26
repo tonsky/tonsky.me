@@ -260,11 +260,13 @@ function updateWinterMode() {
     localStorage.setItem('winter', 'true');
     snowflakeTimer = setInterval(createSnowflake, Math.random() * 25 + 25);
     flashlight.src = '/i/flashlight_winter.webp';
+    document.querySelector("meta[name=theme-color]").content = "#6ADCFF";
   } else {
     localStorage.setItem('winter', 'false');
     clearInterval(snowflakeTimer);
     snowflakeTimer = undefined;
     flashlight.src = '/i/flashlight.webp';
+    document.querySelector("meta[name=theme-color]").content = "#FDDB29";
   }
 }
 

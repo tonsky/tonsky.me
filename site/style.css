@@ -253,6 +253,6 @@ body.dark #flashlight { opacity: 1; }
 
 /* SNOW */
 .snowflake { border-radius: 50%; background: #FFF; }
-@keyframes snow-fall {to{transform: translateY(calc(100vh + 200px));}}
-@keyframes snow-right {to{transform: translateX(-100vw);}}
-@keyframes snow-left {to{transform: translateX(100vw);}}
+@keyframes snow-fall {to{top: calc(100vh + 200px);}}
+@keyframes snow-right {to{left: -100vw;}}
+@keyframes snow-left {to{left: 100vw;}}
