@@ -20,7 +20,7 @@ p, h1, h2, h3 { overflow-wrap: break-word; }
   --gray-line: rgba(0, 0, 0, 0.2);
   --gray-bg: rgba(0, 0, 0, 0.06);
   --text: #000;
-  --bg: #6ADCFF;
+  --bg: #FDDB29;
 }
 
 html {
@@ -42,6 +42,8 @@ body {
   :root { --cap-height: calc(1rem * 18 / 16); }
 }
 
+body.winter { --bg: #6ADCFF; }
+
 body, .page { min-height: calc(100svh - var(--gap) * 8); }
 body { margin: calc(var(--gap) * 4) 0; background-color: var(--bg); color: var(--text); }
 .page { display: flex; flex-direction: column; gap: calc(var(--gap) * 4); align-items: center; }
@@ -54,6 +56,8 @@ body { margin: calc(var(--gap) * 4) 0; background-color: var(--bg); color: var(-
 .menu > li.selected > a,
 .menu > li:hover > a { color: #000; border-bottom: var(--border) solid #000; }
 .menu > .spacer { flex-grow: 1; }
+div.winter { width: 26px; height: 26px; background-image: url("/i/snow.svg"); opacity: .3; cursor: pointer; }
+body.winter div.winter { opacity: 1; }
 .dark_mode, #darkModeGlow { align-self: center; width: 26px; height: 26px; border-radius: 13px; background-image: url("/i/dark_mode.svg"); background-size: 52px 52px; transition: background-position-x 100ms; cursor: pointer; }
 .dark_mode { opacity: .3; }
 .dark_mode:hover, body.dark .dark_mode { opacity: 1; }
@@ -63,7 +67,7 @@ body.dark #darkModeGlow { opacity: 1; }
 @media (any-hover: none) {
   .dark_mode, #darkModeGlow { display: none; }
 }
-.hamburger { position: relative; margin-left: -0.5em; }
+.hamburger { position: relative; }
 .hamburger input { display: none; }
 .hamburger label { display: block; width: 32px; height: 32px; background-image: url("/i/hamburger.svg"); background-size: 100%; opacity: .3; cursor: pointer; border: none; }
 .hamburger label:hover,
@@ -228,6 +232,7 @@ button:active, button[disabled] {
 /* SUBSCRIBE */
 .about { width: 96vw; max-width: calc(var(--width) + 50px); }
 .about_photo { float: left; width: 125px; height: 160px; margin-left: -150px; margin-top: -10px; background-image: url("/i/photo.webp"); background-size: 250px; background-blend-mode: multiply; background-color: var(--bg); }
+body.winter .about_photo { background-image: url("/i/photo_winter.webp"); }
 .about_photo:hover { background-position: 100%; }
 .about_inner { font-size: var(--font-small); padding: var(--gap) 25px; border: var(--border) solid var(--gray-line); border-radius: var(--radius); display: flex; flex-direction: column; gap: var(--gap); }
 .btn-action { text-decoration: none; background: var(--gray-bg); border: none; padding: 0px 7px; display: inline-block; border-radius: 4px; }
@@ -245,3 +250,9 @@ body.dark #flashlight { opacity: 1; }
 .pointer.m { background-position-x: 0; }
 .pointer.w { background-position-x: -100%; }
 .pointer.l { background-position-x: -200%; }
+
+/* SNOW */
+.snowflake { border-radius: 50%; background: #FFF; }
+@keyframes snow-fall {to{transform: translateY(calc(100vh + 200px));}}
+@keyframes snow-right {to{transform: translateX(-100vw);}}
+@keyframes snow-left {to{transform: translateX(100vw);}}

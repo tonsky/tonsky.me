@@ -228,3 +228,55 @@ window.addEventListener("load", (event) => {
       ptrConnect();
   });
 });
+
+
+/** Snow **/
+
+let snowflakeTimer;
+
+function createSnowflake() {
+  const snowflake = document.createElement('div');
+  snowflake.classList.add('snowflake');
+  const randomLeft = Math.random() * window.innerWidth;
+  const dist = Math.random();
+  const randomSize = 20 - dist * 15;
+  const randomDuration = 5 + dist * 10;
+  snowflake.style.position = 'fixed';
+  snowflake.style.left = `${randomLeft}px`;
+  snowflake.style.top = '-50px';
+  snowflake.style.width = `${randomSize}px`;
+  snowflake.style.height = `${randomSize}px`;
+  snowflake.style.fontSize = `${50 - dist * 30}px`;
+  snowflake.style.opacity = Math.random() * 0.5 + 0.25;
+  snowflake.style.pointerEvents = 'none';
+  snowflake.style.animation = `snow-fall ${randomDuration}s linear,
+    ${Math.random() > 0.5 ? "snow-left" : "snow-right"} ${50 + Math.random() * 50}s linear`;
+  document.body.appendChild(snowflake);
+  setTimeout(() => { snowflake.remove() }, randomDuration * 1000);
+}
+
+function updateWinterMode() {
+  if (document.body.classList.contains('winter')) {
+    localStorage.setItem('winter', 'true');
+    snowflakeTimer = setInterval(createSnowflake, Math.random() * 25 + 25);
+    flashlight.src = '/i/flashlight_winter.webp';
+  } else {
+    localStorage.setItem('winter', 'false');
+    clearInterval(snowflakeTimer);
+    snowflakeTimer = undefined;
+    flashlight.src = '/i/flashlight.webp';
+  }
+}
+
+window.addEventListener("load", (event) => {
+  const winter = localStorage.getItem('winter');
+  console.log(winter, winter === 'true', winter === null);
+  if (winter === 'true' || winter === null) {
+    document.body.classList.toggle('winter');
+    updateWinterMode();
+  }
+  document.querySelector('div.winter').onclick = function(e) {
+    document.body.classList.toggle('winter');
+    updateWinterMode();
+  }
+});

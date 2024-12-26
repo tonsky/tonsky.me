@@ -95,6 +95,7 @@
                            (and post? (= url "/")) "inside")}
              [:a {:href url} title]])
           [:.spacer]
+          [:.winter]
           [:.dark_mode
            [:#darkModeGlow]]
           [:.hamburger
