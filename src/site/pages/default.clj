@@ -5,7 +5,8 @@
    [clojure.walk :as walk]
    [site.core :as core])
   (:import
-   [java.net URLEncoder]))
+   [java.net URLEncoder]
+   [java.time LocalDate]))
 
 (def about
   [:.about
@@ -95,7 +96,8 @@
                            (and post? (= url "/")) "inside")}
              [:a {:href url} title]])
           [:.spacer]
-          [:.winter]
+          (when (#{12 1 2} (.getMonthValue (LocalDate/now)))
+            [:.winter])
           [:.dark_mode
            [:#darkModeGlow]]
           [:.hamburger

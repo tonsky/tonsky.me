@@ -271,12 +271,16 @@ function updateWinterMode() {
 }
 
 window.addEventListener("load", (event) => {
-  const winter = localStorage.getItem('winter');
-  console.log(winter, winter === 'true', winter === null);
-  if (winter === 'true' || winter === null) {
-    document.body.classList.toggle('winter');
-    updateWinterMode();
+  const currentMonth = new Date().getMonth() + 1;
+  const isWinter = [12, 1, 2].includes(currentMonth);
+  if (isWinter) {
+    const winter = localStorage.getItem('winter');
+    if (winter === 'true' || winter === null) {
+      document.body.classList.toggle('winter');
+      updateWinterMode();
+    }
   }
+
   document.querySelector('div.winter').onclick = function(e) {
     document.body.classList.toggle('winter');
     updateWinterMode();
