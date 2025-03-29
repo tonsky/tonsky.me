@@ -1,4 +1,22 @@
 [[talk]]
+date    = 2025-03-28
+title   = "Clojure workflow with Sublime Text"
+desc    = """A deep overview of Clojure Sublimed, Socket REPL, Sublime Executor, custom color scheme, clj-reload and Clojure+.<br>We discuss many usability choices, implementation details, and broader observations and insights regarding Clojure editors and tooling in general.
+"""
+event   = "SciCloj"
+content = "2025-03-28 Clojure Visual Tools.mp4"
+hosted  = "https://www.youtube.com/watch?v=c0Rl9DKOTOY"
+thumb   = "2025-03-28 Clojure Visual Tools.webp"
+
+[[talk]]
+date    = 2025-03-22
+url     = "https://t.me/ilyabirman_channel/11098"
+title   = "Мир стал строго лучше"
+event   = "Думаем дальше"
+desc    = "С Ильей Бирманом обсуждаем, как меньше критиковать, и — разумеется — критикуем Эпл изо всех сил."
+content = "2025-03-22 Думаем дальше.mp3"
+
+[[talk]]
 date    = 2024-09-30
 url     = "https://t.me/tfeat/108"
 title   = "Nikitonsky про современные редакторы кода"
