@@ -6,6 +6,8 @@ hackernews_id: 39161339
 starred: true
 ---
 
+_Translations: [Chinese](https://nptr.cc/posts/2025-04/tonsky-checkbox/)_
+
 This is a checkbox:
 
 checkbox@2x.png
