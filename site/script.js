@@ -281,7 +281,7 @@ window.addEventListener("load", (event) => {
     }
   }
 
-  document.querySelector('div.winter').onclick = function(e) {
+  document.querySelector('div.winter')?.onclick = function(e) {
     document.body.classList.toggle('winter');
     updateWinterMode();
   }

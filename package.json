@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "@instantdb/core": "^0.18.7"
+  }
+}
