@@ -245,6 +245,8 @@ body.dark #flashlight { display: block; position: fixed; box-shadow: 0 0 0 9999p
 body.dark0 #flashlight { opacity: 0; }
 body.dark #flashlight { opacity: 1; }
 
+#glCanvas { pointer-events: none; position: fixed; width: 100dvw; height: 100dvh; top: 0; left: 0; }
+
 /* POINTERS */
 .pointer { width: 16px; height: 24px; position: absolute; background-image: url(/i/pointers.png); background-size: 300% 100%; transition: 200ms; transition-timing-function: ease-in-out; pointer-events: none; }
 .pointer.m { background-position-x: 0; }

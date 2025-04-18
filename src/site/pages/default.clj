@@ -122,4 +122,5 @@
            about)]
       
         [:img#flashlight {:src "/i/flashlight.webp"}]
+        [:canvas#glCanvas]
         [:.pointers]]])))

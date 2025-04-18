@@ -121,6 +121,98 @@ window.addEventListener("beforeunload", (event) => {
   }
 });
 
+// shaders
+
+function createShader(gl, type, source) {
+  const shader = gl.createShader(type);
+  gl.shaderSource(shader, source);
+  gl.compileShader(shader);
+  return shader;
+}
+
+const vertexShaderSource = `
+  attribute vec2 a_position;
+  void main() {
+    gl_Position = vec4(a_position, 0.0, 1.0);
+  }
+`;
+
+const fragmentShaderSource = `
+  precision mediump float;
+  uniform vec2 u_resolution;
+  uniform float u_ptrs[10];
+
+  void main() {
+    vec2 tex = gl_FragCoord.xy;
+    float light = 0.0;
+    for (int i = 0; i < 10; i += 2) {
+      if (u_ptrs[i] >= 0.0) {
+        vec2 mouse = vec2(u_ptrs[i], u_resolution.y - u_ptrs[i + 1]);
+        float dist = 0.01 + length(mouse - tex) / 100.0;
+        float br = 1.0 / pow(dist, 4.0);
+        light = light + br;
+      }
+    }
+    light = 1.0 - light;
+    // light = light < 0.0031308 ? light * 12.92 : 1.055 * pow(light, 1.0/2.4) - 0.055;
+    light = pow((light + 0.055) / 1.055, 2.4);
+    // gl_FragColor = vec4(light, light, light, 1.0);
+    gl_FragColor = vec4(0.0, 0.0, 0.0, light);
+  }
+`;
+
+window.addEventListener("load", (event) => {
+  const glCanvas = document.getElementById('glCanvas');
+  const gl = glCanvas.getContext('webgl');
+  let resize = () => {
+    glCanvas.width = glCanvas.clientWidth;
+    glCanvas.height = glCanvas.clientHeight;
+    gl.viewport(0, 0, glCanvas.width, glCanvas.height);
+  };
+  window.addEventListener('resize', resize);
+  resize();
+
+  const vertexShader = createShader(gl, gl.VERTEX_SHADER, vertexShaderSource);
+  const fragmentShader = createShader(gl, gl.FRAGMENT_SHADER, fragmentShaderSource);
+
+  const program = gl.createProgram();
+  gl.attachShader(program, vertexShader);
+  gl.attachShader(program, fragmentShader);
+  gl.linkProgram(program);
+
+  const positionBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+
+  const positionAttributeLocation = gl.getAttribLocation(program, 'a_position');
+  const resolutionUniformLocation = gl.getUniformLocation(program, 'u_resolution');
+  const ptrsUniformLocation = gl.getUniformLocation(program, "u_ptrs");
+
+  let mouseX = 0;
+  let mouseY = 0;
+  document.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+  });
+
+  let render = () => {
+    gl.clearColor(0, 0, 0, 0);
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
+    gl.useProgram(program);
+    gl.enableVertexAttribArray(positionAttributeLocation);
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+
+    gl.uniform2f(resolutionUniformLocation, glCanvas.width, glCanvas.height);
+    gl.uniform1fv(ptrsUniformLocation, [mouseX, mouseY, 900, 200, 1100, 300, -1, -1, -1, -1]);
+
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+    requestAnimationFrame(render);
+  };
+  // render();
+});
 
 /** POINTERS **/
 
