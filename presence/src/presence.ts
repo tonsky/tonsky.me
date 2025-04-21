@@ -27,10 +27,7 @@ const db = init({ appId: APP_ID, schema: schema, devtool: false });
 
 const currentUrl = new URL(window.location.href);
 const roomId = currentUrl.origin + currentUrl.pathname;
-// const userId = await db.getLocalId('guest');
-const userId = crypto.randomUUID();
 
-// Function to get location data
 interface LocationData {
   countryCode: string;
   country: string;
@@ -39,7 +36,7 @@ interface LocationData {
 
 async function getLocationData(): Promise<Partial<LocationData>> {
   try {
-    const response = await fetch('http://ip-api.com/json/?fields=country,countryCode,city');
+    const response = await fetch('//ip-api.com/json/?fields=country,countryCode,city');
     if (response.ok) {
       const data = await response.json();
       return {
@@ -125,25 +122,13 @@ function getAnimal(id: string): [string, string] {
 
 const room = db.joinRoom('presence', roomId);
 
-async function main() {
-  const location = await getLocationData();
-  room.publishPresence({
-    id: userId, 
-    country_code: location.countryCode!,
-    country: location.country!,
-    city: location.city!,
-  });
-}
-
 room.subscribePresence({}, (presence) => {
-  const { peers, user } = presence;
-  const _user = user!;
-  const _peers = { ...peers, [_user.id]: _user };
+  const { peers } = presence;
 
   let container = document.querySelector('#presence ul')!;
   container.innerHTML = ''; // Clear container before adding sorted items
   
-  Object.values(_peers).sort((a, b) => {
+  Object.values(peers).sort((a, b) => {
     if (a.country_code < b.country_code) return -1;
     if (a.country_code > b.country_code) return 1;
     if (a.id < b.id) return -1;
@@ -174,12 +159,22 @@ room.subscribePresence({}, (presence) => {
       flagSpan.textContent = countryCodeToEmoji(peer.country_code);
       li.appendChild(flagSpan);
     }
-    listItemTitle += ` (${peer.id.substring(0, 8)})`;
+    // listItemTitle += ` (${peer.id.substring(0, 8)})`;
 
     li.title = listItemTitle;
     container.appendChild(li);
   });
 });
 
-main(); // Call the async main function
+async function main() {
+  const location = await getLocationData();
+  room.publishPresence({
+    id: await db.getLocalId('guest'), 
+    country_code: location.countryCode!,
+    country: location.country!,
+    city: location.city!,
+  });
+}
+
+main();
 
