@@ -27,6 +27,12 @@ const db = init({ appId: APP_ID, schema: schema, devtool: false });
 
 const currentUrl = new URL(window.location.href);
 const roomId = currentUrl.origin + currentUrl.pathname;
+let regionNames: Intl.DisplayNames | undefined;
+try {
+  regionNames = new Intl.DisplayNames(['en'], { type: 'region' });
+} catch (e) {
+  regionNames = undefined;
+}
 
 interface LocationData {
   countryCode: string;
@@ -36,19 +42,32 @@ interface LocationData {
 
 async function getLocationData(): Promise<Partial<LocationData>> {
   try {
-    const response = await fetch('//ip-api.com/json/?fields=country,countryCode,city');
+    const response = await fetch('https://ipinfo.io/json?token=5a2bc5e71de4ac');
+
     if (response.ok) {
       const data = await response.json();
+      const countryCode = data.country || '??';
+      let countryName = 'Unknown';
+
+      // Use Intl.DisplayNames to get the country name from the code
+      if (countryCode !== '??' && regionNames) {
+        countryName = regionNames.of(countryCode) || 'Unknown';
+      }
+
       return {
-        countryCode: data.countryCode || '??',
-        country: data.country || 'Unknown',
+        countryCode: countryCode,
+        country: countryName, // Use the resolved country name
         city: data.city || 'Unknown',
       };
+    } else {
+      // Handle non-OK responses (e.g., 4xx, 5xx)
+      const responseBody = await response.text();
+      console.error(`ipinfo.io request failed with status: ${response.status}. Body: ${responseBody}`);
     }
   } catch (error) {
     console.error("Error fetching location data:", error);
   }
-  // Return default values if fetching fails
+  
   return {
     countryCode: '??',
     country: 'Unknown',
