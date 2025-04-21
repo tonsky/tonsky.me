@@ -1,4 +1,4 @@
-import { init, i } from "@instantdb/core";
+import { init, i, PresenceResponse, PresenceOf, RoomHandle, TopicsOf } from "@instantdb/core";
 import './presence.css';
 
 // ID for app: tonsky.me
@@ -9,8 +9,8 @@ const _schema = i.schema({
   rooms: {
     presence: {
       presence: i.entity({
-        id: i.string(),
-        country_code: i.string(),
+        user_id: i.string(),
+        countryCode: i.string(),
         country: i.string(),
         city: i.string(),
       })
@@ -34,13 +34,18 @@ try {
   regionNames = undefined;
 }
 
+const container: HTMLElement = document.querySelector('#presence ul')!;
+
 interface LocationData {
   countryCode: string;
   country: string;
   city: string;
 }
 
-async function getLocationData(): Promise<Partial<LocationData>> {
+type RoomData = LocationData & {
+  user_id: string;
+}
+async function getLocationData(): Promise<LocationData> {
   try {
     const response = await fetch('/geoip');
 
@@ -112,10 +117,10 @@ const animals: [string, string][] = [
 ];
 
 // Helper function to get a deterministic animal emoji and name tuple based on ID
-function getAnimal(id: string): [string, string] {  
+function getAnimal(user_id: string): [string, string] {  
   let hash = 0;
-  for (let i = 0; i < id.length; i++) {
-    const char = id.charCodeAt(i);
+  for (let i = 0; i < user_id.length; i++) {
+    const char = user_id.charCodeAt(i);
     let value = 0;
 
     if (char >= 48 && char <= 57) { // ASCII '0' to '9'
@@ -133,66 +138,98 @@ function getAnimal(id: string): [string, string] {
   }
     
   const animalIndex = Math.abs(hash) % animals.length;
-  // console.log(id, hash, animalIndex, animals.length);
-  return animals[animalIndex]; // Always returns a tuple
+  return animals[animalIndex];
 }
 
-// InstantCoreDatabase
+function compareRoomData(a: RoomData, b: RoomData): number {
+  if (a.countryCode < b.countryCode) return -1;
+  if (a.countryCode > b.countryCode) return 1;
+  if (a.user_id < b.user_id) return -1;
+  if (a.user_id > b.user_id) return 1;
+  return 0;
+}
 
-const room = db.joinRoom('presence', roomId);
+function appendPeerItem(peer: RoomData) {
+  if (!peer.user_id) return;
 
-room.subscribePresence({}, (presence) => {
-  const { peers } = presence;
+  const li = document.createElement('li');
 
-  let container = document.querySelector('#presence ul')!;
-  container.innerHTML = ''; // Clear container before adding sorted items
-  
-  Object.values(peers).sort((a, b) => {
-    if (a.country_code < b.country_code) return -1;
-    if (a.country_code > b.country_code) return 1;
-    if (a.id < b.id) return -1;
-    if (a.id > b.id) return 1;
-    return 0;
-  }).forEach((peer: { id: string, country_code: string, country: string, city: string }) => {
-    if (!peer.id)
-      return;
-    
-    const li = document.createElement('li');
-    li.id = peer.id;
+  // Create span for animal emoji
+  const animalSpan = document.createElement('span');
+  animalSpan.className = 'animal-emoji';
+  const [animalEmoji, animalName] = getAnimal(peer.user_id);
+  animalSpan.textContent = animalEmoji;
+  li.appendChild(animalSpan);
 
-    // Create span for animal emoji
-    const animalSpan = document.createElement('span');
-    animalSpan.className = 'animal-emoji';
-    const [animalEmoji, animalName] = getAnimal(peer.id);
-    animalSpan.textContent = animalEmoji;
-    li.appendChild(animalSpan);
+  let listItemTitle = `Anonymous ${animalName}`;
 
-    let listItemTitle = `Anonymous ${animalName}`;
+  // Create and append flag overlay span if flag exists
+  if (peer.countryCode && peer.countryCode !== '??') {
+    listItemTitle += ` from ${peer.city}, ${peer.country}`;
 
-    // Create and append flag overlay span if flag exists
-    if (peer.country_code && peer.country_code !== '??') {
-      listItemTitle += ` from ${peer.city}, ${peer.country}`;
+    const flagSpan = document.createElement('span');
+    flagSpan.className = 'flag-overlay';
+    flagSpan.textContent = countryCodeToEmoji(peer.countryCode);
+    li.appendChild(flagSpan);
+  }
+  // listItemTitle += ` (${peer.user_id.substring(0, 8)})`;
 
-      const flagSpan = document.createElement('span');
-      flagSpan.className = 'flag-overlay';
-      flagSpan.textContent = countryCodeToEmoji(peer.country_code);
-      li.appendChild(flagSpan);
+  li.title = listItemTitle;
+  container.appendChild(li);
+}
+
+function onPresenceChange(presence: PresenceResponse<PresenceOf<AppSchema, 'presence'>, keyof RoomData>) {
+  const { peers: _peers, user } = presence;
+  const peers = { ..._peers };
+  if (user?.user_id) {
+    peers[user.user_id] = user;
+  }
+  container.innerHTML = '';
+
+  // Filter for unique user_ids
+  const uniquePeers = new Map<string, RoomData>();
+  for (const peer of Object.values(peers)) {
+    if (peer && peer.user_id && !uniquePeers.has(peer.user_id)) {
+      uniquePeers.set(peer.user_id, peer);
     }
-    // listItemTitle += ` (${peer.id.substring(0, 8)})`;
+  }
 
-    li.title = listItemTitle;
-    container.appendChild(li);
-  });
-});
+  // Remove self from the list
+  if (user?.user_id) {
+    uniquePeers.delete(user.user_id);
+  }
+  
+  // Sort and render the unique peers
+  [...uniquePeers.values()]
+    .sort(compareRoomData)
+    .forEach(appendPeerItem);
+}
+
+var room: RoomHandle<PresenceOf<AppSchema, 'presence'>, TopicsOf<AppSchema, 'presence'>> | undefined;
+var presence: RoomData | undefined;
+
+function onVisibilityChange() {
+  if (document.visibilityState === 'hidden') {
+    room?.leaveRoom();
+    room = undefined;
+  } else if (document.visibilityState === 'visible') {
+    room = db.joinRoom('presence', roomId);
+    room.publishPresence(presence!);
+    room.subscribePresence({}, onPresenceChange);
+  }
+}
 
 async function main() {
+  const user_id = await db.getLocalId('guest');
   const location = await getLocationData();
-  room.publishPresence({
-    id: await db.getLocalId('guest'), 
-    country_code: location.countryCode!,
+  presence = {
+    user_id: user_id, 
+    countryCode: location.countryCode!,
     country: location.country!,
     city: location.city!,
-  });
+  };
+  document.addEventListener('visibilitychange', onVisibilityChange);
+  onVisibilityChange();
 }
 
 main();
