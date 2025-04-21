@@ -1,9 +1,11 @@
 (ns site.server
   (:require
    [clj-simple-router.core :as router]
+   [clojure.edn :as edn]
    [clojure.java.io :as io]
    [mount.core :as mount]
-   [org.httpkit.server :as http]
+   [org.httpkit.server :as server]
+   [org.httpkit.client :as client]
    [ring.middleware.cookies :as ring-cookies]
    [ring.middleware.head :as ring-head]
    [ring.middleware.params :as ring-params]
@@ -30,6 +32,10 @@
    [site.render :as render])
   (:import
    [java.io File]))
+
+(def config
+  (edn/read-string
+    (slurp "config.edn")))
 
 (defn find-file ^File [path]
   (let [file ^File (io/file path)]
@@ -161,9 +167,22 @@
           "GET /about"                  [] (redirect "/projects/"))))
     cache/wrap-cached))
 
+(defn geoip [req]
+  (if-some [ip (or
+                 (-> req :headers (get "x-real-ip"))
+                 (-> req :params  (get "ip")))]
+    (let [resp @(client/get (str "https://ipinfo.io/" ip "/json") {:query-params {"token" (:ipinfo-token config)}})]
+      {:status  200
+       :headers {"Content-Type" (or (-> resp :headers :content-type) "application/json; charset=UTF-8")}
+       :body    (:body resp)})
+    {:status  400
+     :headers {"Content-Type" "text/plain; charset=UTF-8"}
+     :body    "Missing IP address"}))
+
 (def router
   (router/router
     (router/routes
+      "GET /geoip"   req (geoip req)
       "GET /sign-in" req (resp-html req (sign-in/page req))
       "POST /personal-information/submit" req (personal-information/submit req))))
 
@@ -194,12 +213,12 @@
   (let [opts   {:legacy-return-value? false
                 :ip   core/server-ip
                 :port core/server-port}
-        server (http/run-server app opts)]
+        server (server/run-server app opts)]
     (println "Started HTTP server on" (str (:ip opts) ":" (:port opts)))
     server)
   :stop
   (do
-    (http/server-stop! server)
+    (server/server-stop! server)
     (println "Stopped HTTP server")))
 
 (defn -main [& args]

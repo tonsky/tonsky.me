@@ -42,7 +42,7 @@ interface LocationData {
 
 async function getLocationData(): Promise<Partial<LocationData>> {
   try {
-    const response = await fetch('https://ipinfo.io/json?token=5a2bc5e71de4ac');
+    const response = await fetch('/geoip');
 
     if (response.ok) {
       const data = await response.json();

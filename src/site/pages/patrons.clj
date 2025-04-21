@@ -6,7 +6,7 @@
     [clojure.math :as math]
     [clojure.string :as str]
     [mount.core :as mount]
-    [org.httpkit.client :as http]
+    [org.httpkit.client :as client]
     [site.cache :as cache]
     [site.core :as core]
     [toml-clj.core :as toml])
@@ -52,7 +52,7 @@
            patrons []]
       (let [query'   (cond-> query
                        (some? cursor) (assoc "page[cursor]" cursor))
-            response (-> (http/get url {:query-params query' :headers headers :as :text})
+            response (-> (client/get url {:query-params query' :headers headers :as :text})
                        (deref)
                        :body
                        (json/parse-string true))
@@ -125,7 +125,7 @@
       (let [query   (if (some? cursor)
                       (sponsors-query (str "\\\"" cursor "\\\""))
                       (sponsors-query "null"))
-            response (-> (http/post url {:body query :headers headers :as :text})
+            response (-> (client/post url {:body query :headers headers :as :text})
                        (deref)
                        :body
                        (json/parse-string true))
