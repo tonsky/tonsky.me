@@ -13,6 +13,7 @@ const _schema = i.schema({
         countryCode: i.string(),
         country: i.string(),
         city: i.string(),
+        visible: i.boolean(),
       })
     },
   },
@@ -44,7 +45,9 @@ interface LocationData {
 
 type RoomData = LocationData & {
   user_id: string;
+  visible: boolean;
 }
+
 async function getLocationData(): Promise<LocationData> {
   try {
     const response = await fetch('/geoip');
@@ -189,7 +192,7 @@ function onPresenceChange(presence: PresenceResponse<PresenceOf<AppSchema, 'pres
   // Filter for unique user_ids
   const uniquePeers = new Map<string, RoomData>();
   for (const peer of Object.values(peers)) {
-    if (peer && peer.user_id && !uniquePeers.has(peer.user_id)) {
+    if (peer && peer.visible && peer.user_id && !uniquePeers.has(peer.user_id)) {
       uniquePeers.set(peer.user_id, peer);
     }
   }
@@ -206,16 +209,13 @@ function onPresenceChange(presence: PresenceResponse<PresenceOf<AppSchema, 'pres
 }
 
 var room: RoomHandle<PresenceOf<AppSchema, 'presence'>, TopicsOf<AppSchema, 'presence'>> | undefined;
-var presence: RoomData | undefined;
+var presence: Partial<RoomData> | undefined;
 
 function onVisibilityChange() {
   if (document.visibilityState === 'hidden') {
-    room?.leaveRoom();
-    room = undefined;
+    room?.publishPresence({...presence, visible: false});
   } else if (document.visibilityState === 'visible') {
-    room = db.joinRoom('presence', roomId);
-    room.publishPresence(presence!);
-    room.subscribePresence({}, onPresenceChange);
+    room?.publishPresence({...presence, visible: true});
   }
 }
 
@@ -228,8 +228,10 @@ async function main() {
     country: location.country!,
     city: location.city!,
   };
-  document.addEventListener('visibilitychange', onVisibilityChange);
+  room = db.joinRoom('presence', roomId);
+  room.subscribePresence({}, onPresenceChange);
   onVisibilityChange();
+  document.addEventListener('visibilitychange', onVisibilityChange);
 }
 
 main();

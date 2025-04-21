@@ -124,5 +124,4 @@
            about)]
       
         [:img#flashlight {:src "/i/flashlight.webp"}]
-        [:.pointers]
         [:div#presence [:ul]]]])))

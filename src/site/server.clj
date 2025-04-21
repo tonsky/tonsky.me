@@ -27,7 +27,6 @@
    [site.pages.talks :as talks]
    [site.pages.user-agreement :as user-agreement]
    [site.parser :as parser]
-   [site.pointers :as pointers]
    [site.watcher :as watcher]
    [site.render :as render])
   (:import
@@ -143,7 +142,6 @@
   (->
     (router/router
       (merge
-        pointers/routes
         (router/routes
           "GET /"          req  (resp-html req (index/index))
           "GET /atom.xml"  []   {:status  200
