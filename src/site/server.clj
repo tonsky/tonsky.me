@@ -175,7 +175,6 @@
        :body    (str "Path '" (:uri req) "' not found")})
     (wrap-files "files")
     (wrap-files "site")
-    (wrap-files "presence/dist/assets")
     wrap-range
     ((fn [handler]
        (fn [req]

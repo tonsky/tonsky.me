@@ -281,8 +281,11 @@ window.addEventListener("load", (event) => {
     }
   }
 
-  document.querySelector('div.winter')?.onclick = function(e) {
-    document.body.classList.toggle('winter');
-    updateWinterMode();
+  const winter = document.querySelector('div.winter');
+  if (winter) {
+      winter.onclick = function(e) {
+      document.body.classList.toggle('winter');
+      updateWinterMode();
+    }
   }
 });

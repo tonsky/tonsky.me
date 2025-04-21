@@ -5,11 +5,19 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite + TS</title>
+    <style>
+      :root {
+        --bg: #fddb2a;
+      }
+      body {
+        background-color: var(--bg);
+      }
+    </style>
   </head>
   <body>
     <div id="presence">
       <ul></ul>
     </div>
-    <script type="module" src="/src/main.ts"></script>
+    <script type="module" src="/src/presence.ts"></script>
   </body>
 </html>

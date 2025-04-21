@@ -1,5 +1,5 @@
 import { init, i } from "@instantdb/core";
-import './style.css';
+import './presence.css';
 
 // ID for app: tonsky.me
 const APP_ID = "4f95493d-2467-4b40-98a0-002e98022ece";

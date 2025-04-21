@@ -16,3 +16,4 @@ files
 config.edn
 .clj-kondo
 site/patrons/*.toml
+site/presence

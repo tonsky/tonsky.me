@@ -2,6 +2,10 @@
 set -o errexit -o nounset -o pipefail
 cd "`dirname $0`/.."
 
+# build
+./script/build.sh
+
+# blog posts
 FILES=`find site/blog -name index.md`
 for file in $FILES; do
     time="$(git log --pretty=format:%cd -n 1 --date=format:%Y%m%d%H%M.%S --date-order -- "$file")"
@@ -15,4 +19,5 @@ touch -m -t 202305031142.50 site/blog/humble-state/index.md
 touch -m -t 202305191428.55 site/blog/humble-signals/index.md 
 touch -m -t 202306291434.24 site/blog/clojurescript-2/index.md
 
+# rsync
 rsync --verbose --compress --recursive --times --delete site site@tonsky.me:

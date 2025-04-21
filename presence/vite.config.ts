@@ -2,12 +2,17 @@ import { defineConfig } from 'vite';
 
 export default defineConfig({
   build: {
+    outDir: '../site/presence',
+    emptyOutDir: false,
+    lib: {
+      entry: 'src/presence.ts',
+      name: 'Presence',
+      fileName: 'presence',
+      formats: ['es']
+    },
     rollupOptions: {
       output: {
-        // Use fixed names instead of hashes
-        entryFileNames: `assets/[name].js`,
-        chunkFileNames: `assets/[name].js`,
-        assetFileNames: `assets/[name].[ext]`
+        assetFileNames: 'presence.[ext]'
       }
     }
   }

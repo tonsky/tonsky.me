@@ -1,20 +1,21 @@
 {:deps
- {instaparse/instaparse              {:mvn/version "1.4.12"}
-  io.github.tonsky/clj-simple-router {:mvn/version "0.1.0"}
+ {cheshire/cheshire                  {:mvn/version "5.12.0"}
   http-kit/http-kit                  {:mvn/version "2.7.0"}
-  mount/mount                        {:mvn/version "0.1.17"}
-  org.clojure/clojure                {:mvn/version "1.11.2"}
-  ring/ring-core                     {:mvn/version "1.8.0"}
+  instaparse/instaparse              {:mvn/version "1.4.12"}
+  io.github.tonsky/clj-simple-router {:mvn/version "0.1.0"}
+  io.github.tonsky/clojure-plus      {:mvn/version "1.3.3"}
   io.github.tonsky/toml-clj          {:mvn/version "0.1.0"}
-  cheshire/cheshire                  {:mvn/version "5.12.0"}
-  }
+  mount/mount                        {:mvn/version "0.1.17"}
+  org.clojure/clojure                {:mvn/version "1.12.0"}
+  ring/ring-core                     {:mvn/version "1.8.0"}}
+ :paths ["src" "presence/dist/assets"]
  :aliases
  {:dev
   {:jvm-opts ["-ea"]
    :extra-paths ["dev" "test"]
    :extra-deps 
-   {io.github.tonsky/clj-reload {:mvn/version "0.3.0"}
-    io.github.tonsky/duti       {:git/sha "1ed88c121b27c7980dc5a86cb6c445b8581e8d06"}}}
+   {io.github.tonsky/clj-reload {:mvn/version "0.9.4"}
+    io.github.tonsky/duti       {:git/sha "e36d65296a4f9758664309ec35b00887e88c405a"}}}
   :uberdeps
-  {:replace-deps {uberdeps/uberdeps {:mvn/version "1.3.0"}}
+  {:replace-deps {uberdeps/uberdeps {:mvn/version "1.4.0"}}
    :replace-paths []}}}

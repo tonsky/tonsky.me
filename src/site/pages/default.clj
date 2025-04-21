@@ -82,8 +82,8 @@
         [:script {:src "/script.js" :defer true :async true}]
         (for [script (:scripts page)]
           [:script {:src script :defer true :async true}])
-        [:link {:href "/presence/dist/assets/index.css" :rel "stylesheet" :type "text/css"}]
-        [:script {:src "/presence/dist/assets/index.js" :defer true :async true}]
+        [:link {:href "/presence/presence.css" :rel "stylesheet" :type "text/css"}]
+        [:script {:src "/presence/presence.js" :defer true :async true}]
         (when core/dev?
           [:script {:src "/watcher.js" :defer true :async true}])]
        [:body
