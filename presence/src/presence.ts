@@ -14,6 +14,7 @@ const _schema = i.schema({
         country: i.string(),
         city: i.string(),
         visible: i.boolean(),
+        self: i.boolean().optional(),
       })
     },
   },
@@ -46,6 +47,7 @@ interface LocationData {
 type RoomData = LocationData & {
   user_id: string;
   visible: boolean;
+  self?: boolean;
 }
 
 async function getLocationData(): Promise<LocationData> {
@@ -175,6 +177,11 @@ function appendPeerItem(peer: RoomData) {
     flagSpan.textContent = countryCodeToEmoji(peer.countryCode);
     li.appendChild(flagSpan);
   }
+
+  if (peer.self) {
+    listItemTitle += ` (you)`;
+  }
+
   // listItemTitle += ` (${peer.user_id.substring(0, 8)})`;
 
   li.title = listItemTitle;
@@ -185,7 +192,7 @@ function onPresenceChange(presence: PresenceResponse<PresenceOf<AppSchema, 'pres
   const { peers: _peers, user } = presence;
   const peers = { ..._peers };
   if (user?.user_id) {
-    peers[user.user_id] = user;
+    peers[user.user_id] = {...user, self: true};
   }
   container.innerHTML = '';
 
@@ -197,11 +204,6 @@ function onPresenceChange(presence: PresenceResponse<PresenceOf<AppSchema, 'pres
     }
   }
 
-  // Remove self from the list
-  if (user?.user_id) {
-    uniquePeers.delete(user.user_id);
-  }
-  
   // Sort and render the unique peers
   [...uniquePeers.values()]
     .sort(compareRoomData)
