@@ -27,7 +27,7 @@ const schema: AppSchema = _schema;
 const db = init({ appId: APP_ID, schema: schema, devtool: false });
 
 const currentUrl = new URL(window.location.href);
-const roomId = currentUrl.origin + currentUrl.pathname;
+const roomId = currentUrl.origin; // + currentUrl.pathname;
 let regionNames: Intl.DisplayNames | undefined;
 try {
   regionNames = new Intl.DisplayNames(['en'], { type: 'region' });

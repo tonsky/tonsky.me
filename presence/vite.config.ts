@@ -8,7 +8,7 @@ export default defineConfig({
       entry: 'src/presence.ts',
       name: 'Presence',
       fileName: 'presence',
-      formats: ['es']
+      formats: ['iife']
     },
     rollupOptions: {
       output: {
