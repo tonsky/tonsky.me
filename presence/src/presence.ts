@@ -13,7 +13,7 @@ const _schema = i.schema({
         countryCode: i.string(),
         country: i.string(),
         city: i.string(),
-        visible: i.boolean(),
+        heartbeat: i.number(),
         self: i.boolean().optional(),
       })
     },
@@ -46,7 +46,7 @@ interface LocationData {
 
 type RoomData = LocationData & {
   user_id: string;
-  visible: boolean;
+  heartbeat?: number;
   self?: boolean;
 }
 
@@ -199,7 +199,7 @@ function onPresenceChange(presence: PresenceResponse<PresenceOf<AppSchema, 'pres
   // Filter for unique user_ids
   const uniquePeers = new Map<string, RoomData>();
   for (const peer of Object.values(peers)) {
-    if (peer && peer.visible && peer.user_id && !uniquePeers.has(peer.user_id)) {
+    if (peer && peer.heartbeat && peer.heartbeat > Date.now() - 120 * 1000 && peer.user_id && !uniquePeers.has(peer.user_id)) {
       uniquePeers.set(peer.user_id, peer);
     }
   }
@@ -212,12 +212,22 @@ function onPresenceChange(presence: PresenceResponse<PresenceOf<AppSchema, 'pres
 
 var room: RoomHandle<PresenceOf<AppSchema, 'presence'>, TopicsOf<AppSchema, 'presence'>> | undefined;
 var presence: Partial<RoomData> | undefined;
+var heartbeatTimer: number | undefined;
+
+function heartbeat() {
+  room?.publishPresence({...presence, heartbeat: Date.now()});
+}
 
 function onVisibilityChange() {
   if (document.visibilityState === 'hidden') {
-    room?.publishPresence({...presence, visible: false});
+    room?.publishPresence({...presence});
+    if (heartbeatTimer) {
+      clearInterval(heartbeatTimer);
+      heartbeatTimer = undefined;
+    }
   } else if (document.visibilityState === 'visible') {
-    room?.publishPresence({...presence, visible: true});
+    room?.publishPresence({...presence, heartbeat: Date.now()});
+    heartbeatTimer = setInterval(heartbeat, 60 * 1000);
   }
 }
 
@@ -229,6 +239,7 @@ async function main() {
     countryCode: location.countryCode!,
     country: location.country!,
     city: location.city!,
+    heartbeat: 0,
   };
   room = db.joinRoom('presence', roomId);
   room.subscribePresence({}, onPresenceChange);
