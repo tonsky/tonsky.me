@@ -15,6 +15,7 @@ const _schema = i.schema({
         city: i.string(),
         visible: i.boolean(),
         self: i.boolean().optional(),
+        time_joined: i.number(),
       })
     },
   },
@@ -48,6 +49,7 @@ type RoomData = LocationData & {
   user_id: string;
   visible: boolean;
   self?: boolean;
+  time_joined?: number;
 }
 
 async function getLocationData(): Promise<LocationData> {
@@ -147,6 +149,12 @@ function getAnimal(user_id: string): [string, string] {
 }
 
 function compareRoomData(a: RoomData, b: RoomData): number {
+  // Handle undefined time_joined (older clients)
+  const aTime = a.time_joined ?? 0;
+  const bTime = b.time_joined ?? 0;
+  
+  if (aTime < bTime) return -1;
+  if (aTime > bTime) return 1;
   if (a.countryCode < b.countryCode) return -1;
   if (a.countryCode > b.countryCode) return 1;
   if (a.user_id < b.user_id) return -1;
@@ -190,6 +198,7 @@ function appendPeerItem(peer: RoomData) {
 
 function onPresenceChange(presence: PresenceResponse<PresenceOf<AppSchema, 'presence'>, keyof RoomData>) {
   const { peers: _peers, user } = presence;
+
   const peers = { ..._peers };
   if (user?.user_id) {
     peers[user.user_id] = {...user, self: true};
@@ -229,6 +238,7 @@ async function main() {
     countryCode: location.countryCode!,
     country: location.country!,
     city: location.city!,
+    time_joined: Date.now(),
   };
   room = db.joinRoom('presence', roomId);
   room.subscribePresence({}, onPresenceChange);
