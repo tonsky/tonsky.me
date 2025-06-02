@@ -7,13 +7,22 @@
 #presence > ul {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 0 15px 0 0;
   display: flex;
   flex-wrap: wrap;
 }
 
 #presence > ul > li {
   position: relative;
+  width: 35px;
+  height: 50px;
+  transition: width 0.1s linear;
+}
+
+#presence > ul > li > .container {
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 50px;
   height: 50px;
   border-radius: 50%;
@@ -25,8 +34,14 @@
   font-size: 36px;
   font-weight: normal;
   line-height: 1;
-  overflow: visible;
-  margin-left: -15px;
+}
+
+#presence > ul > li.removing {
+  width: 0;
+}
+
+#presence > ul > li.inserting {
+  width: 0;
 }
 
 #presence > ul > li:hover {

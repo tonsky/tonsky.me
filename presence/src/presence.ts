@@ -168,13 +168,19 @@ function createPeerElement(peer: RoomData): HTMLElement | null {
 
   const li = document.createElement('li');
   li.setAttribute('data-user-id', peer.user_id);
+  // Store full peer data for comparison
+  (li as any).__peerData = peer;
+
+  // Create the peer content container
+  const container = document.createElement('div');
+  container.className = 'container';
 
   // Create span for animal emoji
   const animalSpan = document.createElement('span');
   animalSpan.className = 'animal-emoji';
   const [animalEmoji, animalName] = getAnimal(peer.user_id);
   animalSpan.textContent = animalEmoji;
-  li.appendChild(animalSpan);
+  container.appendChild(animalSpan);
 
   let listItemTitle = `Anonymous ${animalName}`;
 
@@ -185,7 +191,7 @@ function createPeerElement(peer: RoomData): HTMLElement | null {
     const flagSpan = document.createElement('span');
     flagSpan.className = 'flag-overlay';
     flagSpan.textContent = countryCodeToEmoji(peer.countryCode);
-    li.appendChild(flagSpan);
+    container.appendChild(flagSpan);
   }
 
   if (peer.self) {
@@ -195,10 +201,13 @@ function createPeerElement(peer: RoomData): HTMLElement | null {
   // listItemTitle += ` (${peer.user_id.substring(0, 8)})`;
 
   li.title = listItemTitle;
+  li.appendChild(container);
   return li;
 }
 
 function onPresenceChange(presence: PresenceResponse<PresenceOf<AppSchema, 'presence'>, keyof RoomData>) {
+  if (!container) return;
+  
   const { peers: _peers, user } = presence;
 
   const peers = { ..._peers };
@@ -223,31 +232,56 @@ function onPresenceChange(presence: PresenceResponse<PresenceOf<AppSchema, 'pres
   const domChildren = Array.from(container.children) as HTMLElement[];
   
   while (domIndex < domChildren.length || peerIndex < sortedPeers.length) {
-    const domElement = domChildren[domIndex];
-    const peer = sortedPeers[peerIndex];
-    
-    const domUserId = domElement?.getAttribute('data-user-id');
-    const peerUserId = peer?.user_id;
-    
-    if (domUserId === peerUserId) {
+    const domElement = domIndex < domChildren.length ? domChildren[domIndex] : null;
+    const domPeerData = domElement ? (domElement as any).__peerData : null;
+
+    const peer = peerIndex < sortedPeers.length ? sortedPeers[peerIndex] : null;
+
+    // Skip elements that are currently being removed
+    if (domElement && domElement.classList.contains('removing')) {
+      domIndex++;
+      continue;
+    }
+
+    let comparison = 0;
+    if (domPeerData && peer) {
+      comparison = compareRoomData(domPeerData, peer);
+    } else if (!peer) {
+      comparison = -1; // DOM element should be removed
+    } else if (!domPeerData) {
+      comparison = 1; // New peer should be inserted
+    }
+
+    if (comparison === 0) {
       // Equal: advance both pointers
       domIndex++;
       peerIndex++;
-    } else if (!peerUserId || (domUserId && domUserId < peerUserId)) {
+    } else if (comparison < 0) {
       // DOM element should be deleted
-      domElement.remove();
-      currentPeerIds.delete(domUserId!);
+      domElement!.classList.add('removing');
+      domElement!.addEventListener('transitionend', function() {
+        domElement!.remove();
+        currentPeerIds.delete(domPeerData.user_id);
+      }, { once: true });
       domIndex++;
     } else {
       // New peer should be inserted
-      const li = createPeerElement(peer);
+      const li = createPeerElement(peer!);
       if (li) {
+        li.classList.add('inserting');
         if (domElement) {
           container.insertBefore(li, domElement);
         } else {
           container.appendChild(li);
         }
-        currentPeerIds.add(peerUserId);
+        currentPeerIds.add(peer!.user_id);
+
+        // Trigger the expansion animation
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            li.classList.remove('inserting');
+          });
+        });
       }
       peerIndex++;
     }
