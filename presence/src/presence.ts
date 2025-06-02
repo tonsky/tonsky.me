@@ -37,7 +37,8 @@ try {
   regionNames = undefined;
 }
 
-const container: HTMLElement = document.querySelector('#presence ul')!;
+let container: HTMLElement | null = null;
+let currentPeerIds = new Set<string>();
 
 interface LocationData {
   countryCode: string;
@@ -162,10 +163,11 @@ function compareRoomData(a: RoomData, b: RoomData): number {
   return 0;
 }
 
-function appendPeerItem(peer: RoomData) {
-  if (!peer.user_id) return;
+function createPeerElement(peer: RoomData): HTMLElement | null {
+  if (!peer.user_id) return null;
 
   const li = document.createElement('li');
+  li.setAttribute('data-user-id', peer.user_id);
 
   // Create span for animal emoji
   const animalSpan = document.createElement('span');
@@ -193,7 +195,7 @@ function appendPeerItem(peer: RoomData) {
   // listItemTitle += ` (${peer.user_id.substring(0, 8)})`;
 
   li.title = listItemTitle;
-  container.appendChild(li);
+  return li;
 }
 
 function onPresenceChange(presence: PresenceResponse<PresenceOf<AppSchema, 'presence'>, keyof RoomData>) {
@@ -203,7 +205,6 @@ function onPresenceChange(presence: PresenceResponse<PresenceOf<AppSchema, 'pres
   if (user?.user_id) {
     peers[user.user_id] = {...user, self: true};
   }
-  container.innerHTML = '';
 
   // Filter for unique user_ids
   const uniquePeers = new Map<string, RoomData>();
@@ -213,10 +214,44 @@ function onPresenceChange(presence: PresenceResponse<PresenceOf<AppSchema, 'pres
     }
   }
 
-  // Sort and render the unique peers
-  [...uniquePeers.values()]
-    .sort(compareRoomData)
-    .forEach(appendPeerItem);
+  // Sort the unique peers
+  const sortedPeers = [...uniquePeers.values()].sort(compareRoomData);
+  
+  // Two-pointer algorithm to sync DOM with sorted peers
+  let domIndex = 0;
+  let peerIndex = 0;
+  const domChildren = Array.from(container.children) as HTMLElement[];
+  
+  while (domIndex < domChildren.length || peerIndex < sortedPeers.length) {
+    const domElement = domChildren[domIndex];
+    const peer = sortedPeers[peerIndex];
+    
+    const domUserId = domElement?.getAttribute('data-user-id');
+    const peerUserId = peer?.user_id;
+    
+    if (domUserId === peerUserId) {
+      // Equal: advance both pointers
+      domIndex++;
+      peerIndex++;
+    } else if (!peerUserId || (domUserId && domUserId < peerUserId)) {
+      // DOM element should be deleted
+      domElement.remove();
+      currentPeerIds.delete(domUserId!);
+      domIndex++;
+    } else {
+      // New peer should be inserted
+      const li = createPeerElement(peer);
+      if (li) {
+        if (domElement) {
+          container.insertBefore(li, domElement);
+        } else {
+          container.appendChild(li);
+        }
+        currentPeerIds.add(peerUserId);
+      }
+      peerIndex++;
+    }
+  }
 }
 
 var room: RoomHandle<PresenceOf<AppSchema, 'presence'>, TopicsOf<AppSchema, 'presence'>> | undefined;
@@ -231,6 +266,8 @@ function onVisibilityChange() {
 }
 
 async function main() {
+  container = document.querySelector('#presence ul');
+  
   const user_id = await db.getLocalId('guest');
   const location = await getLocationData();
   presence = {
