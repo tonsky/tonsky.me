@@ -6,7 +6,7 @@ hackernews_id: 37735801
 starred: true
 ---
 
-_Translations: [French](https://www.outofpluto.com/blog/nikita-prokopov-must-read-article-about-utf-8/) [Chinese](https://blog.xinshijiededa.men/unicode/) [Russian](https://habr.com/ru/companies/wunderfund/articles/777850/)_
+_Translations: [French](https://www.outofpluto.com/blog/nikita-prokopov-must-read-article-about-utf-8/) [Chinese](https://blog.xinshijiededa.men/unicode/) [Russian](https://habr.com/ru/companies/wunderfund/articles/777850/) [Spanish](es/)_
 
 Twenty years ago, [Joel Spolsky wrote](https://www.joelonsoftware.com/2003/10/08/the-absolute-minimum-every-software-developer-absolutely-positively-must-know-about-unicode-and-character-sets-no-excuses/):
 
@@ -177,7 +177,7 @@ It can also be more than two:
 - <code class="emoji">☹️</code> is `U+2639` + `U+FE0F`
 - <code class="emoji">👨‍🏭</code> is `U+1F468` + `U+200D` + `U+1F3ED`
 - <code class="emoji">🚵🏻‍♀️</code> is `U+1F6B5` + `U+1F3FB` + `U+200D` + `U+2640` + `U+FE0F`
-- `y̖̠͍̘͇͗̏̽̎͞` is `U+0079` + `U+0316` + `U+0320` + `U+034D` + `U+0318` + `U+0347` + `U+0357` + `U+030F` + `U+033D` + `U+030E` + `U+035E`
+- <code style="font-family: unset">y̖̠͍̘͇͗̏̽̎͞</code> is `U+0079` + `U+0316` + `U+0320` + `U+034D` + `U+0318` + `U+0347` + `U+0357` + `U+030F` + `U+033D` + `U+030E` + `U+035E`
 
 There’s no limit, as far as I know.
 
@@ -271,7 +271,7 @@ Basically, there are two layers:
 
 I hope more languages adopt this design soon.
 
-Question to the reader: what to you think `"ẇ͓̞͒͟͡ǫ̠̠̉̏͠͡ͅr̬̺͚̍͛̔͒͢d̠͎̗̳͇͆̋̊͂͐".length` should be?
+Question to the reader: what to you think <code style="font-family: unset">"ẇ͓̞͒͟͡ǫ̠̠̉̏͠͡ͅr̬̺͚̍͛̔͒͢d̠͎̗̳͇͆̋̊͂͐".length</code> should be?
 
 # How do I detect extended grapheme clusters then?
 
