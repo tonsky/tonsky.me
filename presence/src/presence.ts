@@ -315,7 +315,54 @@ async function main() {
   room.subscribePresence({}, onPresenceChange);
   onVisibilityChange();
   document.addEventListener('visibilitychange', onVisibilityChange);
+
+  // setTimeout(() => generateTestPresences(100), 2000);
 }
 
 main();
 
+// @ts-ignore: TS6133
+function generateTestPresences(amount: number) {
+  if (!container) return;
+
+  const countryCodes = ['US', 'GB', 'DE', 'FR', 'JP', 'CA', 'AU', 'BR', 'IN', 'CN', 'ES', 'IT', 'NL', 'SE', 'NO', 'DK', 'FI', 'BE', 'AT', 'CH', 'PT', 'PL', 'CZ', 'HU', 'RO', 'BG', 'HR', 'SI', 'SK', 'EE', 'LV', 'LT', 'IE', 'GR', 'CY', 'MT', 'LU', 'IS', 'MX', 'AR', 'CL', 'CO', 'PE', 'VE', 'UY', 'PY', 'BO', 'EC', 'GY', 'SR'];
+  const cities = ['New York', 'London', 'Berlin', 'Paris', 'Tokyo', 'Toronto', 'Sydney', 'São Paulo', 'Mumbai', 'Beijing', 'Madrid', 'Rome', 'Amsterdam', 'Stockholm', 'Oslo', 'Copenhagen', 'Helsinki', 'Brussels', 'Vienna', 'Zurich'];
+
+  const generateRandomUserId = () => {
+    return Array.from({length: 32}, () => Math.floor(Math.random() * 16).toString(16)).join('');
+  };
+
+  const generateRandomPresence = (): RoomData => {
+    const countryCode = countryCodes[Math.floor(Math.random() * countryCodes.length)];
+    const city = cities[Math.floor(Math.random() * cities.length)];
+    let countryName = 'Unknown';
+
+    if (regionNames) {
+      countryName = regionNames.of(countryCode) || 'Unknown';
+    }
+
+    return {
+      user_id: generateRandomUserId(),
+      countryCode,
+      country: countryName,
+      city,
+      visible: true,
+      time_joined: Date.now() - Math.floor(Math.random() * 300000), // Random time within last 5 minutes
+    };
+  };
+
+  const testPeers: Record<string, any> = {};
+  for (let i = 0; i < amount; i++) {
+    const presence = generateRandomPresence();
+    testPeers[presence.user_id] = presence;
+  }
+
+  const mockPresenceResponse: PresenceResponse<PresenceOf<AppSchema, 'presence'>, keyof RoomData> = {
+    peers: testPeers,
+    user: undefined,
+    isLoading: false,
+    error: undefined
+  };
+
+  return mockPresenceResponse;
+}

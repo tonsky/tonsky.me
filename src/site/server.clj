@@ -3,6 +3,7 @@
    [clj-simple-router.core :as router]
    [clojure.edn :as edn]
    [clojure.java.io :as io]
+   [clojure.string :as str]
    [mount.core :as mount]
    [org.httpkit.server :as server]
    [org.httpkit.client :as client]
@@ -168,7 +169,9 @@
 (defn geoip [req]
   (if-some [ip (or
                  (-> req :headers (get "x-real-ip"))
-                 (-> req :params  (get "ip")))]
+                 (-> req :params  (get "ip"))
+                 (when core/dev?
+                   (str/join "." (repeatedly 4 #(rand-int 256)))))]
     (let [resp @(client/get (str "https://ipinfo.io/" ip "/json") {:query-params {"token" (:ipinfo-token config)}})]
       {:status  200
        :headers {"Content-Type" (or (-> resp :headers :content-type) "application/json; charset=UTF-8")}
