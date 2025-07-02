@@ -1,4 +1,13 @@
 [[talk]]
+date    = 2025-05-28
+title   = "Local-first is not going to win, but that’s okay"
+desc    = "We’ll explore the complexities of traditional stack (db-server-frontend), develop a theory of software evolution: which systems succeed and why. Then we’ll see how local-first fits into it and which local-first-adjacent practices are making software development easier and therefore are doomed for success (or not?)"
+event   = "Local-First Conf"
+content = "2025-05-28 Local-First Conf.mp4"
+hosted  = "https://www.youtube.com/watch?v=ZJW3wAo5nxI"
+thumb   = "2025-05-28 Local-First Conf.webp"
+
+[[talk]]
 date    = 2025-03-28
 title   = "Clojure workflow with Sublime Text"
 desc    = """A deep overview of Clojure Sublimed, Socket REPL, Sublime Executor, custom color scheme, clj-reload and Clojure+.<br>We discuss many usability choices, implementation details, and broader observations and insights regarding Clojure editors and tooling in general.
