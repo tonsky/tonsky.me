@@ -2,7 +2,7 @@
   position: fixed;
   bottom: 14px;
   right: 25px;
-  left: 10px;
+  margin-left: 10px;
 }
 
 #presence > ul {

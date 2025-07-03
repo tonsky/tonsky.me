@@ -38,7 +38,6 @@ try {
 }
 
 let container: HTMLElement | null = null;
-let currentPeerIds = new Set<string>();
 
 interface LocationData {
   countryCode: string;
@@ -259,10 +258,9 @@ function onPresenceChange(presence: PresenceResponse<PresenceOf<AppSchema, 'pres
     } else if (comparison < 0) {
       // DOM element should be deleted
       domElement!.classList.add('removing');
-      domElement!.addEventListener('transitionend', function() {
-        domElement!.remove();
-        currentPeerIds.delete(domPeerData.user_id);
-      }, { once: true });
+      setTimeout(function() {
+        document.querySelectorAll('#presence > ul > li.removing').forEach(el => el.remove());
+      }, 100);
       domIndex++;
     } else {
       // New peer should be inserted
@@ -274,7 +272,6 @@ function onPresenceChange(presence: PresenceResponse<PresenceOf<AppSchema, 'pres
         } else {
           container.appendChild(li);
         }
-        currentPeerIds.add(peer!.user_id);
 
         // Trigger the expansion animation
         requestAnimationFrame(() => {
@@ -316,7 +313,7 @@ async function main() {
   onVisibilityChange();
   document.addEventListener('visibilitychange', onVisibilityChange);
 
-  // setTimeout(() => generateTestPresences(100), 2000);
+  // setTimeout(() => onPresenceChange(generateTestPresences(100)), 2000);
 }
 
 main();

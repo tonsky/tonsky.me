@@ -45,7 +45,7 @@ body {
 body.winter { --bg: #6ADCFF; }
 
 body, .page { min-height: calc(100svh - var(--gap) * 8); }
-body { margin: calc(var(--gap) * 4) 0; background-color: var(--bg); color: var(--text); }
+body { margin: calc(var(--gap) * 4) 0 calc(var(--gap) * 6) 0; background-color: var(--bg); color: var(--text); }
 .page { display: flex; flex-direction: column; gap: calc(var(--gap) * 4); align-items: center; }
 
 /* MENU */
