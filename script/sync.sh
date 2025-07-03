@@ -2,9 +2,6 @@
 set -o errexit -o nounset -o pipefail
 cd "`dirname $0`/.."
 
-# build
-./script/build.sh
-
 # blog posts
 FILES=`find site/blog -name index.md`
 for file in $FILES; do

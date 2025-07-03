@@ -79,13 +79,12 @@
         [:meta {:property "profile:username" :content "tonsky"}]
         [:meta {:property "profile:gender" :content "male"}]
         [:meta {:name "twitter:creator" :content "@nikitonsky"}]
-        [:script {:src "/script.js" :defer true :async true}]
+        [:script {:src "https://www.unpkg.com/@instantdb/core@0.20.4/dist/standalone/index.umd.cjs" :defer true}]
+        [:script {:src "/script.js" :defer true}]
         (for [script (:scripts page)]
-          [:script {:src script :defer true :async true}])
-        [:link {:href "/presence/presence.css" :rel "stylesheet" :type "text/css"}]
-        [:script {:src "/presence/presence.iife.js" :defer true :async true}]
+          [:script {:src script :defer true}])
         (when core/dev?
-          [:script {:src "/watcher.js" :defer true :async true}])]
+          [:script {:src "/watcher.js" :defer true}])]
        [:body
         [:.page
          [:ul.menu
