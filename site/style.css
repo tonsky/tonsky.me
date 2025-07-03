@@ -59,7 +59,7 @@ body { margin: calc(var(--gap) * 4) 0 calc(var(--gap) * 6) 0; background-color: 
 div.winter { width: 26px; height: 26px; background-image: url("/i/snow.svg"); opacity: .3; cursor: pointer; }
 body.winter div.winter { opacity: 1; }
 .dark_mode, #darkModeGlow { align-self: center; width: 26px; height: 26px; border-radius: 13px; background-image: url("/i/dark_mode.svg"); background-size: 52px 52px; transition: background-position-x 100ms; cursor: pointer; }
-.dark_mode { opacity: .3; }
+.dark_mode { display: flex; opacity: .3; }
 .dark_mode:hover, body.dark .dark_mode { opacity: 1; }
 body.dark .dark_mode { background-position: -26px 0; }
 #darkModeGlow { background-position: -26px -26px; background-color: #15FB1F; box-shadow: 0 0 10px 1.5px #15FB1F; z-index: 20; opacity: 0; position: absolute; }
