@@ -1,4 +1,12 @@
 [[talk]]
+date    = 2025-07-06
+url     = "https://t.me/tfeat/132"
+title   = "Datomic: самая рок-н-рольная БД"
+event   = "Тысяча фичей"
+desc    = "Чем Datomic отличается от других баз данных и почему иногда остутствие оптимизатора лучше, чем его присутствие"
+content = "2025-07-06 Тысяча фичей.mp3"
+
+[[talk]]
 date    = 2025-05-28
 title   = "Local-first is not going to win, but that’s okay"
 desc    = "We’ll explore the complexities of traditional stack (db-server-frontend), develop a theory of software evolution: which systems succeed and why. Then we’ll see how local-first fits into it and which local-first-adjacent practices are making software development easier and therefore are doomed for success (or not?)"
