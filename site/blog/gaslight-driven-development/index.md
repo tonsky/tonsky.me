@@ -2,6 +2,7 @@
 title: "Gaslight-driven development"
 summary: "Computers are starting to have opinions on how our APIs should look like"
 published: 2025-07-16
+hackernews_id: 44588383
 ---
 
 Any person who has used a computer in the past ten years knows that doing meaningless tasks is just part of the experience. Millions of people create accounts, confirm emails, dismiss notifications, solve captchas, reject cookies, and accept terms and conditions—not because they particularly want to or even need to. They do it because that’s what the computer told them to do. Like it or not, we are already serving the machines.
