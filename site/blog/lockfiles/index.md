@@ -1,6 +1,8 @@
 ---
-title: We shouldn’t have needed lockfiles
+title: "We shouldn’t have needed lockfiles"
+summary: "Lockfiles are an absolutely unnecessary concept that complicates things without a good reason. Dependency managers can and are working without it just the same."
 published: 2025-08-06
+hackernews_id: 44813397
 ---
 
 Imagine you’re writing a project and need a library. Let’s call it `libpupa`.
@@ -67,3 +69,30 @@ You are new in IT, I see. People absolutely can and do things here for no good r
 But if you want an existence proof: Maven. The Java library ecosystem has been going strong for 20 years, and during that time not once have we needed a lockfile. And we are pulling hundreds of libraries just to log two lines of text, so it is actively used at scale.
 
 In conclusion, lockfiles are an absolutely unnecessary concept that complicates things without a good reason. Dependency managers can and are working without it just the same.
+
+UPD: Reading comments, I see that I missed a part of version resolution that is important. In Maven, if you have conflicting transitive dependencies, the version that will picked is the version closest to the root. E.g.:
+
+```
+My app
+├╴a 1.0
+│ └╴ d 1.0
+└╴b 1.0
+  └╴c 2.0
+    └╴ d 2.0
+```
+
+In this case, `d 1.0` will be picked. This is still deterministic, but it lets you override versions when needed. For example, if `d 2.1` is released with security patches, you can always add it to the root and that’s the version that will be picked:
+
+```
+My app
+├╴a 1.0
+│ └╴d 1.0   x-- ignored
+├╴b 1.0
+│ └╴c 2.0
+│   └╴d 2.0 x-- ignored
+└╴d 2.1     <-- picked
+```
+
+No need to wait for the whole world to update. Still deterministic. Still no lockfiles.
+
+Why not pick the biggest version? Then you’ll lose the ability to override.
