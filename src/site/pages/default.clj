@@ -122,5 +122,4 @@
          (when post?
            about)]
       
-        [:img#flashlight {:src "/i/flashlight.webp"}]
-        [:div#presence [:ul]]]])))
+        [:img#flashlight {:src "/i/flashlight.webp"}]]])))
