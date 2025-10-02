@@ -20,7 +20,6 @@
    [site.pages.default :as default]
    [site.pages.design :as design]
    [site.pages.index :as index]
-   [site.pages.patrons :as patrons]
    [site.pages.personal-information :as personal-information]
    [site.pages.post :as post]
    [site.pages.projects :as projects]
@@ -135,7 +134,7 @@
 
 (defn wrap-redirects [handler]
   (fn [{:keys [uri] :as req}]
-    (if (re-matches #"(/blog/[^/]+|/talks|/projects|/design|/patrons|/subscribe)" uri)
+    (if (re-matches #"(/blog/[^/]+|/talks|/projects|/design|/subscribe)" uri)
       (redirect (str uri "/"))
       (handler req))))
 
@@ -153,7 +152,6 @@
                                     (resp-html req (post/post (parser/parse-md (str "/blog/" id))))))
           "GET /talks"     req  (resp-html req (talks/page))
           "GET /design"    req  (resp-html req (design/page))
-          "GET /patrons"   req  (resp-html req (patrons/page))
           "GET /personal-information" req (resp-html req (personal-information/page))
           "GET /projects"  req  (resp-html req (projects/page))
           "GET /user-agreement/" req (resp-html req (user-agreement/page))
