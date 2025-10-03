@@ -1,4 +1,14 @@
 [[talk]]
+date    = 2025-09-01
+url     = "https://podlodka.io/440"
+title   = "Почему компьютеры не умеют считать?"
+event   = "Podlodka"
+desc    = "Как компьютеры представляют числа – от int и float до NaN, BigInt, decimals и комплексных. Прошлись по всему числовому зоопарку: обсудили, зачем нужны разные типы, где они подводят, и почему 0.1 + 0.2 ≠ 0.3 – не баг, а особенность."
+hosted  = "https://www.youtube.com/watch?v=nyH4k8ymfW4"
+content = "2025-09-01 Podlodka.mp4"
+thumb   = "2025-09-01 Podlodka.webp"
+
+[[talk]]
 date    = 2025-07-06
 url     = "https://t.me/tfeat/132"
 title   = "Datomic: самая рок-н-рольная БД"
