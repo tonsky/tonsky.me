@@ -1,6 +1,7 @@
 ---
 title: "I am sorry, but everyone is getting syntax highlighting wrong"
 summary: "Applying human ergonomics and design principles to syntax highlighting"
+cover: cover.webp
 ---
 
 Syntax highlighting is a tool. It can help you read code faster. Find things quicker. Orient yourself in a large file.
