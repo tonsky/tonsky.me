@@ -177,6 +177,13 @@ Using italics and bold instead of colors
 
 Some schemes pay too much attention to be scientifically uniform. Like, all colors have same exact lightness, and hues are distributed evenly on a circle.
 
-This could be nice (to know if you have OCR), but in practice, I find that it hurts more than helps. If you make your colors to 
+This could be nice (to know if you have OCR), but in practice, it doesn’t work as well as it sounds:
+
+balanced.png
+OkLab l=0.7473 c=0.1253 h=0, 45, 90, 135, 180, 225, 270, 315
+
+The idea of highlighting is to make things stand out. If you make all colors the same lightness and chroma, they will look very similar to each other and it’ll hard to tell them apart.
+
+Our eyes are way more sensitive to difference in lightness than in color, and we should use it, not work against it. No colors can go as bright as yellow, but it doesn’t mean we should avoid yellow. On the contrary, its brightness will help it stand out.
 
 # Let’s design color scheme together
