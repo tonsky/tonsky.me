@@ -10,13 +10,13 @@ Like any tool, it can be used correctly or incorrectly. Let’s see how to use s
 
 # Christmas Lights Diarrhea
 
-Most color schemes highlight as much as they can. They literally have a unique bright color for everything: variables, language keywords, constants, punctuation, functions, classes, calls, comments.
+Most color themes have a unique bright color for literally everything: one for variables, another for language keywords, constants, punctuation, functions, classes, calls, comments, etc.
 
-Sometimes it gets so bad one can’t identify what the base text color is: everything is highlighted. What’s the base text color here?
+Sometimes it gets so bad one can’t see the base text color: everything is highlighted. What’s the base text color here?
 
 diarrhea.webp
 
-The problem with that is, well, if everything is highlighted, nothing stands out. Your eye adapts and considers it a new norm: everything is bright and shiny, and instead of getting separated, it all blends together.
+The problem with that is, if everything is highlighted, nothing stands out. Your eye adapts and considers it a new norm: everything is bright and shiny, and instead of getting separated, it all blends together.
 
 Here’s a quick test. Try to find function definition here:
 
@@ -26,19 +26,19 @@ and here:
 
 definitions_good.webp
 
-I bet second one was faster, right? Even though color scheme is unfamiliar to you.
+See what I mean?
 
 So yeah, unfortunatelly, you can’t just highlight everything. You have to make decisions: what’s most important, what’s less. What should stand out, what shouldn’t.
 
 Highlighting everything is like assigning “top priority” to every task in Linear. It only works if most of the tasks have lesser priorities.
 
-If everything is highlighted, nothing is highlighted.
+.loud If everything is highlighted, nothing is highlighted.
 
 # Enough colors to remember
 
-There are two main use-cased you want your color scheme to address:
+There are two main use-cases you want your color theme to address:
 
-1. Look at something and tell what it is. By its color, not by its text. Text you can read without syntax highlighting.
+1. Look at something and tell what it is by its color (you can tell by reading text, yes, but why do you need syntax highlighting then?)
 2. Search for something. You want to know what to look for (which color).
 
 1 is direct index lookup: color → type of thing.
@@ -59,13 +59,13 @@ Can you see it? I misspelled `return` for `retunr` and its color switched from r
 
 I can’t.
 
-Here’s another test. Close your eyes (not yet! finish this sentence first) and try to remember, what color does your color scheme uses for class names?
+Here’s another test. Close your eyes (not yet! finish this sentence first) and try to remember, what color does your color theme uses for class names?
 
 Can you?
 
-If the answer for both questions is “no”, then your color scheme is _not functional_. It might give you comfort (as in—I feel safe. If it’s highlighted, it’s probably code) but you can’t use it as a tool. You might as well use all black text on all white background.
+If the answer for both questions is “no”, then your color theme is _not functional_. It might give you comfort (as in—I feel safe. If it’s highlighted, it’s probably code) but you can’t use it as a tool. It doesn’t _help_ you.
 
-What’s the solution? Have an absolute minimum of colors that can all fit in your head at once. For example, my color scheme, Alabaster, only uses four:
+What’s the solution? Have an absolute minimum of colors. So little that they all fit in your head at once. For example, my color theme, Alabaster, only uses four:
 
 - Green for strings
 - Purple for constants
@@ -80,9 +80,11 @@ If you swap green and purple in my editor, it’ll be a catastrophe. If somebody
 
 # What should you highlight?
 
-Something there isn’t a lot of.  Remember—we want highlights to stand out. That’s why I don’t highlight variables or function calls—they are everywhere, your code basically consist of them.
+Something there isn’t a lot of. Remember—we want highlights to stand out. That’s why I don’t highlight variables or function calls—they are everywhere, your code is probably 75% variable names and function calls.
 
 I do highlight constants (numbers, strings). These are usually used more sparingly and often are reference points—a lot of logic paths start from constants.
+
+Top-level definitions is another good idea. Gives you idea of a structure quickly.
 
 Punctuation: it helps to separate names from syntax a little bit, and you care about names first, especially when quickly scanning code.
 
@@ -106,26 +108,27 @@ So here’s another controversial idea:
 
 .loud Comments should be highlighted, not hidden away.
 
-Use bold colors, draw attention to them. Don’t shy away. If somebody took time to tell you something, you might want to read it.
+Use bold colors, draw attention to them. Don’t shy away. If somebody took time to tell you something, then you want to read it.
 
 # Two types of comments
 
-Another secret nobody is talking about, is that there are two types of comment:
+Another secret nobody is talking about, is that there are two types of comments:
 
 1. Explanations
-2. Temporarily disabled code
+2. Disabled code
 
 Most languages don’t distinguish between those, so there’s not much you can do syntax-wise. Sometimes there’s a convention (e.g. `--` vs `/* */` in SQL), then use it!
 
 Here’s a real example from Clojure codebase that makes perfect use of two types of comments:
 
 two_types_of_comments.webp
+Disabled code is gray, explanation is bright yellow
 
 # Light or dark?
 
-Per statistics, 70% of developers prefer dark schemes. Not me, so that question always puzzled me. Why?
+Per statistics, 70% of developers prefer dark themes. Being in the other 30%, that question always puzzled me. Why?
 
-And I think I have an answer. Here’s a typical dark scheme:
+And I think I have an answer. Here’s a typical dark theme:
 
 vscode_default_dark@2x.webp
 
@@ -144,15 +147,15 @@ brightness_hue@2x.webp
 
 Basically, in dark part of the spectrum, you just get less colors to play with. There’s no “dark yellow” or good looking “dark teal”.
 
-Nothing can be done here. There are no magic colors hiding somewhere that have both good contrast on white background and look good at the same time. By choosing light scheme, you are dooming yourself to a very limited, bad-looking, barely distinguishable set of dark colors.
+Nothing can be done here. There are no magic colors hiding somewhere that have both good contrast on white background and look good at the same time. By choosing light theme, you are dooming yourself to a very limited, bad-looking, barely distinguishable set of dark colors.
 
-So it makes sense. Dark schemes do look better. Or rather: light ones can’t look good. Science ¯\\\_(ツ)\_/¯
+So it makes sense. Dark themes do look better. Or rather: light ones can’t look good. Science ¯\\\_(ツ)\_/¯
 
 But!
 
 But.
 
-There is one thing you can do. Use background colors! Compare:
+There is one trick you can do, that I don’t see a lot of. Use background colors! Compare:
 
 bg_highlight@2x.png
 
@@ -160,9 +163,13 @@ First one has nice colors, but contrast is too low: letters become hard to read.
 
 Second one has good contrast but you can barely see colors.
 
-Last one has _both_: high contrast and clean, vibrant colors. Ligher colors are readable even on white background since they fill a lot more area. It’s all upside, really.
+Last one has _both_: high contrast and clean, vibrant colors. Ligher colors are readable even on white background since they fill a lot more area. Text is the same brightness as in the second example, yet it gives impression of clearer color. It’s all upside, really.
 
-If your editor supports choosing background color, try it. It’s looks good.
+UI designers know about this trick for a while, but I rarely see it applied in code editors:
+
+badge.png
+
+If your editor supports choosing background color, give it a try. It might open light themes for you.
 
 # Bold and italics
 
@@ -175,7 +182,7 @@ Using italics and bold instead of colors
 
 # Myth of number-based perfection
 
-Some schemes pay too much attention to be scientifically uniform. Like, all colors have same exact lightness, and hues are distributed evenly on a circle.
+Some themes pay too much attention to be scientifically uniform. Like, all colors have same exact lightness, and hues are distributed evenly on a circle.
 
 This could be nice (to know if you have OCR), but in practice, it doesn’t work as well as it sounds:
 
@@ -184,6 +191,74 @@ OkLab l=0.7473 c=0.1253 h=0, 45, 90, 135, 180, 225, 270, 315
 
 The idea of highlighting is to make things stand out. If you make all colors the same lightness and chroma, they will look very similar to each other and it’ll hard to tell them apart.
 
-Our eyes are way more sensitive to difference in lightness than in color, and we should use it, not work against it. No colors can go as bright as yellow, but it doesn’t mean we should avoid yellow. On the contrary, its brightness will help it stand out.
+Our eyes are way more sensitive to difference in lightness than in color, and we should use it, not try to negate it.
 
-# Let’s design color scheme together
+# Let’s design color theme together
+
+Let’s apply these principles step by step and see where it leads us. We start with the theme from the start of this post:
+
+dyi00.png
+
+First, let’s remove highlighting from language keywords and re-introduce base text color:
+
+dyi10.png
+
+Next, we remove color from variable usage:
+
+dyi20.png
+
+and from function/method invocation:
+
+dyi30.png
+
+The thinking is your code is mostly references to variables and method invocation. If we highlight those, we’ll have to highlight more than 75% of your code.
+
+Notice that we’ve kept variable _declarations_. These are not as ubiquitous and help you quickly answer a common question: where does thing thing come from?
+
+Next, let’s tone down punctuation:
+
+dyi40.png
+
+I prefer to dim it a little bit because it helps names to stand out more. Names alone can give you the general idea of what’s going on, and exact configuration of brackets is rarely equally important.
+
+But you might roll with base color punctuation, too:
+
+dyi40_alt.png
+
+Okay, getting close. Let’s highlight comments:
+
+dyi50.png
+
+We don’t use red here because you usually need it for squiggly lines and errors.
+
+This is still one color too many, so I unify numbers and strings to both use green:
+
+dyi60.png
+
+Finally, let’s rotate colors a bit. We want to respect nesting logic, so function declaration should be brighter (yellow) than variable declaration (blue).
+
+dyi70.png
+
+Compare with what we started:
+
+dyi00.png
+
+In my opinion, we got a much more workable color theme: it’s easier on the eyes and helps you find stuff faster.
+
+# Shameless plug time
+
+I’ve been applying these principles for [about 8 years now](https://github.com/tonsky/vscode-theme-alabaster/commit/5c840f5fb57e5cd0dce93ac8c450495bdb0a2658).
+
+I call this theme Alabaster and I’ve built it couple of times for the editors I used:
+
+- [VS Code](https://github.com/tonsky/vscode-theme-alabaster)
+- [JetBrains IDEs](https://github.com/tonsky/intellij-alabaster)
+- [Sublime Text](https://github.com/tonsky/sublime-scheme-alabaster) ([twice](https://github.com/tonsky/clojure-sublimed/?tab=readme-ov-file#color-scheme))
+
+It’s also been ported to many other editors and terminals, the most complete list is [probably here](https://github.com/tonsky/sublime-scheme-alabaster?tab=readme-ov-file#variations-1). If your editor is not on the list, try searching for it by name—it might be built-in already! I always wondered where do these color themes come from and now I became an author of one (and I still don’t know).
+
+Feel free to use Alabaster as is or build your own theme using principles outlined in the article—either is fine by me.
+
+As for the principle themselves, they worked out fantastically for me. I’ve never wanted to go back, and just one look at any “traditional” color theme gives me a scare now.
+
+I _suspect_ that the only reason we don’t see more restrained color themes is that people never really thought about it. Well, this is your wake up call. I hope this will inspire people to use color more deliberatly and to change the default way we build and use color themes.
