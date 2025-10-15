@@ -1,14 +1,15 @@
 (ns site.cache
   (:require
-    [clojure.java.io :as io]
-    [clojure.string :as str]
-    [clojure.walk :as walk]
-    [ring.middleware.not-modified :as ring-modified]
-    [site.core :as core])
+   [clojure.java.io :as io]
+   [clojure.string :as str]
+   [clojure.walk :as walk]
+   [clojure+.core :refer [cond+]]
+   [ring.middleware.not-modified :as ring-modified]
+   [site.core :as core])
   (:import
-    [java.io File]
-    [java.time Instant]
-    [java.time.format DateTimeFormatter]))
+   [java.io File]
+   [java.time Instant]
+   [java.time.format DateTimeFormatter]))
 
 (def ^:dynamic *touched*
   nil)
@@ -111,7 +112,7 @@
                 {:keys [last-modified files resp]} (@*cache key)
                 modified (transduce (map #(.lastModified ^File %)) max 0 files)
                 modified (max modified (midnight-milli))]
-            (core/cond+
+            (cond+
               ;; invalidate cache
               (or (nil? resp) (> modified last-modified))
               (when-some [resp (handler req)]

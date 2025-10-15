@@ -1,15 +1,16 @@
 (ns site.pages.talks
   (:require
-    [toml-clj.core :as toml]
-    [clojure.java.io :as io]
-    [clojure.math :as math]
-    [clojure.string :as str]
-    [ring.util.mime-type :as ring-mime]
-    [site.core :as core]
-    [site.render :as render])
+   [toml-clj.core :as toml]
+   [clojure.java.io :as io]
+   [clojure.math :as math]
+   [clojure.string :as str]
+   [clojure+.core :refer [cond+]]
+   [ring.util.mime-type :as ring-mime]
+   [site.core :as core]
+   [site.render :as render])
   (:import
-    [java.io File]
-    [java.time LocalDate Period]))
+   [java.io File]
+   [java.time LocalDate Period]))
 
 (defn populate-versions [talk]
   (if-some [versions (:version talk)]
@@ -74,7 +75,7 @@
   (let [{:keys [event content thumb]} version
         [_ ext] (re-matches #".*\.([^.]+)" (str/lower-case (or content "")))]
     [:.talk-view
-     (core/cond+
+     (cond+
        (nil? content)
        [:.talk-view-stub
         (slides-link version)]

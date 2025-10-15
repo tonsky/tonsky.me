@@ -1,12 +1,21 @@
 (ns user
   (:require
-    [clj-reload.core :as reload]
-    [clojure.core.server :as server]
-    [clojure.java.io :as io]
-    [clojure.string :as str]
-    [clojure.test :as test]
-    [duti.core :as duti]
-    [mount.core :as mount]))
+   [clj-reload.core :as reload]
+   [clojure+.core.server :as server]
+   [clojure+.error]
+   [clojure+.hashp]
+   [clojure+.print]
+   [clojure+.test]
+   [mount.core :as mount]))
+
+(clojure+.error/install!
+  {:trace-transform
+   (fn [trace]
+     (take-while #(not (#{"Compiler" "clj-reload" "clojure-sublimed"} (:ns %))) trace))})
+
+(clojure+.hashp/install!)
+(clojure+.print/install!)
+(clojure+.test/install!)
 
 (reload/init
   {:dirs ["src" "dev" "test"]
@@ -26,16 +35,12 @@
   (require 'site.server)
   (mount/start)
   (let [{port "--repl-port"} args]
-    (duti/start-socket-repl {:port (some-> port parse-long)})))
+    (server/start-server {:port (some-> port parse-long)})))
 
 (defn test-all []
   (reload {:only #"site\..*-test"})
-  (duti/test-throw #"site\..*-test"))
+  (clojure+.test/run #"site\..*-test"))
 
 (defn -test-main [_]
-  (reload {:only #"site\..*-test"})
-  (duti/test-exit #"site\..*-test"))
-
-(comment
-  (reload)
-  (test-all))
+  (let [{:keys [fail error]} (test-all)]
+    (System/exit (+ fail error))))

@@ -1,12 +1,13 @@
 (ns site.render
   (:require
-    [clojure.edn :as edn]
-    [clojure.java.io :as io]
-    [clojure.math :as math]
-    [clojure.string :as str]
-    [site.core :as core])
+   [clojure.edn :as edn]
+   [clojure.java.io :as io]
+   [clojure.math :as math]
+   [clojure.string :as str]
+   [clojure+.core :refer [cond+]]
+   [site.core :as core])
   (:import
-    [java.io File]))
+   [java.io File]))
 
 (defn escape ^String [^String s]
   (when s
@@ -24,7 +25,7 @@
            `(.append ~sym ~x)))))
 
 (defn render-impl [^StringBuilder sb ^String indent mode tree]
-  (core/cond+
+  (cond+
     (string? tree)
     (append sb (escape tree))
      

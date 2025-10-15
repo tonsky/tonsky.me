@@ -3,10 +3,10 @@
   http-kit/http-kit                  {:mvn/version "2.7.0"}
   instaparse/instaparse              {:mvn/version "1.4.12"}
   io.github.tonsky/clj-simple-router {:mvn/version "0.1.0"}
-  io.github.tonsky/clojure-plus      {:mvn/version "1.3.3"}
+  io.github.tonsky/clojure-plus      {:mvn/version "1.7.0"}
   io.github.tonsky/toml-clj          {:mvn/version "0.1.0"}
   mount/mount                        {:mvn/version "0.1.17"}
-  org.clojure/clojure                {:mvn/version "1.12.0"}
+  org.clojure/clojure                {:mvn/version "1.12.3"}
   ring/ring-core                     {:mvn/version "1.8.0"}}
  :paths ["src" "presence/dist/assets"]
  :aliases
@@ -14,8 +14,7 @@
   {:jvm-opts ["-ea"]
    :extra-paths ["dev" "test"]
    :extra-deps 
-   {io.github.tonsky/clj-reload {:mvn/version "0.9.4"}
-    io.github.tonsky/duti       {:git/sha "e36d65296a4f9758664309ec35b00887e88c405a"}}}
+   {io.github.tonsky/clj-reload {:mvn/version "1.0.0"}}}
   :uberdeps
   {:replace-deps {uberdeps/uberdeps {:mvn/version "1.4.0"}}
    :replace-paths []}}}

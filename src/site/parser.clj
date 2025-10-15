@@ -1,15 +1,16 @@
 (ns site.parser
   (:require
-    [clojure.edn :as edn]
-    [clojure.java.io :as io]
-    [clojure.math :as math]
-    [clojure.string :as str]
-    [clojure.walk :as walk]
-    [instaparse.core :as instaparse]
-    [site.cache :as cache]
-    [site.core :as core])
+   [clojure.edn :as edn]
+   [clojure.java.io :as io]
+   [clojure.math :as math]
+   [clojure.string :as str]
+   [clojure.walk :as walk]
+   [clojure+.core :refer [cond+]]
+   [instaparse.core :as instaparse]
+   [site.cache :as cache]
+   [site.core :as core])
   (:import
-    [java.io File]))
+   [java.io File]))
 
 (def ^:dynamic *path*
   nil)
@@ -193,7 +194,7 @@
        [:figcaption figcaption])]))
 
 (defn detect-links [form]
-  (core/cond+
+  (cond+
     (string? form)
     (let [form' (core/replace+ form #"https?://[^ ]+[^!()-,.<>:;'\" ?&]"
                   (fn [s] [:a {:href s}
