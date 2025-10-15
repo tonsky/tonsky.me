@@ -60,14 +60,18 @@
             
             [:meta {:property "og:type" :content "article"}]
             [:meta {:property "og:image"
-                    :content (str "https://dynogee.com/gen"
-                               "?id=" (if long? "niutqf5hxi7rjlw" "24m2qx9uethuw6p")
-                               "&title=" (URLEncoder/encode (:title page)))}]
+                    :content  (if-some [img (:og_facebook page)]
+                                (str url "/" img)
+                                (str "https://dynogee.com/gen"
+                                  "?id=" (if long? "niutqf5hxi7rjlw" "24m2qx9uethuw6p")
+                                  "&title=" (URLEncoder/encode (:title page))))}]
             [:meta {:name "twitter:card" :content "summary_large_image"}]
             [:meta {:name "twitter:image"
-                    :content (str "https://dynogee.com/gen"
-                               "?id=" (if long? "awabsokfn29i8xt" "nm509093bpj50lv")
-                               "&title=" (URLEncoder/encode (:title page)))}]))
+                    :content (if-some [img (:og_twitter page)]
+                               (str url "/" img)
+                               (str "https://dynogee.com/gen"
+                                 "?id=" (if long? "awabsokfn29i8xt" "nm509093bpj50lv")
+                                 "&title=" (URLEncoder/encode (:title page))))}]))
         (when-some [summary (:summary page)]
           (list
             [:meta {:property "og:description" :content summary}]
@@ -79,7 +83,6 @@
         [:meta {:property "profile:username" :content "tonsky"}]
         [:meta {:property "profile:gender" :content "male"}]
         [:meta {:name "twitter:creator" :content "@nikitonsky"}]
-        [:script {:src "https://www.unpkg.com/@instantdb/core@0.20.4/dist/standalone/index.umd.cjs" :defer true}]
         [:script {:src "/script.js" :defer true}]
         (for [script (:scripts page)]
           [:script {:src script :defer true}])

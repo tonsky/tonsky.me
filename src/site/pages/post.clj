@@ -79,13 +79,16 @@
     (walk/postwalk 
       (fn [form]
         (or
-          (when (and (vector? form) (map? (second form)) (some #{:src :href :srcset} (keys (second form))))
+          (when (and
+                  (vector? form)
+                  (map? (second form))
+                  (some #{:src :href :srcset} (keys (second form))))
             (let [[tag attrs & content] form
                   attrs'  (-> attrs
                             (core/update-some :src absolutize (:uri page))
                             (core/update-some :href absolutize (:uri page))
                             (core/update-some :srcset absolutize-srcset (:uri page)))]
-              (vec (concat [tag attrs'] content))))
+              (into [tag attrs'] content)))
           form))
       (:content page))))
 

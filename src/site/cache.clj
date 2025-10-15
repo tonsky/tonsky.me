@@ -19,9 +19,12 @@
   file)
 
 (defn find-file [page uri]
-  (when-not (str/starts-with? uri "http")
-    (let [uri'  (if (str/starts-with? uri "/") uri (str (:uri page) "/" uri))
-          file  (io/file (str "site/" uri'))
+  (when-some [uri' (cond
+                     (str/starts-with? uri "https://tonsky.me/") (subs uri 17)
+                     (str/starts-with? uri "http")               nil
+                     (str/starts-with? uri "/")                  uri
+                     :else                                       (str (:uri page) "/" uri))]
+    (let [file  (io/file (str "site/" uri'))
           file' (if (.exists file) file (io/file (str "files/" uri')))]
       (when (.exists file')
         (touched file')
@@ -49,6 +52,14 @@
         (and (= :link tag) (= "stylesheet" (:rel attrs)))
         (when-some [file (find-file page (:href attrs))]
           (core/consv :link (update attrs :href core/timestamp-url file) content))
+
+        (and
+          (= :meta tag)
+          (or
+            (= "og:image" (:property attrs))
+            (= "twitter:image" (:name attrs))))
+        (when-some [file (find-file page (:content attrs))]
+          (core/consv :meta (update attrs :content core/timestamp-url file) content))
         
         (and (= :script tag) (:src attrs))
         (when-some [file (find-file page (:src attrs))]
