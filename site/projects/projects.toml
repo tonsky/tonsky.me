@@ -1,4 +1,35 @@
 [[project]]
+name     = "Instant DB"
+desc     = "Optimization, new APIs, developer experience"
+link     = "https://www.instantdb.com/"
+img      = "instant.png"
+roles    = ["Engineer"]
+period   = "Dec 2024 — Sep 2025"
+stack    = "Clojure, PostgreSQL, TypeScript"
+
+[[project]]
+name     = "Clojure+"
+desc     = "A project that improves Clojure stdlib"
+link     = "https://github.com/tonsky/clojure-plus"
+img      = "clojure-plus.svg"
+roles    = ["Creator"]
+period   = "Jan 2025 — now"
+status   = "Launched"
+stack    = "Clojure"
+stars    = 156
+
+[[project]]
+name     = "Fast EDN"
+desc     = "Drop-in replacement for clojure.edn that is 6 times faster"
+link     = "https://github.com/tonsky/fast-edn"
+img      = "fast-edn.svg"
+roles    = ["Creator"]
+period   = "Dec 2024"
+status   = "Launched"
+stack    = "Clojure"
+stars    = 169
+
+[[project]]
 name     = "AlleKinos.de"
 desc     = "No-nonsense movie showtimes site for every cinema in Germany"
 link     = "https://allekinos.de"
@@ -17,7 +48,7 @@ roles    = ["Creator"]
 period   = "Jan 2024 — Feb 2024"
 status   = "Launched"
 stack    = "Clojure"
-stars    = 177
+stars    = 277
 
 [[project]]
 name     = "Humble UI"
@@ -39,7 +70,7 @@ roles    = ["Creator"]
 period   = "Dec 2021 — now"
 status   = "Launched"
 stack    = "Python"
-installs = 1942
+installs = 2468
 [[project.quote]]
 text     = "This is an exceptionally well thought out set of points on REPL use for a lang like Clojure."
 source   = "<a href='https://news.ycombinator.com/item?id=29551320'>rajandatta</a> on Hacker News"
@@ -154,7 +185,7 @@ source   = "<a href='https://twitter.com/RobStuttaford/status/984832783469219842
 link     = "https://github.com/tonsky/AnyBar"
 img      = "anybar.webp"
 name     = "AnyBar"
-stars    = 5884
+stars    = 5980
 desc     = "General-purpose macOS menubar status indicator."
 roles    = ["Creator"]
 period   = "March 2015 — August 2016"
@@ -187,7 +218,7 @@ status = "Stable. Ongoing feature development and maintenance"
 link  = "https://github.com/tonsky/FiraCode"
 img   = "firacode.webp"
 name  = "Fira Code"
-stars = 75967
+stars = 80300
 desc  = "The most popular programming font with ligatures."
 roles = ["Creator"]
 used-by = [
@@ -206,7 +237,7 @@ status = "Stable. Widely used, ongoing improvements"
 link  = "https://github.com/tonsky/datascript"
 img   = "datascript.svg"
 name  = "DataScript"
-stars = 5423
+stars = 5660
 desc  = "Highly-flexible persistent in-memory storage and Datalog query engine for Clojure/Script and JS."
 roles = ["Creator"]
 used-by = [
