@@ -5,6 +5,7 @@ published: 2025-10-15
 cover: cover.webp
 og_facebook: open_graph_facebook_smol.png
 og_twitter: open_graph_twitter_smol.png
+hackernews_id: 45596960
 ---
 
 Syntax highlighting is a tool. It can help you read code faster. Find things quicker. Orient yourself in a large file.
