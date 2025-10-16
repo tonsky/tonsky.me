@@ -3,6 +3,7 @@ title: "The Absolute Minimum Every Software Developer Must Know About Unicode in
 summary: "Modern extension to classic 2003 article by Joel Spolsky"
 published: 2023-10-02
 hackernews_id: 37735801
+lobsters_url: https://lobste.rs/s/bkavdb/unicode_overview
 starred: true
 ---
 

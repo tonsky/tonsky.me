@@ -3,6 +3,7 @@ title: "We shouldn’t have needed lockfiles"
 summary: "Lockfiles are an absolutely unnecessary concept that complicates things without a good reason. Dependency managers can and are working without it just the same."
 published: 2025-08-06
 hackernews_id: 44813397
+lobsters_url: https://lobste.rs/s/wzj0h7/we_shouldn_t_have_needed_lockfiles
 ---
 
 Imagine you’re writing a project and need a library. Let’s call it `libpupa`.

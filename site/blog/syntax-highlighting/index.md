@@ -6,6 +6,8 @@ cover: cover.webp
 og_facebook: open_graph_facebook_smol.png
 og_twitter: open_graph_twitter_smol.png
 hackernews_id: 45596960
+lobsters_url: https://lobste.rs/s/bkoa67/i_am_sorry_everyone_is_getting_syntax
+starred: true
 ---
 
 Syntax highlighting is a tool. It can help you read code faster. Find things quicker. Orient yourself in a large file.

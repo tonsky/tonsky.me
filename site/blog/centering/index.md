@@ -3,6 +3,7 @@ title: Hardest Problem in Computer Science: Centering Things
 summary: "Somehow we forgot how to center rectangles and must find our way back"
 published: 2024-04-16
 hackernews_id: 40069599
+lobsters_url: https://lobste.rs/s/xcwla4/hardest_problem_computer_science
 starred: true
 ---
 

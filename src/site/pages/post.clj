@@ -39,22 +39,25 @@
               [:a {:href related-url} related-title])))
         
         ;; comments
-        (let [{hn      :hackernews_id
-               hn2     :hackernews_id_2
-               reddit  :reddit_url
-               reddit2 :reddit_url_2} page]
-          (when (or hn hn2 reddit reddit)
+        (let [{hn       :hackernews_id
+               hn2      :hackernews_id_2
+               reddit   :reddit_url
+               reddit2  :reddit_url_2
+               lobsters :lobsters_url} page]
+          (when (or hn hn2 reddit reddit2 lobsters)
             (list
               [:span {:class "separator"} "·"]
               [:span "Discuss on"]
               (when hn
-                (list " " [:a {:href (str "https://news.ycombinator.com/item?id=" hn)} "HackerNews"]))
+                (list " " [:a {:href (str "https://news.ycombinator.com/item?id=" hn)} "Hacker News"]))
               (when hn2
-                (list " " [:a {:href (str "https://news.ycombinator.com/item?id=" hn2)} "More HackerNews"]))
+                (list " " [:a {:href (str "https://news.ycombinator.com/item?id=" hn2)} "More Hacker News"]))
               (when reddit
                 (list " " [:a {:href reddit} "Reddit"]))
               (when reddit2
-                (list " " [:a {:href reddit2} "More Reddit"])))))]])))
+                (list " " [:a {:href reddit2} "More Reddit"]))
+              (when lobsters
+                (list " " [:a {:href lobsters} "Lobsters"])))))]])))
 
 (defn absolutize [url page-uri]
   (when url
