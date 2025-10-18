@@ -10,6 +10,8 @@ lobsters_url: https://lobste.rs/s/bkoa67/i_am_sorry_everyone_is_getting_syntax
 starred: true
 ---
 
+_Translations: [Russian](https://habr.com/ru/articles/957024/)_
+
 Syntax highlighting is a tool. It can help you read code faster. Find things quicker. Orient yourself in a large file.
 
 Like any tool, it can be used correctly or incorrectly. Let’s see how to use syntax highlighting to help you work.
