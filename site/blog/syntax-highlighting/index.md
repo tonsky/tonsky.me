@@ -192,7 +192,7 @@ Using italics and bold instead of colors
 
 Some themes pay too much attention to be scientifically uniform. Like, all colors have the same exact lightness, and hues are distributed evenly on a circle.
 
-This could be nice (to know if you have OCR), but in practice, it doesn’t work as well as it sounds:
+This could be nice (to know if you have OCD), but in practice, it doesn’t work as well as it sounds:
 
 balanced.png
 OkLab l=0.7473 c=0.1253 h=0, 45, 90, 135, 180, 225, 270, 315
