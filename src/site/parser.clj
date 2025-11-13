@@ -55,7 +55,7 @@
      <qli>      = <#'> +'> p
      figure     = <#' *'> #'(?i)[^ \n]+\\.(png|jpg|jpeg|gif|webp)' figlink? figalt? figcaption?
      video      = <#' *'> #'(?i)[^ \n]+\\.(mp4|webm)' figlink? figalt? figcaption?
-     youtube    = <#'(?i) *https?://(www\\.)?(youtube\\.com|youtu\\.be)/[^ \n]+[?&]v='> #'[a-zA-Z0-9_\\-]{11}' <#'[^ \n]*'> figcaption? figattrs*
+     youtube    = <#'(?i) *https?://(www\\.)?(youtube\\.com|youtu\\.be)/[^ \n\\?]*\\?'> #'[^ \n]+' figcaption? figattrs*
      figlink    = <#' +'> #'https?://[^ \n]+'
      figalt     = <#' +'> !'https://' #'[^ \n][^\n]*[^ \n]'
      figcaption = <#' *\n *'> inline
@@ -178,15 +178,19 @@
      (when figcaption
        [:figcaption figcaption])]))
 
-(defn transform-youtube [id & args]
-  (let [{:keys [figcaption aspect]} (normalize-figure args)
+(defn transform-youtube [query & args]
+  (let [kv (apply array-map (str/split query #"[&=]"))
+        {id   "v"
+         time "t"} kv
+        {:keys [figcaption aspect]} (normalize-figure args)
         aspect (or (some-> aspect parse-double) 16/9)
-        width  635]
+        width  720]
     [:figure
      ;; TODO fetch width/height from YouTube
      [:iframe {:width           (str width)
                :height          (-> width (/ aspect) math/ceil int str)
-               :src             (str "https://www.youtube-nocookie.com/embed/" id)
+               :src             (cond-> (str "https://www.youtube-nocookie.com/embed/" id)
+                                  time (str "?start=" (re-find #"\d+" time))) ;; ?t=123s -> ?start=123
                :frameborder     "0"
                :allow           "autoplay; encrypted-media; picture-in-picture"
                :allowfullscreen true}]
