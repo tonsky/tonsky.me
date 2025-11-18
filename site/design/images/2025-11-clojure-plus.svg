@@ -1,0 +1,45 @@
+<svg width="1450" height="750" viewBox="0 0 1450 750" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<rect width="1450" height="750" fill="white"/>
+<path d="M1259.91 520.4C1197.91 520.4 1156.31 475.2 1156.31 408.4C1156.31 341.6 1197.91 296.4 1259.91 296.4C1329.51 296.4 1369.91 346.8 1362.31 424.4H1207.51C1211.91 459.2 1231.51 479.6 1261.11 479.6C1285.51 479.6 1302.71 468.8 1310.31 449.2H1362.31C1349.51 495.2 1313.91 520.4 1259.91 520.4ZM1208.31 388.4H1313.51C1308.71 355.6 1290.31 337.6 1261.11 337.6C1232.71 337.6 1213.51 356.4 1208.31 388.4Z" fill="black"/>
+<path d="M1003 516V301.2H1053.4V328.4H1055.8C1063 308 1080.2 296.4 1103.4 296.4H1133.4L1137.8 348.8H1097C1069.4 348.8 1053.4 362 1053.4 384.8V516H1003Z" fill="black"/>
+<path d="M956.731 301.2V516H906.331V484.4H904.331C893.131 506 866.331 520.8 837.931 520.8C792.331 520.8 763.131 490.8 763.131 444V301.2H813.531V434.4C813.531 458.8 828.731 474.4 852.731 474.4C883.931 474.4 906.331 450.8 906.331 417.6V301.2H956.731Z" fill="black"/>
+<path d="M625.065 586.4L621.065 547.6H643.065C659.465 547.6 667.065 541.6 667.065 529.2V301.2H717.865V534.4C717.865 569.6 696.665 586.4 652.265 586.4H625.065Z" fill="black"/>
+<path d="M522.106 520.4C458.506 520.4 414.906 474.8 414.906 408.4C414.906 342 458.506 296.4 522.106 296.4C585.706 296.4 629.306 342 629.306 408.4C629.306 474.8 585.706 520.4 522.106 520.4ZM522.106 478.4C556.906 478.4 578.506 451.6 578.506 408.4C578.506 365.6 556.906 338.8 522.106 338.8C487.306 338.8 465.706 365.6 465.706 408.4C465.706 451.6 487.306 478.4 522.106 478.4Z" fill="black"/>
+<path d="M326.831 516V221.6L377.231 217.2V516H326.831Z" fill="black"/>
+<path d="M192.4 520.4C129.2 520.4 86 474.8 86 408.4C86 342 129.2 296.4 192.4 296.4C246 296.4 285.2 331.6 289.2 382.4H240C235.6 356 216.8 338.8 192 338.8C158 338.8 136.8 365.6 136.8 408.4C136.8 451.6 158.4 478.4 192.4 478.4C216.8 478.4 235.6 461.2 240 434.8H289.2C285.2 485.6 246 520.4 192.4 520.4Z" fill="black"/>
+<rect x="646" y="42" width="91" height="237" rx="16" fill="#F5CA9E"/>
+<rect x="810" y="115" width="91" height="237" rx="16" transform="rotate(90 810 115)" fill="#F5CA9E"/>
+<rect x="737" y="115" width="20" height="91" fill="url(#paint0_linear_7_136)"/>
+<rect x="646" y="206" width="20" height="91" transform="rotate(-180 646 206)" fill="url(#paint1_linear_7_136)"/>
+<rect x="654" y="122" width="76" height="76" fill="url(#pattern0_7_136)"/>
+<g filter="url(#filter0_f_7_136)">
+<rect x="649" y="98" width="85" height="11" fill="white" fill-opacity="0.3"/>
+</g>
+<g filter="url(#filter1_f_7_136)">
+<rect x="649" y="212" width="85" height="11" fill="black" fill-opacity="0.1"/>
+</g>
+<defs>
+<filter id="filter0_f_7_136" x="645" y="94" width="93" height="19" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="2" result="effect1_foregroundBlur_7_136"/>
+</filter>
+<filter id="filter1_f_7_136" x="645" y="208" width="93" height="19" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="2" result="effect1_foregroundBlur_7_136"/>
+</filter>
+<linearGradient id="paint0_linear_7_136" x1="737" y1="139.5" x2="757" y2="139.5" gradientUnits="userSpaceOnUse">
+<stop stop-opacity="0.1"/>
+<stop offset="1" stop-opacity="0"/>
+</linearGradient>
+<linearGradient id="paint1_linear_7_136" x1="646" y1="230.5" x2="666" y2="230.5" gradientUnits="userSpaceOnUse">
+<stop stop-opacity="0.1"/>
+<stop offset="1" stop-opacity="0"/>
+</linearGradient>
+<pattern id="pattern0_7_136" patternUnits="userSpaceOnUse" patternTransform="matrix(16.275 0 0 16.275 654 122)" preserveAspectRatio="none" viewBox="0 0 9.3 9.3" width="1" height="1">
+<g id="pattern0_7_136_inner">
+<circle cx="3" cy="3" r="3" fill="black" fill-opacity="0.15"/>
+</g>
+</pattern></defs>
+</svg>

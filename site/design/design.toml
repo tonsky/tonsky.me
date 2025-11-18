@@ -1,4 +1,9 @@
 [[design]]
+date  = 2025-11-18
+img   = "2025-11-clojure-plus.svg"
+desc  = "<a href='https://github.com/tonsky/clojure-plus'>Clojure+</a> is a project to improve Clojure stdlib."
+
+[[design]]
 date  = 2025-05-16
 img   = "2025-05-internet-explorer.png"
 desc  = "Cyrillic version of Internet Explorer logo. Because it’s iconic."
