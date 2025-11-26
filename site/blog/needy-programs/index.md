@@ -1,5 +1,5 @@
 ---
-title: "Needy Programs"
+title: "Needy programs"
 summary: "We used to use software; now software started to use us"
 published: 2025-11-13
 ---

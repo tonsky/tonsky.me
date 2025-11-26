@@ -1,6 +1,8 @@
 ---
 title: "How to get hired in 2025"
 summary: "A collection of red flags in software engineers' test assignments"
+cover: cover.webp
+published: 2025-11-26
 ---
 
 It’s 2025 and you are applying for a software engineer position. They give you a test assignment. You complete it yourself, send it over, and get rejected. Why?
