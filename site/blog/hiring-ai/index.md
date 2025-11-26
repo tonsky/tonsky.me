@@ -14,7 +14,8 @@ Unfortunately, it’s 2025, AI is spreading like glitter in a kindergarten, and 
 Following are the main _red flags_ in test assignments that should be __avoided__:
 
 - The assignment was read and understood in full.
-- Industry-standard languages and frameworks are used.
+- All parts are implemented.
+- Industry-standard tools and frameworks are used.
 - The code is split into small, readable functions.
 - Variables have descriptive names.
 - Complex parts have comments.
@@ -23,4 +24,4 @@ Following are the main _red flags_ in test assignments that should be __avoided_
 - The web interface looks nice.
 - There are tests.
 
-Avoid these mistakes yourself and spread the word!
+Avoid these AI giveaways and spread the word!
