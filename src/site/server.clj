@@ -1,6 +1,7 @@
 (ns site.server
   (:require
    [clj-simple-router.core :as router]
+   [clj-simple-stats.core :as stats]
    [clojure.edn :as edn]
    [clojure.java.io :as io]
    [clojure.string :as str]
@@ -205,7 +206,8 @@
     wrap-decode-uri
     ring-cookies/wrap-cookies
     ring-params/wrap-params
-    ring-head/wrap-head))
+    ring-head/wrap-head
+    (stats/wrap-stats {:db-path "stats.duckdb"})))
 
 (mount/defstate server
   :start

@@ -7,14 +7,20 @@
   io.github.tonsky/toml-clj          {:mvn/version "0.1.0"}
   mount/mount                        {:mvn/version "0.1.17"}
   org.clojure/clojure                {:mvn/version "1.12.3"}
-  ring/ring-core                     {:mvn/version "1.8.0"}}
- :paths ["src" "presence/dist/assets"]
+  ring/ring-core                     {:mvn/version "1.8.0"}
+  io.github.tonsky/clj-simple-stats  {:git/sha "607f957346131edcac30cdd205c97883e80c55ec"}}
+ :paths ["src"]
  :aliases
  {:dev
   {:jvm-opts ["-ea"]
    :extra-paths ["dev" "test"]
    :extra-deps 
    {io.github.tonsky/clj-reload {:mvn/version "1.0.0"}}}
+  :java
+  {:jvm-opts ["-Dclojure.main.report=stderr"
+              "-Duser.language=en"
+              "-Duser.country=US"
+              "-Dfile.encoding=UTF-8"]}
   :uberdeps
   {:replace-deps {uberdeps/uberdeps {:mvn/version "1.4.0"}}
    :replace-paths []}}}

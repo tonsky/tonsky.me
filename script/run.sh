@@ -2,4 +2,4 @@
 set -o errexit -o nounset -o pipefail
 cd "`dirname $0`/.."
 
-clojure -M -m site.server
+clojure $(./script/java_opts.sh) -M -m site.server
