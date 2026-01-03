@@ -37,7 +37,8 @@
      <meta-key>   = #'[a-zA-Z0-9_\\-\n]+'
      <meta-value> = #'[^\"\n]*'
      
-     <block>    = h1 / h2 / h3 / h4 / ul / ol / fl / code-block / blockquote / figure / video / youtube / raw-html / p
+     <block>    = hr / h1 / h2 / h3 / h4 / ul / ol / fl / code-block / blockquote / figure / video / youtube / raw-html / p
+     hr         = #'-{3,} *'
      h1         = <'#'> <#' +'> inline
      h2         = <'##'> <#' +'> inline
      h3         = <'###'> <#' +'> inline
@@ -53,7 +54,7 @@
      lang       = #'[a-z]+'
      blockquote = qli (<'\n'> qli)*
      <qli>      = <#'> +'> p
-     figure     = <#' *'> #'(?i)[^ \n]+\\.(png|jpg|jpeg|gif|webp)' figlink? figalt? figcaption?
+     figure     = <#' *'> (class <#' +'>)* #'(?i)[^ \n]+\\.(png|jpg|jpeg|gif|webp)' figlink? figalt? figcaption?
      video      = <#' *'> #'(?i)[^ \n]+\\.(mp4|webm)' figlink? figalt? figcaption?
      youtube    = <#'(?i) *https?://(www\\.)?(youtube\\.com|youtu\\.be)/[^ \n\\?]*\\?'> #'[^ \n]+' figcaption? figattrs*
      figlink    = <#' +'> #'https?://[^ \n]+'
@@ -129,35 +130,44 @@
 
 (defn normalize-figure [args]
   (let [m (reduce
-            (fn [m [tag & values]]
-              (assoc m tag values))
+            (fn [m arg]
+              (if (string? arg)
+                (assoc m :url arg)
+                (let [[tag & _body] arg]
+                  (update m tag (fnil conj []) arg))))
             {}
             args)]
     (reduce
-      (fn [m [k v]]
+      (fn [m [_ k v]]
         (assoc m (keyword k) v))
-      (dissoc m :figattrs) (partition 2 (:figattrs m)))))
+      (dissoc m :figattrs) (:figattrs m))))
 
-(defn transform-figure [url & args]
-  (let [{[figlink]  :figlink
-         [figalt]   :figalt
-         figcaption :figcaption} (normalize-figure args)
+(defn transform-figure [& args]
+  (let [{url           :url
+         classes       :class
+         [[_ figlink]] :figlink
+         [[_ figalt]]  :figalt
+         [figcaption]  :figcaption} (normalize-figure args)
         img [:img (core/some-map
                     :src    url
-                    :class  (when (re-find #"@hover" url) "hoverable")
+                    :class  (str/join " "
+                              (concat
+                                (when (re-find #"@hover" url)
+                                  ["hoverable"])
+                                (map second classes)))
                     :alt    figalt
                     :title  figalt)]]
     [:figure
      (if figlink
        [:a {:href figlink} img]
        img)
-     (when figcaption
-       (core/consv :figcaption figcaption))]))
+     figcaption]))
 
-(defn transform-video [url & args]
-  (let [{[figlink]  :figlink
-         [figalt]   :figalt
-         figcaption :figcaption} (normalize-figure args)
+(defn transform-video [& args]
+  (let [{url           :url
+         [[_ figlink]] :figlink
+         [[_ figalt]]  :figalt
+         [figcaption]  :figcaption} (normalize-figure args)
         [_ ext] (re-matches #".*\.([a-z0-9]+)" url)
         source  [:source 
                  {:src  url
@@ -175,16 +185,17 @@
      (if figlink
        [:a {:href figlink} video]
        video)
-     (when figcaption
-       [:figcaption figcaption])]))
+     figcaption]))
 
-(defn transform-youtube [query & args]
-  (let [kv (apply array-map (str/split query #"[&=]"))
-        {id   "v"
-         time "t"} kv
-        {:keys [figcaption aspect]} (normalize-figure args)
+(defn transform-youtube [& args]
+  (let [{query        :url
+         [figcaption] :figcaption
+         aspect       :aspect} (normalize-figure args)
         aspect (or (some-> aspect parse-double) 16/9)
-        width  720]
+        width  720
+        kv (apply array-map (str/split query #"[&=]"))
+        {id   "v"
+         time "t"} kv]
     [:figure
      ;; TODO fetch width/height from YouTube
      [:iframe {:width           (str width)
@@ -194,8 +205,7 @@
                :frameborder     "0"
                :allow           "autoplay; encrypted-media; picture-in-picture"
                :allowfullscreen true}]
-     (when figcaption
-       [:figcaption figcaption])]))
+     figcaption]))
 
 (defn detect-links [form]
   (cond+
@@ -240,6 +250,10 @@
    [:a {:href (str "#fn:" id) :class "footnote" :rel "footnote"}
     id]])
 
+(defn transform-hr [& x]
+  [:div {:class "hr"}
+   [:div {:class "hr_inner"}]])
+
 (defn transform-ol [& body]
   (let [start (-> body first second)]
     (core/consv
@@ -280,6 +294,7 @@
    :href       transform-href
    :p          transform-paragraph
    :footnote   transform-footnote
+   :hr         transform-hr
    :meta-item  #(vector (keyword %1) %2)
    :meta       transform-meta})
 
