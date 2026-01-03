@@ -1,6 +1,6 @@
 ---
 title: "It’s hard to justify Tahoe icons from 1992"
-cover: cover.webp
+supercover: cover.webp
 ---
 
 I was reading Macintosh Human Interface Guidelines [from 1992](https://dn721903.ca.archive.org/0/items/apple-hig/Macintosh_HIG_1992.pdf) and found this nice illustration:
@@ -18,7 +18,7 @@ Sequoia → Tahoe
 
 It’s bad. But why exactly is it bad? Let’s delve into it!
 
-Disclaimer: some screenshots here are from macOS 26.1, most from macOS 26.2, taken from stock Apple apps only that come pre-installed with the system. No system settings were modified.
+Disclaimer: screenshots are a mix from macOS 26.1 and 26.2, taken   from stock Apple apps only that come pre-installed with the system. No system settings were modified.
 
 # Icons should differentiate
 
@@ -319,7 +319,7 @@ But for this to work, the user must understand what’s drawn on the icon. It mu
 
 hig_metaphor@2x.webp
 
-A rookie mistake would be to misrepresent the object. For example, selection looks like this (don’t read the text):
+A rookie mistake would be to misrepresent the object. For example, this is how selection looks like:
 
 metaphor_selection@2x.webp
 
@@ -335,7 +335,7 @@ It’s called `character.textbox` in SF Symbols:
 
 character_textbox@2x.webp
 
-Why did it become a metaphor for “Select all”? I have no idea.
+Why did it become a metaphor for “Select all”? My best guess is it’s a mistake.
 
 Another place uses text selection from iOS as a metaphor. On a Mac!
 
@@ -516,6 +516,16 @@ writing_direction@2x.webp
 
 Same icon for different actions. Missing the obvious metaphor. Somehow making the first one slightly smaller than the second and third. Congratulations! It got it all.
 
+# Is HIG still relevant?
+
+I’ve been mentioning HIG a lot, and you might be wondering: is an interface manual from 1992 still relevant today? Haven’t computers changed so much that entirely new principles, designs, and idioms apply?
+
+Yes and no. Of course, advice on how to adapt your icons to black-and-white displays is obsolete. But the principles—as long as they are good principles—still apply, because they are based on how humans work, not how computers work.
+
+Humans don’t get a new release every year. Our memory doesn’t double. Our eyesight doesn’t become sharper. Attention works the same way it always has. Visual recognition, motor skills—all of this is exactly as it was in 1992.
+
+So yeah, until we get a direct chip-to-brain interface, HIG will stay relevant.
+
 # Conclusion
 
 In my opinion, Apple took on an impossible task: to add an icon to every menu item. There are just not enough good metaphors to do something like that.
@@ -524,7 +534,7 @@ But even if there were, the premise itself is questionable: if everything has an
 
 I wish I could say: they did the best they could, given the wrong goal. But that’s not true either: they did a poor job consistently applying the metaphors and designing the icons themselves.
 
-I hope this article would be helpful in avoiding common mistakes in icon design, which Apple managed to collect all in one OS relese. I love computers, I love interfaces, I love visual communication. It makes me sad seeing perfectly good knowledge already accessible 30 years ago beign completely ignored or thrown away today.
+I hope this article would be helpful in avoiding common mistakes in icon design, which Apple managed to collect all in one OS release. I love computers, I love interfaces, I love visual communication. It makes me sad seeing perfectly good knowledge already accessible 30 years ago beign completely ignored or thrown away today.
 
 On the upside: it’s not that hard anymore to design better than Apple! Let’s drink to that. Happy New year!
 

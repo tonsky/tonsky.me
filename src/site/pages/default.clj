@@ -19,10 +19,11 @@
     [:p "I also create open-source stuff: Fira Code, DataScript, Clojure Sublimed, Humble UI. Support it on " [:a.btn-action {:action "_blank" :href "https://patreon.com/tonsky"} "Patreon"] " or " [:a.btn-action {:action "_blank" :href "https://github.com/sponsors/tonsky"} "Github"]]]])
 
 (defn default [page]
-  (let [url    (str "https://tonsky.me" (:uri page))
-        long?  (> (count (:title page "")) 60)
-        index? (:index (:categories page))
-        post?  (:blog (:categories page))]
+  (let [url        (str "https://tonsky.me" (:uri page))
+        long?      (> (count (:title page "")) 60)
+        index?     (:index (:categories page))
+        post?      (:blog (:categories page))
+        supercover (:supercover page)]
     (assoc page :content
       [:html {:lang "en", :prefix "og: http://ogp.me/ns#", :xmlns:og "http://opengraphprotocol.org/schema/"}
        [:head
@@ -30,7 +31,7 @@
         (if (= "page_wide" (:class page))
           [:meta {:name "viewport" :content "width=900"}]
           [:meta {:name "viewport" :content "width=640"}])
-        [:meta {:name "theme-color" :content "#FDDB29"}]
+        [:meta {:name "theme-color" :content (if supercover "#000" "#FDDB29")}]
         [:link {:href "/i/favicon.png" :rel "icon" :sizes "32x32"}]
         [:link {:href "/fonts/fonts.css" :rel "stylesheet" :type "text/css"}]
         [:link {:href "/style.css" :rel "stylesheet" :type "text/css"}]
@@ -89,6 +90,9 @@
         (when core/dev?
           [:script {:src "/watcher.js" :defer true}])]
        [:body
+        (when supercover
+          {:class "has_supercover"
+           :style (str "background-image: url('" supercover "'); ")})
         [:.page
          [:ul.menu
           (for [[url title] [["/"          "Blog"]

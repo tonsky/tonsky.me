@@ -87,6 +87,9 @@ body.dark #darkModeGlow { opacity: 1; }
 .content { display: flex; flex-direction: column; gap: var(--gap); align-items: center; }
 .content > * { width: 96vw; max-width: var(--width); }
 
+.has_supercover { background-size: 100% auto; background-position: top calc(-44vw + var(--gap) * 10) center; background-repeat: no-repeat; }
+.has_supercover .content { margin-top: calc(22vw + var(--gap) * 4); }
+
 /* INDEX */
 .starred { margin: 0 0.5em 0 -1.5em; }
 @media only screen and (max-device-width: 480px) {

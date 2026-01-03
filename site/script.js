@@ -1,3 +1,5 @@
+var originalThemeColor;
+
 function randInt(max) {
   return Math.floor(Math.random() * max);
 }
@@ -76,7 +78,7 @@ function updateDarkMode(e) {
   } else {
     localStorage.removeItem('dark');
     localStorage.removeItem('mousePos');
-    theme.content = "#FDDB29";
+    theme.content = originalThemeColor;
     ['mousemove', 'touchstart', 'touchmove', 'touchend'].forEach(function(s) {
       document.documentElement.removeEventListener(s, updateFlashlight, false);
     });
@@ -157,11 +159,13 @@ function updateWinterMode() {
     clearInterval(snowflakeTimer);
     snowflakeTimer = undefined;
     flashlight.src = '/i/flashlight.webp';
-    document.querySelector("meta[name=theme-color]").content = "#FDDB29";
+    document.querySelector("meta[name=theme-color]").content = originalThemeColor;
   }
 }
 
 window.addEventListener("load", (event) => {
+  originalThemeColor = document.querySelector("meta[name=theme-color]").content;
+  console.log(originalThemeColor);
   const currentMonth = new Date().getMonth() + 1;
   const isWinter = [12, 1, 2].includes(currentMonth);
   if (isWinter) {
