@@ -1,6 +1,9 @@
 ---
 title: "It’s hard to justify Tahoe icons from 1992"
+summary: "Looking at the first principles of icon design—and how Apple failed to apply all of them in macOS Tahoe"
 supercover: cover.webp
+og_facebook: open_graph_facebook_smol.png
+og_twitter: open_graph_twitter_smol.png
 ---
 
 I was reading Macintosh Human Interface Guidelines [from 1992](https://dn721903.ca.archive.org/0/items/apple-hig/Macintosh_HIG_1992.pdf) and found this nice illustration:
@@ -532,7 +535,7 @@ In my opinion, Apple took on an impossible task: to add an icon to every menu it
 
 But even if there were, the premise itself is questionable: if everything has an icon, it doesn’t mean users will find what they are looking for faster.
 
-I wish I could say: they did the best they could, given the wrong goal. But that’s not true either: they did a poor job consistently applying the metaphors and designing the icons themselves.
+And even if the premise was solid, I still wish I could say: they did the best they could, given the goal. But that’s not true either: they did a poor job consistently applying the metaphors and designing the icons themselves.
 
 I hope this article would be helpful in avoiding common mistakes in icon design, which Apple managed to collect all in one OS release. I love computers, I love interfaces, I love visual communication. It makes me sad seeing perfectly good knowledge already accessible 30 years ago beign completely ignored or thrown away today.
 
