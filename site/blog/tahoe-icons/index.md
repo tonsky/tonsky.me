@@ -1,5 +1,6 @@
 ---
 title: "It’s hard to justify Tahoe icons from 1992"
+cover: cover.webp
 ---
 
 I was reading Macintosh Human Interface Guidelines [from 1992](https://dn721903.ca.archive.org/0/items/apple-hig/Macintosh_HIG_1992.pdf) and found this nice illustration:
