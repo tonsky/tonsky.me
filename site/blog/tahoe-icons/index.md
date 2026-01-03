@@ -540,3 +540,9 @@ On the upside: it’s not that hard anymore to design better than Apple! Let’s
 
 smiley@2x.webp
 From SF Symbols: a smiley face calling somebody on the phone
+
+# Notes
+
+During review of this post I was made familiar with https://blog.jim-nielsen.com/2025/icons-in-menus/, which hits a lot of the same points as I do. I take that as a sign there’s some common truth behind our reasoning.
+
+Thanks Kevin, Ryan, and Nicki for reading drafts of this post.
