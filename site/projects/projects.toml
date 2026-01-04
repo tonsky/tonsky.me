@@ -1,4 +1,13 @@
 [[project]]
+name     = "clj-simple-stats"
+desc     = "Simple statistics for Clojure/Ring webapps"
+link     = "https://github.com/tonsky/clj-simple-stats"
+img      = "clj-simple-stats.svg"
+roles    = ["Creator"]
+period   = "Dec 2025"
+stack    = "Clojure, DuckDB"
+
+[[project]]
 name     = "Instant DB"
 desc     = "Optimization, new APIs, developer experience"
 link     = "https://www.instantdb.com/"
@@ -11,12 +20,12 @@ stack    = "Clojure, PostgreSQL, TypeScript"
 name     = "Clojure+"
 desc     = "A project that improves Clojure stdlib"
 link     = "https://github.com/tonsky/clojure-plus"
-img      = "clojure-plus.svg"
+img      = "clojure-plus.png"
 roles    = ["Creator"]
 period   = "Jan 2025 — now"
 status   = "Launched"
 stack    = "Clojure"
-stars    = 156
+stars    = 201
 
 [[project]]
 name     = "Fast EDN"
@@ -27,17 +36,17 @@ roles    = ["Creator"]
 period   = "Dec 2024"
 status   = "Launched"
 stack    = "Clojure"
-stars    = 169
+stars    = 176
 
 [[project]]
 name     = "AlleKinos.de"
 desc     = "No-nonsense movie showtimes site for every cinema in Germany"
-link     = "https://allekinos.de"
+link     = "https://allekinos.de/"
 img      = "allekinos.webp"
 roles    = ["Creator"]
 period   = "May 2024"
-status   = "Launched"
-stack    = "Clojure, DataScript"
+status   = "Launched, 1500 visitors/day"
+stack    = "Clojure, DataScript, application.garden"
 
 [[project]]
 name     = "clj-reload"

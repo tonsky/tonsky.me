@@ -21,6 +21,12 @@ p, h1, h2, h3 { overflow-wrap: break-word; }
   --gray-bg: rgba(0, 0, 0, 0.06);
   --text: #000;
   --bg: #FDDB29;
+
+  --cursor: -webkit-image-set(url(i/cursor@2x.png) 2x) 5 5, default;
+  --cursor-pressed: -webkit-image-set(url(i/cursor_pressed@2x.png) 2x) 5 5, default;
+  --cursor-hand: -webkit-image-set(url(i/hand@2x.png) 2x) 16 4, default;
+  --cursor-hand-pressed: -webkit-image-set(url(i/hand_pressed@2x.png) 2x) 16 4, default;
+  --cursor-i-beam: -webkit-image-set(url(i/ibeam@2x.png) 2x) 16 16, default;
 }
 
 html {
@@ -56,9 +62,9 @@ body { margin: calc(var(--gap) * 4) 0 calc(var(--gap) * 6) 0; background-color: 
 .menu > li.selected > a,
 .menu > li:hover > a { color: #000; border-bottom: var(--border) solid #000; }
 .menu > .spacer { flex-grow: 1; }
-div.winter { width: 26px; height: 26px; background-image: url("/i/snow.svg"); opacity: .3; cursor: pointer; }
+div.winter { width: 26px; height: 26px; background-image: url("/i/snow.svg"); opacity: .3; cursor: var(--cursor-hand); }
 body.winter div.winter { opacity: 1; }
-.dark_mode, #darkModeGlow { align-self: center; width: 26px; height: 26px; border-radius: 13px; background-image: url("/i/dark_mode.svg"); background-size: 52px 52px; transition: background-position-x 100ms; cursor: pointer; }
+.dark_mode, #darkModeGlow { align-self: center; width: 26px; height: 26px; border-radius: 13px; background-image: url("/i/dark_mode.svg"); background-size: 52px 52px; transition: background-position-x 100ms; cursor: var(--cursor-hand); }
 .dark_mode { display: flex; opacity: .3; }
 .dark_mode:hover, body.dark .dark_mode { opacity: 1; }
 body.dark .dark_mode { background-position: -26px 0; }
@@ -69,7 +75,7 @@ body.dark #darkModeGlow { opacity: 1; }
 }
 .hamburger { position: relative; }
 .hamburger input { display: none; }
-.hamburger label { display: block; width: 32px; height: 32px; background-image: url("/i/hamburger.svg"); background-size: 100%; opacity: .3; cursor: pointer; border: none; }
+.hamburger label { display: block; width: 32px; height: 32px; background-image: url("/i/hamburger.svg"); background-size: 100%; opacity: .3; cursor: var(--cursor-hand); border: none; }
 .hamburger label:hover,
 .hamburger input:checked ~ label { opacity: 1; }
 .hamburger ul { display: none; position: absolute; margin: 0.5em -0.5em 0 0; right: 0; background: var(--bg); padding: 0.375em 0; box-shadow: 0 0 0 1.5px #00000030, 4.5px 4.5px 3px #00000030; border-radius: 4px; }
@@ -195,7 +201,7 @@ button {
   -webkit-appearance: none;
   -moz-appearance: none;
   appearance: none;
-  cursor: pointer;
+  cursor: var(--cursor-hand);
 
   display: flex;
   align-items: center;
@@ -257,14 +263,6 @@ body.dark #flashlight { opacity: 1; }
 @keyframes snow-left {to{left: 100vw;}}
 
 /* CURSORS */
-:root {
-  --cursor: -webkit-image-set(url(i/cursor@2x.png) 2x) 5 5, default;
-  --cursor-pressed: -webkit-image-set(url(i/cursor_pressed@2x.png) 2x) 5 5, default;
-  --cursor-hand: -webkit-image-set(url(i/hand@2x.png) 2x) 16 4, default;
-  --cursor-hand-pressed: -webkit-image-set(url(i/hand_pressed@2x.png) 2x) 16 4, default;
-  --cursor-i-beam: -webkit-image-set(url(i/ibeam@2x.png) 2x) 16 16, default;
-}
-
 body, input[type='range'], button, label { cursor: var(--cursor); }
 body:active, input[type='range']:active, button:not(:disabled):active, label:active { cursor: var(--cursor-pressed); }
 a { cursor: var(--cursor-hand); }
