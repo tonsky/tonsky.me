@@ -1,5 +1,5 @@
 ---
-title: "It’s hard to justify Tahoe icons from 1992"
+title: "It’s hard to justify Tahoe icons"
 summary: "Looking at the first principles of icon design—and how Apple failed to apply all of them in macOS Tahoe"
 supercover: cover.webp
 og_facebook: open_graph_facebook_smol.png
@@ -229,7 +229,7 @@ Icons are supposed to be easily recognizable from a distance. Every icon designe
 
 And icons in Tahoe menus are _tiny_. Most of them fit in a 12×12 pixel square (actual resolution is 24×24 because of Retina), and because many of them are not square, one dimension is usually even less than 12.
 
-It’s not a lot of space to work with! Even Windows 95 had 16×16 icons. If we take the typical DPI of that era at 72 dots per inch, we get a physical icon size of 0.22 inches (5.6 mm). On a modern MacBook Pro with 254 DPI, Tahoe’s 24×24 icons are 0.09 inches (2.4 mm). Sure, 24 is bigger than 16, but in reality, these icons are twice as small!
+It’s not a lot of space to work with! Even Windows 95 had 16×16 icons. If we take the typical DPI of that era at 72 dots per inch, we get a physical icon size of 0.22 inches (5.6 mm). On a modern MacBook Pro with 254 DPI, Tahoe’s 24×24 icons are 0.09 inches (2.4 mm). Sure, 24 is bigger than 16, but in reality, these icons’ area is 4 times as small!
 
 dpi_comparison@2x.webp
 Simulated physical size comparison between 16×16 at 72 DPI (left) and 24×24 at 254 DPI (right)
@@ -537,7 +537,7 @@ But even if there were, the premise itself is questionable: if everything has an
 
 And even if the premise was solid, I still wish I could say: they did the best they could, given the goal. But that’s not true either: they did a poor job consistently applying the metaphors and designing the icons themselves.
 
-I hope this article would be helpful in avoiding common mistakes in icon design, which Apple managed to collect all in one OS release. I love computers, I love interfaces, I love visual communication. It makes me sad seeing perfectly good knowledge already accessible 30 years ago beign completely ignored or thrown away today.
+I hope this article would be helpful in avoiding common mistakes in icon design, which Apple managed to collect all in one OS release. I love computers, I love interfaces, I love visual communication. It makes me sad seeing perfectly good knowledge already accessible 30 years ago being completely ignored or thrown away today.
 
 On the upside: it’s not that hard anymore to design better than Apple! Let’s drink to that. Happy New year!
 
@@ -546,6 +546,8 @@ From SF Symbols: a smiley face calling somebody on the phone
 
 # Notes
 
-During review of this post I was made familiar with [Jim Nilsen’s article](https://blog.jim-nielsen.com/2025/icons-in-menus/), which hits a lot of the same points as I do. I take that as a sign there’s some common truth behind our reasoning. (Also note: looks like Safari/File menu got worse since 26.0. Used to have only 4 icons, now it’s 18!)
+During review of this post I was made familiar with [Jim Nielsen’s article](https://blog.jim-nielsen.com/2025/icons-in-menus/), which hits a lot of the same points as I do. I take that as a sign there’s some common truth behind our reasoning.
+
+Also note: Safari → File menu got worse since 26.0. Used to have only 4 icons, now it’s 18!
 
 Thanks Kevin, Ryan, and Nicki for reading drafts of this post.

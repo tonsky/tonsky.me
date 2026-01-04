@@ -61,6 +61,15 @@
             (= "twitter:image" (:name attrs))))
         (when-some [file (find-file page (:content attrs))]
           (core/consv :meta (update attrs :content core/timestamp-url file) content))
+
+        (and (= :body tag) (str/includes? (:class attrs "") "has_supercover"))
+        (core/consv :body
+          (update attrs :style str/replace #"(?<=url\('?)[^']+(?='?\))"
+            (fn [url]
+              (if-some [file (find-file page url)]
+               (core/timestamp-url url file)
+               url)))
+          content)
         
         (and (= :script tag) (:src attrs))
         (when-some [file (find-file page (:src attrs))]
