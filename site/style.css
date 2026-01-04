@@ -250,24 +250,22 @@ body.dark #flashlight { display: block; position: fixed; box-shadow: 0 0 0 9999p
 body.dark0 #flashlight { opacity: 0; }
 body.dark #flashlight { opacity: 1; }
 
-/* POINTERS */
-.pointer { width: 16px; height: 24px; position: absolute; background-image: url(/i/pointers.png); background-size: 300% 100%; transition: 200ms; transition-timing-function: ease-in-out; pointer-events: none; }
-.pointer.m { background-position-x: 0; }
-.pointer.w { background-position-x: -100%; }
-.pointer.l { background-position-x: -200%; }
-
 /* SNOW */
 .snowflake { border-radius: 50%; background: #FFF; }
 @keyframes snow-fall {to{top: calc(100vh + 200px);}}
 @keyframes snow-right {to{left: -100vw;}}
 @keyframes snow-left {to{left: 100vw;}}
 
-/* PRESENCE */
-#presence { position: fixed; bottom: 14px; right: 25px; margin-left: 10px; }
-#presence > ul { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap-reverse; /* flex-direction: row-reverse; */ }
-#presence > ul > li { position: relative; width: 35px; height: 50px; transition: width 0.1s linear; }
-#presence > ul > li > .container { position: absolute; top: 0; left: 0; width: 50px; height: 50px; border-radius: 50%; background-color: oklch(from var(--bg) calc(l - 0.1) c h); border: 5px solid var(--bg); display: flex; align-items: center; justify-content: center; font-size: 36px; font-weight: normal; line-height: 1; }
-#presence > ul > li.removing { width: 0; }
-#presence > ul > li.inserting { width: 0; }
-#presence > ul > li:hover { z-index: 1; cursor: default; }
-#presence > ul > li .flag-overlay { position: absolute; bottom: -12px; left: 50%; transform: translateX(-50%); font-size: 20px; /* background-color: #BDA421; */ border-radius: 5px; padding: 0 2px; line-height: 1; z-index: 1; }
+/* CURSORS */
+:root {
+  --cursor: -webkit-image-set(url(i/cursor@2x.png) 2x) 5 5, default;
+  --cursor-pressed: -webkit-image-set(url(i/cursor_pressed@2x.png) 2x) 5 5, default;
+  --cursor-hand: -webkit-image-set(url(i/hand@2x.png) 2x) 16 4, default;
+  --cursor-hand-pressed: -webkit-image-set(url(i/hand_pressed@2x.png) 2x) 16 4, default;
+  --cursor-i-beam: -webkit-image-set(url(i/ibeam@2x.png) 2x) 16 16, default;
+}
+
+body, input[type='range'], button, label { cursor: var(--cursor); }
+body:active, input[type='range']:active, button:not(:disabled):active, label:active { cursor: var(--cursor-pressed); }
+a { cursor: var(--cursor-hand); }
+a:active { cursor: var(--cursor-hand-pressed); }
