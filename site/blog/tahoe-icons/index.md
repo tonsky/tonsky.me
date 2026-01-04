@@ -546,6 +546,6 @@ From SF Symbols: a smiley face calling somebody on the phone
 
 # Notes
 
-During review of this post I was made familiar with https://blog.jim-nielsen.com/2025/icons-in-menus/, which hits a lot of the same points as I do. I take that as a sign there’s some common truth behind our reasoning.
+During review of this post I was made familiar with [Jim Nilsen’s article](https://blog.jim-nielsen.com/2025/icons-in-menus/), which hits a lot of the same points as I do. I take that as a sign there’s some common truth behind our reasoning. (Also note: looks like Safari/File menu got worse since 26.0. Used to have only 4 icons, now it’s 18!)
 
 Thanks Kevin, Ryan, and Nicki for reading drafts of this post.

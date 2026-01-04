@@ -165,7 +165,6 @@ function updateWinterMode() {
 
 window.addEventListener("load", (event) => {
   originalThemeColor = document.querySelector("meta[name=theme-color]").content;
-  console.log(originalThemeColor);
   const currentMonth = new Date().getMonth() + 1;
   const isWinter = [12, 1, 2].includes(currentMonth);
   if (isWinter) {

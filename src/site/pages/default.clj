@@ -31,7 +31,7 @@
         (if (= "page_wide" (:class page))
           [:meta {:name "viewport" :content "width=900"}]
           [:meta {:name "viewport" :content "width=640"}])
-        [:meta {:name "theme-color" :content (if supercover "#000" "#FDDB29")}]
+        [:meta {:name "theme-color" :content "#FDDB29"}]
         [:link {:href "/i/favicon.png" :rel "icon" :sizes "32x32"}]
         [:link {:href "/fonts/fonts.css" :rel "stylesheet" :type "text/css"}]
         [:link {:href "/style.css" :rel "stylesheet" :type "text/css"}]
