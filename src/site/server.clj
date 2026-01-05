@@ -207,7 +207,8 @@
     ring-cookies/wrap-cookies
     ring-params/wrap-params
     ring-head/wrap-head
-    (stats/wrap-stats {:db-path "stats.duckdb"})))
+    (stats/wrap-stats {:db-path "stats.duckdb"
+                       :uri "secret-stats"})))
 
 (mount/defstate server
   :start
