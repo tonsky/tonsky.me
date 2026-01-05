@@ -4,6 +4,7 @@ summary: "Looking at the first principles of icon design—and how Apple failed 
 supercover: cover.webp
 og_facebook: open_graph_facebook_smol.png
 og_twitter: open_graph_twitter_smol.png
+published: 2026-01-05
 ---
 
 I was reading Macintosh Human Interface Guidelines [from 1992](https://dn721903.ca.archive.org/0/items/apple-hig/Macintosh_HIG_1992.pdf) and found this nice illustration:
