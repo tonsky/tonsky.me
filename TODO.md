@@ -1,0 +1,4 @@
+- [x] Get rid of snow
+- [ ] Emoji reactions
+- [ ] Paginated Atom
+- [x] Secure stats

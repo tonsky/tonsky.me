@@ -204,11 +204,13 @@
     wrap-redirects
     watcher/wrap-watcher
     wrap-decode-uri
-    ring-cookies/wrap-cookies
     ring-params/wrap-params
     ring-head/wrap-head
     (stats/wrap-stats {:db-path "stats.duckdb"
-                       :dash-perms-fn (fn [_] false)})))
+                       :dash-perms-fn
+                       (fn [req]
+                         (= "true" (-> req :cookies (get "is_admin") :value)))})
+    ring-cookies/wrap-cookies))
 
 (mount/defstate server
   :start
