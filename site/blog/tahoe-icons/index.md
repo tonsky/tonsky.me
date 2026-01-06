@@ -6,6 +6,7 @@ og_facebook: open_graph_facebook_smol.png
 og_twitter: open_graph_twitter_smol.png
 published: 2026-01-05
 hackernews_id: 46497712
+reddit_url: https://www.reddit.com/r/apple/comments/1q4khhv/its_hard_to_justify_tahoe_icons/
 lobsters_url: https://lobste.rs/s/2gvk2r/it_s_hard_justify_tahoe_icons
 starred: true
 ---
