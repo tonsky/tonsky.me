@@ -193,7 +193,7 @@ Like, ![](info_circle.svg) is supposed to mean something else from ![](info_circ
 
 similar_i@2x.webp
 
-Or two-letter As that only slightly differ in the font size:
+Or two letters A that only slightly differ in the font size:
 
 similar_font_size@2x.webp
 
@@ -276,7 +276,7 @@ It even got an even tinier viewfinder, which you can almost see if you zoom in 2
 
 details_screenshot_zoomed@2x.webp
 
-Or here. There is a box, inside that box is a circle, and inside it is a tiny letter. `i` with a total height of 2 pixels:
+Or here. There is a box, inside that box is a circle, and inside it is a tiny letter `i` with a total height of 2 pixels:
 
 details_properties@2x.webp
 
