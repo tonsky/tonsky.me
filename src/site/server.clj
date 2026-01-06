@@ -208,7 +208,7 @@
     ring-params/wrap-params
     ring-head/wrap-head
     (stats/wrap-stats {:db-path "stats.duckdb"
-                       :uri "secret-stats"})))
+                       :dash-perms-fn (fn [_] false)})))
 
 (mount/defstate server
   :start
