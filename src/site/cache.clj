@@ -108,10 +108,7 @@
 (defn wrap-cached-impl [handler]
   (let [*cache (volatile! {})]
     (fn [req]
-      (cond 
-        (str/starts-with? (:uri req) "/ptrs")
-        (handler req)
-        
+      (cond
         (str/starts-with? (:uri req) "/watcher")
         (handler req)
         

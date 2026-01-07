@@ -2,3 +2,4 @@
 - [ ] Emoji reactions
 - [ ] Paginated Atom
 - [x] Secure stats
+- [x] Make it clear how to attribute me

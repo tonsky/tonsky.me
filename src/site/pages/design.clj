@@ -56,23 +56,20 @@
      :uri    "/design/"
      :styles ["/design/design.css"]
      :content
-     [:.content
-      (for [[year designs] (->> (group-by :year designs)
-                             (core/rsort-by first))]
+     [:.content.page_design
+      [:h1 "Logos I designed"]
+      (for [design (core/rsort-by :date designs)]
         (list
-          [:h1 year]
-          (for [design (core/rsort-by :date designs)]
-            (list
-              [:figure
-               (core/some-map
-                 :id    (:slug design)
-                 :class (:class design)
-                 :style (when-some [bg (:bg design)]
-                          (str "background-color: " bg)))
-               (if-some [html (:html design)]
-                 [:raw-html (slurp (str "site/design/images/" html))]
-                 [:img {:src (str "images/" (:img design))}])]
-              [:p [:raw-html (:desc design)]]))))]}))
+          [:figure
+           (core/some-map
+             :id    (:slug design)
+             :class (:class design)
+             :style (when-some [bg (:bg design)]
+                      (str "background-color: " bg)))
+           (if-some [html (:html design)]
+             [:raw-html (slurp (str "site/design/images/" html))]
+             [:img {:src (str "images/" (:img design))}])]
+          [:p [:raw-html (str/replace (:desc design) #"\.$" "")] [:span.year " / " (:year design)]]))]}))
 
 (defn render-atom [design]
   (let [url   (str "https://tonsky.me/design/#" (:slug design))

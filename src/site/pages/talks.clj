@@ -143,7 +143,7 @@
      :scripts ["/talks/talks.js"]
      :content
      [:.content
-      [:p "Some stats:"]
+      [:h1 "Things I talked about"]
       [:ul
        [:li (str (count conferences) " talks at conferences in " (str/join ", " (map first countries)))]
        

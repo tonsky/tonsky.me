@@ -556,3 +556,14 @@ During review of this post I was made familiar with [Jim Nielsen’s article](ht
 Also note: Safari → File menu got worse since 26.0. Used to have only 4 icons, now it’s 18!
 
 Thanks Kevin, Ryan, and Nicki for reading drafts of this post.
+
+# UPD: Notable mentions
+
+- [Simon Willison](https://simonwillison.net/2026/Jan/5/its-hard-to-justify-tahoe-icons/)
+- [John Gruber](https://daringfireball.net/linked/2026/01/05/hard-to-justify-tahoe-icons)
+- [Jason Fried](https://x.com/jasonfried/status/2008632347034566694)
+- [Michael Tsai](https://mjtsai.com/blog/2025/12/10/icons-in-menus-everywhere/#icons-in-menus-everywhere-update-2026-01-05)
+- [TLDR Design](https://tldr.tech/design/2026-01-07)
+- [9TO5Mac](https://9to5mac.com/2026/01/06/macos-tahoe-icons-do-exactly-what-apple-said-designers-should-never-do/)
+- [Pixel Envy](https://pxlnv.com/linklog/tahoe-icons-inconsistent-confusing-illegible/)
+- [bytes.dev](https://bytes.dev/archives/452)

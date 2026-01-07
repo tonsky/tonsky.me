@@ -95,9 +95,10 @@
         [:.page
          [:ul.menu
           (for [[url title] [["/"          "Blog"]
+                             ["/projects/" "Work"]
                              ["/talks/"    "Talks"]
-                             ["/projects/" "Projects"]
-                             ["/design/"   "Logos"]]]
+                             ["/design/"   "Logos"]
+                             ["/about/"    "About"]]]
             [:li {:class (cond
                            (= (:uri page) url) "selected"
                            (and post? (= url "/")) "inside")}

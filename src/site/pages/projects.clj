@@ -1,13 +1,10 @@
 (ns site.pages.projects
   (:require
-    [toml-clj.core :as toml]
-    [clojure.java.io :as io]
-    [clojure.string :as str]
-    [site.cache :as cache]
-    [site.core :as core])
-  (:import
-    [java.io File]
-    [java.time Instant LocalDate ZonedDateTime ZoneId]))
+   [toml-clj.core :as toml]
+   [clojure.java.io :as io]
+   [clojure.string :as str]
+   [site.cache :as cache]
+   [site.core :as core]))
 
 (def projects
   (core/memoize-by
@@ -16,12 +13,6 @@
       (->> (toml/read-string (slurp "site/projects/projects.toml") {:key-fn keyword})
         :project
         vec))))
-
-(defn offset []
-  (-> (ZoneId/of "Europe/Berlin")
-    (.getRules)
-    (.getOffset (Instant/now))
-    str))
 
 (defn round [x]
   (cond
@@ -40,28 +31,12 @@
 
 (defn page []
   (let [projects (projects)]
-    {:title  "Projects"
+    {:title  "Work"
      :uri    "/projects/"
      :styles ["/projects/projects.css"]
      :content
      [:.content
-      [:figure [:img {:src "images/me.webp"}]]
-      [:h1 "Hi there!"]
-      [:p "I’m Niki, Software Engineer with a vast open-source portfolio and strong UI/UX background."]
-      
-      [:p "I do consulting work on all matters Clojure/Script: JVM, web, backend, Datomic, performance, custom OSS modifications, etc."]
-
-      [:dl
-       [:dt "Expertise"]
-       [:dd (- (.getYear (LocalDate/now core/UTC)) 2005) " years of distributed systems, highly interactive web apps (full stack), UX/UI design, Clojure/Script, Erlang, Python, Kotlin, Java"]
-       [:dt "Github"]
-       [:dd [:a {:href "https://github.com/tonsky"} "github.com/tonsky"]]
-       [:dt "Contact me"]
-       [:dd [:a {:href "mailto:niki@tonsky.me"} "niki@tonsky.me"] " or @" [:a {:href "https://t.me/nikitonsky"} "nikitonsky"]]
-       [:dt "Location"]
-       [:dd "Berlin, Germany (GMT" (offset) ")"]]
-
-      [:h1 "What I worked on (chronological order)"]
+      [:h1 "Things I worked on"]
       [:.projects
        (for [{:keys [link img name desc roles team period customer status stack stars installs visitors used-by quote]} projects]
          (list

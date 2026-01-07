@@ -1,3 +1,4 @@
+
 .projects { --width: 1000px; width: 100%; display: flex; flex-direction: column; gap: 70px; align-items: center; margin: 35px 0; }
 .projects > * { width: 96vw; max-width: var(--width); }
 .project { display: flex; flex-direction: row; gap: 40px; }
@@ -33,12 +34,4 @@ h2 { margin-top: 0; display: flex; gap: var(--gap); align-items: baseline; }
 }
 @media (max-width: 560px) {
   .project-details { width: 96vw; }
-}
-
-dl {
-  font-size: var(--font-small);
-  display: grid;
-  grid-template-columns: max-content 1fr;
-  grid-gap: 5px 10px;
-  --border: 1px;
 }

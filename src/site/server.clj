@@ -17,6 +17,7 @@
    [ring.util.time :as ring-time]
    [site.cache :as cache]
    [site.core :as core]
+   [site.pages.about :as about]
    [site.pages.atom :as atom]
    [site.pages.default :as default]
    [site.pages.design :as design]
@@ -135,7 +136,7 @@
 
 (defn wrap-redirects [handler]
   (fn [{:keys [uri] :as req}]
-    (if (re-matches #"(/blog/[^/]+|/talks|/projects|/design|/subscribe)" uri)
+    (if (re-matches #"(/blog/[^/]+|/talks|/projects|/design|/about|/subscribe)" uri)
       (redirect (str uri "/"))
       (handler req))))
 
@@ -151,6 +152,7 @@
           "GET /blog/**"   req  (let [[id] (:path-params req)]
                                   (when (.exists (io/file (str "site/blog/" id "/index.md")))
                                     (resp-html req (post/post (parser/parse-md (str "/blog/" id))))))
+          "GET /about"     req  (resp-html req (about/page))
           "GET /talks"     req  (resp-html req (talks/page))
           "GET /design"    req  (resp-html req (design/page))
           "GET /personal-information" req (resp-html req (personal-information/page))
@@ -161,8 +163,7 @@
                                   (dissoc :categories)
                                   (->> (resp-html req)))
           "GET /blog/how-to-subscribe/" [] (redirect "/subscribe/")
-          "GET /blog/atom.xml"          [] (redirect "/atom.xml")
-          "GET /about"                  [] (redirect "/projects/"))))
+          "GET /blog/atom.xml"          [] (redirect "/atom.xml"))))
     cache/wrap-cached))
 
 (defn geoip [req]

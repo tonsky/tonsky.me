@@ -55,7 +55,7 @@ body { margin: calc(var(--gap) * 4) 0 calc(var(--gap) * 6) 0; background-color: 
 .page { display: flex; flex-direction: column; gap: calc(var(--gap) * 4); align-items: center; }
 
 /* MENU */
-.menu { width: min(var(--width), 96vw); display: flex; flex-direction: row; align-items: center; gap: var(--gap); color: var(--gray-text); }
+.menu { width: min(var(--width), 96vw); display: flex; flex-direction: row; align-items: center; gap: calc(min(var(--gap), 2vw)); color: var(--gray-text); }
 .menu > li { list-style: none; }
 .menu > li > a { border-color: transparent; }
 .menu > li.inside > a { border-bottom: var(--border) solid var(--gray-line); }
@@ -248,6 +248,9 @@ body.winter .about_photo { background-image: url("/i/photo_winter.webp"); }
 .about_inner { font-size: var(--font-small); padding: var(--gap) 25px; border: var(--border) solid var(--gray-line); border-radius: var(--radius); display: flex; flex-direction: column; gap: var(--gap); }
 .btn-action { text-decoration: none; background: var(--gray-bg); border: none; padding: 0px 7px; display: inline-block; border-radius: 4px; }
 .btn-action:hover { background: rgba(0,0,0,0.2); }
+
+/* ABOUT */
+.page_about dl { font-size: var(--font-small); display: grid; grid-template-columns: max-content 1fr; grid-gap: 5px 10px; --border: 1px; }
 
 /* FLASHLIGHT */
 #flashlight { display: none; width: 500px; height: 500px; pointer-events: none; z-index: 10; transition-duration: .75s; transition-timing-function: cubic-bezier(.4,.36,0,1); transition-property: opacity; }
