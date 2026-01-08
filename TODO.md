@@ -1,5 +1,7 @@
-- [x] Get rid of snow
+- [x] Paginated Atom
 - [ ] Emoji reactions
-- [ ] Paginated Atom
+- [ ] Draw hand cursor
+- [x] Get rid of snow
 - [x] Secure stats
 - [x] Make it clear how to attribute me
+- [x] Store dark/winter status in cookie, render on server

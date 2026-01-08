@@ -146,9 +146,9 @@
       (merge
         (router/routes
           "GET /"          req  (resp-html req (index/index))
-          "GET /atom.xml"  []   {:status  200
+          "GET /atom.xml"  req  {:status  200
                                  :headers {"Content-Type" "application/atom+xml; charset=UTF-8"}
-                                 :body    (render/render-xml (atom/feed))}
+                                 :body    (render/render-xml (atom/feed req))}
           "GET /blog/**"   req  (let [[id] (:path-params req)]
                                   (when (.exists (io/file (str "site/blog/" id "/index.md")))
                                     (resp-html req (post/post (parser/parse-md (str "/blog/" id))))))

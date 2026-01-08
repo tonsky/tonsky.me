@@ -116,7 +116,8 @@
         (binding [*touched* (volatile! #{})]
           (let [key {:uri    (get-in req [:uri])
                      :dark   (get-in req [:cookies "dark" :value])
-                     :winter (get-in req [:cookies "winter" :value])}
+                     :winter (get-in req [:cookies "winter" :value])
+                     :page   (get-in req [:query-params "page"])}
                 {:keys [last-modified files resp]} (@*cache key)
                 modified (transduce (map #(.lastModified ^File %)) max 0 files)
                 modified (max modified (midnight-milli))]

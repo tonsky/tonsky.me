@@ -211,14 +211,12 @@
 
 (defn render-atom [version]
   (let [{:keys [id lang title desc event content published modified slides thumb]} version
-        type       (cond
-                     (str/ends-with? content ".mp3")
-                     "Podcast"
-                     :else
-                     "Talk")
-        title      (str type ": " title " @ " event)
-        url        (str "https://tonsky.me/talks/#" id)
-        youtube-id (core/youtube-id content)]
+        content (or content "")
+        type    (if (str/ends-with? content ".mp3")
+                  "Podcast"
+                  "Talk")
+        title   (str type ": " title " @ " event)
+        url     (str "https://tonsky.me/talks/#" id)]
     [:entry
      [:title title]
      [:link {:rel "alternate" :type "text/html" :href url}]
@@ -229,26 +227,27 @@
       [:CDATA
        (render/render-inner-html
          (list
-           [:p
-            (cond
-              (str/ends-with? content ".mp3")
+           (cond
+             (str/ends-with? content ".mp3")
+             [:p
               [:img {:src (str "https://tonsky.me/talks/covers/" event ".png")}
                [:audio {:controls true
                         :preload  "none"}
                 [:source
                  {:src  (str "https://tonsky.me/talks/content/" content)
-                  :type "audio/mpeg"}]]]
+                  :type "audio/mpeg"}]]]]
                
-              (or
-                (str/ends-with? content ".webm")
-                (str/ends-with? content ".mp4"))
+             (or
+               (str/ends-with? content ".webm")
+               (str/ends-with? content ".mp4"))
+             [:p
               [:video
                {:poster   (str "https://tonsky.me/talks/content/" thumb)
                 :preload  "none"
                 :controls true}
                [:source
                 {:src  (str "https://tonsky.me/talks/content/" content)
-                 :type (ring-mime/ext-mime-type content)}]])]
+                 :type (ring-mime/ext-mime-type content)}]]])
 
            [:p [:raw-html desc]]
            

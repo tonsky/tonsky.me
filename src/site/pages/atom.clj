@@ -28,22 +28,36 @@
     (filter :date)
     (map #(assoc % :type :design))))
 
-(defn feed []
-  (let [entries (->> (concat (posts) (talks) (designs))
-                  (core/rsort-by :published)
-                  (take 5))]
+(defn feed [req]
+  (let [all      (->> (concat (posts) (talks) (designs))
+                   (sort-by :published))
+        pages    (partition-all 5 all)
+        max-page (- (count pages) 2)
+        page     (some-> req :query-params (get "page") parse-long)
+        entries  (if page
+                   (nth pages (dec page))
+                   (apply concat (take-last 2 pages)))]
     [:feed {:xmlns       "http://www.w3.org/2005/Atom"
             :xml:lang    "en-US"
             :xmlns:yt    "http://www.youtube.com/xml/schemas/2015"
             :xmlns:media "http://search.yahoo.com/mrss/"}
      [:title "tonsky.me"]
      [:subtitle "Nikita Prokopov’s blog"]
-     [:link {:type "application/atom+xml"
+     [:link {:rel "self"
              :href "https://tonsky.me/atom.xml"
-             :rel "self"}]
+             :type "application/atom+xml"}]
      [:link {:rel "alternate"
-             :type "text/html"
-             :href "https://tonsky.me/"}]
+             :href "https://tonsky.me/"
+             :type "text/html"}]
+     (cond
+       (nil? page) [:link {:rel "next" :href (str "https://tonsky.me/atom.xml?page=" max-page)}]
+       (> page 1)  [:link {:rel "next" :href (str "https://tonsky.me/atom.xml?page=" (dec page))}])
+
+     (cond
+       (nil? page)       nil
+       (< page max-page) [:link {:rel "prev" :href (str "https://tonsky.me/atom.xml?page=" (inc page))}]
+       (= page max-page) [:link {:rel "prev" :href (str "https://tonsky.me/atom.xml")}])
+
      [:id "https://tonsky.me/"]
      [:updated (as-> entries %
                  (mapcat (juxt :published :modified) %)
@@ -53,7 +67,7 @@
       [:name "Nikita Prokopov"]
       [:email "niki@tonsky.me"]]
      
-     (for [entry entries]
+     (for [entry (reverse entries)]
        (case (:type entry)
          :post   (post/render-atom entry)
          :talk   (talks/render-atom entry)
