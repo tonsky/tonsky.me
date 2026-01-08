@@ -182,7 +182,9 @@
             "Also " [:em "some"] " caption"]]]
         (transform
           #ml "img.jpg http://link alt text
-         Also *some* caption"))))
+         Also *some* caption")))
+  (is (= [[:figure [:img {:src "img@hover.jpg", :class "hoverable noround", :alt "alt text", :title "alt text"}] nil]]
+        (transform ".noround img@hover.jpg alt text"))))
 
 (deftest test-inlines
   (is (= [[:p "And " [:em "this"] " or " [:strong "this"] " or " [:code "this"]]]

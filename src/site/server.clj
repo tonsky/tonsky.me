@@ -125,7 +125,7 @@
    {:status  200
     :headers {"Content-Type" "text/html; charset=UTF-8"}
     :body    (-> page
-               default/default
+               (default/default req)
                cache/timestamp
                :content
                render/render-html)}))

@@ -150,11 +150,13 @@
          [figcaption]  :figcaption} (normalize-figure args)
         img [:img (core/some-map
                     :src    url
-                    :class  (str/join " "
+                    :class  (some->>
                               (concat
                                 (when (re-find #"@hover" url)
                                   ["hoverable"])
-                                (map second classes)))
+                                (map second classes))
+                              not-empty
+                              (str/join " "))
                     :alt    figalt
                     :title  figalt)]]
     [:figure

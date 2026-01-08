@@ -1,8 +1,45 @@
-var originalThemeColor;
-
 function randInt(max) {
   return Math.floor(Math.random() * max);
 }
+
+/** THEME COLORS **/
+
+const bodyCL = document.body.classList;
+var defaultThemeColor = '#FDDB29';
+var winterThemeColor = '#6ADCFF';
+var darkThemeColor = '#000';
+
+function maybeUpdateThemeColor() {
+  const isWinter = bodyCL.contains('winter');
+  const isDark = bodyCL.contains('dark');
+  const currentColor = document.querySelector('meta[name=theme-color]').content;
+  const targetColor = isDark ? darkThemeColor : isWinter ? winterThemeColor : defaultThemeColor;
+  if (currentColor != targetColor) {
+    document.querySelector('meta[name=theme-color]').content = targetColor;
+  }
+}
+
+/** COOKIE HELPERS **/
+
+function setCookie(name, value) {
+  const days = 400;
+  const expires = `; expires=${new Date(Date.now() + days * 864e5).toUTCString()}`;
+  document.cookie = `${name}=${value}${expires}; path=/`;
+}
+
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length !== 2) {
+    return null;
+  }
+  return parts.pop().split(';').shift();
+}
+
+function toggleCookie(name) {
+  setCookie(name, 'true' === getCookie(name) ? 'false' : 'true');
+}
+
 
 /** HOVERABLE **/
 
@@ -12,6 +49,7 @@ window.addEventListener("load", (event) => {
   });
 });
 
+
 /** BUTTON **/
 
 function onButtonClick(button, text, callback) {
@@ -19,6 +57,7 @@ function onButtonClick(button, text, callback) {
   button.innerHTML = '<img src=\"/i/spinner.svg\"> ' + text;
   setTimeout(callback, 2000);
 }
+
 
 /** ANIMATE **/
 
@@ -46,7 +85,8 @@ window.addEventListener("load", (event) => {
   }
 });
 
-/** FLASHLIGHT **/
+
+/** DARK MODE **/
 
 var mousePos;
 
@@ -66,19 +106,27 @@ function updateFlashlight(e) {
   darkModeGlow.style.opacity = opacity;
 }
 
-function updateDarkMode(e) {
-  const theme = document.querySelector("meta[name=theme-color]");
-  if (document.body.classList.contains('dark')) {
-    localStorage.setItem('dark', 'true');
-    theme.content = "#000";
-    updateFlashlight(e);
-    ['mousemove', 'touchstart', 'touchmove', 'touchend'].forEach(function(s) {
-      document.documentElement.addEventListener(s, updateFlashlight, false);
-    });
-  } else {
-    localStorage.removeItem('dark');
-    localStorage.removeItem('mousePos');
-    theme.content = originalThemeColor;
+function maybeUpdateDarkMode(e) {
+  const shouldBeDark = 'true' === getCookie('dark');
+  const isDark = bodyCL.contains('dark');
+  if (!isDark && shouldBeDark) {
+    bodyCL.add('dark0');
+    setTimeout(() => {
+      bodyCL.remove('dark0');
+      bodyCL.add('dark');
+      maybeUpdateThemeColor();
+      updateFlashlight(e);
+      ['mousemove', 'touchstart', 'touchmove', 'touchend'].forEach(function(s) {
+        document.documentElement.addEventListener(s, updateFlashlight, false);
+      });
+    }, 34);
+  } else if (isDark && !shouldBeDark) {
+    bodyCL.remove('dark');
+    bodyCL.add('dark0');
+    setTimeout(() => {
+      bodyCL.remove('dark0');
+      maybeUpdateThemeColor();
+    }, 1000);
     ['mousemove', 'touchstart', 'touchmove', 'touchend'].forEach(function(s) {
       document.documentElement.removeEventListener(s, updateFlashlight, false);
     });
@@ -86,74 +134,80 @@ function updateDarkMode(e) {
 }
 
 window.addEventListener("load", (event) => {
-  let cl = document.body.classList;
-  document.querySelector('.dark_mode').onclick = function(e) {
-    if (cl.contains('dark')) {
-      cl.remove('dark');
-      cl.add('dark0');
-      updateDarkMode(e);
-      setTimeout(() => {
-        cl.remove('dark0');
-      }, 1000);
-    } else {
-      cl.add('dark0');
-      setTimeout(() => {
-        cl.remove('dark0');
-        cl.add('dark');
-        updateDarkMode(e);
-      }, 34);
-    }
-  };
+  // localStorage -> cookie migration
+  const isDark = localStorage.getItem('dark');
+  if (null !== isDark) {
+    setCookie('dark', isDark);
+    localStorage.removeItem('dark');
+  }
 
-  // first time initialization
-  if (localStorage.getItem('dark')) {
-    cl.toggle('dark');
+  const darkButton = document.querySelector('.dark_mode');
+  if (darkButton) {
+    darkButton.onclick = function(e) {
+      toggleCookie('dark');
+      maybeUpdateDarkMode(e);
+    };
+  }
+
+  // after load initialization
+  if ('true' === getCookie('dark')) {
     var mousePos = {clientX: 0, clientY: 0, pageX: 0, pageY: 0};
     const stored = localStorage.getItem('mousePos');
     if (stored) {
       mousePos = JSON.parse(stored);
     }
-    updateDarkMode(mousePos);
+    updateFlashlight(mousePos);
+    ['mousemove', 'touchstart', 'touchmove', 'touchend'].forEach(function(s) {
+      document.documentElement.addEventListener(s, updateFlashlight, false);
+    });
   }
 });
 
 window.addEventListener("beforeunload", (event) => {
-  if (document.body.classList.contains('dark') && mousePos) {
+  if (bodyCL.contains('dark') && mousePos) {
     localStorage.setItem('mousePos', JSON.stringify(mousePos));
   }
 });
 
+
 /** WINTER MODE **/
 
-function updateWinterMode() {
-  if (document.body.classList.contains('winter')) {
-    localStorage.setItem('winter', 'true');
+function maybeUpdateWinterMode() {
+  const currentMonth = new Date().getMonth() + 1;
+  const isWinterMonth = [12, 1, 2].includes(currentMonth);
+
+  if (isWinterMonth && null === getCookie('winter')) {
+    setCookie('winter', 'true');
+  }
+  const shouldBeWinter = isWinterMonth && 'true' === getCookie('winter');
+  const isWinter = bodyCL.contains('winter');
+
+  if (shouldBeWinter && !isWinter) {
+    bodyCL.add('winter');
     flashlight.src = '/i/flashlight_winter.webp';
-    document.querySelector("meta[name=theme-color]").content = "#6ADCFF";
-  } else {
-    localStorage.setItem('winter', 'false');
+    maybeUpdateThemeColor();
+  } else if (!shouldBeWinter && isWinter) {
+    bodyCL.remove('winter');
     flashlight.src = '/i/flashlight.webp';
-    document.querySelector("meta[name=theme-color]").content = originalThemeColor;
+    maybeUpdateThemeColor();
   }
 }
 
 window.addEventListener("load", (event) => {
-  originalThemeColor = document.querySelector("meta[name=theme-color]").content;
-  const currentMonth = new Date().getMonth() + 1;
-  const isWinter = [12, 1, 2].includes(currentMonth);
-  if (isWinter) {
-    const winter = localStorage.getItem('winter');
-    if (winter === 'true' || winter === null) {
-      document.body.classList.toggle('winter');
-      updateWinterMode();
-    }
+  // localStorage -> cookie migration
+  const isWinter = localStorage.getItem('winter');
+  if (null !== isWinter) {
+    setCookie('winter', isWinter);
+    localStorage.removeItem('winter');
   }
 
-  const winter = document.querySelector('div.winter');
-  if (winter) {
-      winter.onclick = function(e) {
-      document.body.classList.toggle('winter');
-      updateWinterMode();
-    }
+  maybeUpdateWinterMode();
+
+  const winterButton = document.querySelector('div.winter');
+  if (winterButton) {
+      winterButton.onclick = function(e) {
+        toggleCookie('winter');
+        maybeUpdateWinterMode();
+      }
   }
 });

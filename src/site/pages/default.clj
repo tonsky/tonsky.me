@@ -6,7 +6,7 @@
    [site.core :as core])
   (:import
    [java.net URLEncoder]
-   [java.time LocalDate]))
+   [java.time LocalDate Month]))
 
 (def about
   [:.about
@@ -17,12 +17,18 @@
      [:a.btn-action {:href "/subscribe/"} "Subscribe"]]
     [:p "I consult on all things Clojure: web, backend, Datomic, DataScript, performance, etc. Check out my " [:a.btn-action {:action "_blank" :href "https://github.com/tonsky"} "Github"] " and get in touch " [:a.btn-action {:href "mailto:niki@tonsky.me"} "niki@tonsky.me"]]]])
 
-(defn default [page]
+
+
+(defn default [page req]
   (let [url        (str "https://tonsky.me" (:uri page))
         long?      (> (count (:title page "")) 60)
         index?     (:index (:categories page))
         post?      (:blog (:categories page))
-        supercover (:supercover page)]
+        supercover (:supercover page)
+        winter?    (and
+                     (#{Month/DECEMBER Month/JANUARY Month/FEBRUARY} (.getMonth (LocalDate/now)))
+                     (= "true" (get-in req [:cookies "winter" :value])))
+        dark?      (= "true" (get-in req [:cookies "dark" :value]))]
     (assoc page :content
       [:html {:lang "en", :prefix "og: http://ogp.me/ns#", :xmlns:og "http://opengraphprotocol.org/schema/"}
        [:head
@@ -89,9 +95,15 @@
         (when core/dev?
           [:script {:src "/watcher.js" :defer true}])]
        [:body
-        (when supercover
-          {:class "has_supercover"
-           :style (str "background-image: url('" supercover "'); ")})
+        {:class (some->>
+                  (concat
+                    (when dark? ["dark"])
+                    (when winter? ["winter"])
+                    (when supercover ["has_supercover"]))
+                  not-empty
+                  (str/join " "))
+         :style (when supercover
+                  (str "background-image: url('" supercover "'); "))}
         [:.page
          [:ul.menu
           (for [[url title] [["/"          "Blog"]
@@ -129,4 +141,7 @@
          (when post?
            about)]
       
-        [:img#flashlight {:src "/i/flashlight.webp"}]]])))
+        [:img#flashlight
+         {:src (if winter?
+                 "/i/flashlight_winter.webp"
+                 "/i/flashlight.webp")}]]])))

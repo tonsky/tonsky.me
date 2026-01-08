@@ -62,7 +62,7 @@
         (when-some [file (find-file page (:content attrs))]
           (core/consv :meta (update attrs :content core/timestamp-url file) content))
 
-        (and (= :body tag) (str/includes? (:class attrs "") "has_supercover"))
+        (and (= :body tag) (some-> (:class attrs) (str/includes? "has_supercover")))
         (core/consv :body
           (update attrs :style str/replace #"(?<=url\('?)[^']+(?='?\))"
             (fn [url]
@@ -114,7 +114,9 @@
         
         :else
         (binding [*touched* (volatile! #{})]
-          (let [key (:uri req)
+          (let [key {:uri    (get-in req [:uri])
+                     :dark   (get-in req [:cookies "dark" :value])
+                     :winter (get-in req [:cookies "winter" :value])}
                 {:keys [last-modified files resp]} (@*cache key)
                 modified (transduce (map #(.lastModified ^File %)) max 0 files)
                 modified (max modified (midnight-milli))]
