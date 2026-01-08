@@ -17,8 +17,6 @@
      [:a.btn-action {:href "/subscribe/"} "Subscribe"]]
     [:p "I consult on all things Clojure: web, backend, Datomic, DataScript, performance, etc. Check out my " [:a.btn-action {:action "_blank" :href "https://github.com/tonsky"} "Github"] " and get in touch " [:a.btn-action {:href "mailto:niki@tonsky.me"} "niki@tonsky.me"]]]])
 
-
-
 (defn default [page req]
   (let [url        (str "https://tonsky.me" (:uri page))
         long?      (> (count (:title page "")) 60)
@@ -36,7 +34,10 @@
         (if (= "page_wide" (:class page))
           [:meta {:name "viewport" :content "width=900"}]
           [:meta {:name "viewport" :content "width=640"}])
-        [:meta {:name "theme-color" :content "#FDDB29"}]
+        [:meta {:name "theme-color" :content (cond
+                                               dark?   "#000"
+                                               winter? "#6ADCFF"
+                                               :else   "#FDDB29")}]
         [:link {:href "/i/favicon.png" :rel "icon" :sizes "32x32"}]
         [:link {:href "/fonts/fonts.css" :rel "stylesheet" :type "text/css"}]
         [:link {:href "/style.css" :rel "stylesheet" :type "text/css"}]
