@@ -34,10 +34,10 @@ iframe { display: block; border-radius: var(--radius); }
 
 .talk-details { width: calc(var(--width) - 20px - 560px); min-height: 315px; display: flex; flex-direction: column; gap: 15px; }
 h2 { margin-top: 0; }
-.spacer { flex-grow: 1; }
+.talk-details > .spacer { flex-grow: 1; }
 @media (max-width: 1000px) {
   .talk-details { width: 560px; min-height: unset; }
-  .spacer { display: none; }
+  .talk-details > .spacer { display: none; }
 }
 @media (max-width: 560px) {
   .talk-details { width: 96vw; }
