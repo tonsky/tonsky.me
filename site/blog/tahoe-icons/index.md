@@ -565,6 +565,7 @@ Thanks Kevin, Ryan, and Nicki for reading drafts of this post.
 - [John Gruber](https://daringfireball.net/linked/2026/01/05/hard-to-justify-tahoe-icons)
 - [Jason Fried](https://x.com/jasonfried/status/2008632347034566694)
 - [Michael Tsai](https://mjtsai.com/blog/2025/12/10/icons-in-menus-everywhere/#icons-in-menus-everywhere-update-2026-01-05)
+- [Ben Evans](https://www.ben-evans.com/pausdjfap/2026/1/13/11-january)
 - [TLDR Design](https://tldr.tech/design/2026-01-07)
 - [9TO5Mac](https://9to5mac.com/2026/01/06/macos-tahoe-icons-do-exactly-what-apple-said-designers-should-never-do/)
 - [Pixel Envy](https://pxlnv.com/linklog/tahoe-icons-inconsistent-confusing-illegible/)
