@@ -250,7 +250,7 @@ body.winter .about_photo { background-image: url("/i/photo_winter.webp"); }
 .btn-action:hover { background: rgba(0,0,0,0.2); }
 
 /* ABOUT */
-.page_about dl { font-size: var(--font-small); display: grid; grid-template-columns: max-content 1fr; grid-gap: 5px 10px; --border: 1px; }
+.page_about dl, .projects dl { font-size: var(--font-small); display: grid; grid-template-columns: max-content 1fr; grid-gap: 5px 10px; --border: 1px; }
 
 /* FLASHLIGHT */
 #flashlight { display: none; width: 500px; height: 500px; pointer-events: none; z-index: 10; transition-duration: .75s; transition-timing-function: cubic-bezier(.4,.36,0,1); transition-property: opacity; }
