@@ -50,7 +50,7 @@
               [:video (assoc attrs :width w :height h)
                [:source (assoc source-attrs :src src')]])))
         
-        (and (= :link tag) (= "stylesheet" (:rel attrs)))
+        (and (= :link tag) (#{"icon" "stylesheet"} (:rel attrs)))
         (when-some [file (find-file page (:href attrs))]
           (core/consv :link (update attrs :href core/timestamp-url file) content))
 
