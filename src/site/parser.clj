@@ -54,8 +54,8 @@
      lang       = #'[a-z]+'
      blockquote = qli (<'\n'> qli)*
      <qli>      = <#'> +'> p
-     figure     = <#' *'> (class <#' +'>)* #'(?i)([^ \n]|\\ )+\\.(png|jpg|jpeg|gif|webp)' figlink? figalt? figcaption?
-     video      = <#' *'> #'(?i)([^ \n]|\\ )+\\.(mp4|webm|mov)' figlink? figalt? figcaption?
+     figure     = <#' *'> (class <#' +'>)* #'(?i)(\\\\ |[^ \n])+\\.(png|jpg|jpeg|gif|webp)' figlink? figalt? figcaption?
+     video      = <#' *'> #'(?i)(\\\\ |[^ \n])+\\.(mp4|webm|mov)' figlink? figalt? figcaption?
      youtube    = <#'(?i) *https?://(www\\.)?(youtube\\.com|youtu\\.be)/[^ \n\\?]*\\?'> #'[^ \n]+' figcaption? figattrs*
      figlink    = <#' +'> #'https?://[^ \n]+'
      figalt     = <#' +'> !'https://' #'[^ \n][^\n]*[^ \n]'
@@ -149,16 +149,17 @@
          [[_ figalt]]  :figalt
          [figcaption]  :figcaption} (normalize-figure args)
         img [:img (core/some-map
-                    :src    url
-                    :class  (some->>
-                              (concat
-                                (when (re-find #"@hover" url)
-                                  ["hoverable"])
-                                (map second classes))
-                              not-empty
-                              (str/join " "))
-                    :alt    figalt
-                    :title  figalt)]]
+                    :src     url
+                    :class   (some->>
+                               (concat
+                                 (when (re-find #"@hover" url)
+                                   ["hoverable"])
+                                 (map second classes))
+                               not-empty
+                               (str/join " "))
+                    :alt     figalt
+                    :title   figalt
+                    :loading "lazy")]]
     [:figure
      (if figlink
        [:a {:href figlink} img]
@@ -238,7 +239,6 @@
 
 (defn transform-href [& body]
   [:href (str/join body)])
-
 
 (defn transform-paragraph [& body]
   (let [[classes body] (split-with #(and (vector? %) (= :class (first %))) body)
