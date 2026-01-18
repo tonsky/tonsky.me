@@ -18,3 +18,13 @@ config.edn
 site/patrons/*.toml
 site/presence
 *.duckdb
+
+# drafts
+site/blog/color-spaces
+site/blog/popups
+site/blog/reject-modernity
+site/blog/shortcuts
+site/blog/stability
+site/blog/tailwind
+site/blog/timezones
+site/blog/yesterday-js

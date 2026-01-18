@@ -5,6 +5,7 @@
    [clojure.edn :as edn]
    [clojure.java.io :as io]
    [clojure.string :as str]
+   [clojure+.core :as clojure+]
    [mount.core :as mount]
    [org.httpkit.server :as server]
    [org.httpkit.client :as client]
@@ -52,10 +53,14 @@
     (let [resp  (handler req)
           range (-> req :headers (get "range")) ;; Range: bytes=97555-
           body  (:body resp)]
-      (if (and range (re-matches #"bytes=\d+-" range) (instance? File body))
+      (clojure+/if+ (and
+                      range
+                      (instance? File body)
+                      :let [[_ start] (re-matches #"bytes=(\d+)-" range)]
+                      start)
         (with-open [is (java.io.FileInputStream. ^File body)]
           (let [chunk (* 1024 1024)
-                start (-> (re-matches #"bytes=(\d+)-" range) second parse-long)
+                start (parse-long start)
                 end   (.length ^File body)
                 len   (min chunk (- end start))
                 bytes (byte-array len)]

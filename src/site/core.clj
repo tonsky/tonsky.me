@@ -44,6 +44,12 @@
     (butlast args)
     (last args)))
 
+(defn lastv
+  ([xs]
+   (get xs (dec (count xs))))
+  ([xs not-found]
+   (get xs (dec (count xs)) not-found)))
+
 (defn reindent ^String [s indent]
   (let [lines    (str/split-lines s)
         butfirst (->> lines

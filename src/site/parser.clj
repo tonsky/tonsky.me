@@ -54,8 +54,8 @@
      lang       = #'[a-z]+'
      blockquote = qli (<'\n'> qli)*
      <qli>      = <#'> +'> p
-     figure     = <#' *'> (class <#' +'>)* #'(?i)[^ \n]+\\.(png|jpg|jpeg|gif|webp)' figlink? figalt? figcaption?
-     video      = <#' *'> #'(?i)[^ \n]+\\.(mp4|webm)' figlink? figalt? figcaption?
+     figure     = <#' *'> (class <#' +'>)* #'(?i)([^ \n]|\\ )+\\.(png|jpg|jpeg|gif|webp)' figlink? figalt? figcaption?
+     video      = <#' *'> #'(?i)([^ \n]|\\ )+\\.(mp4|webm|mov)' figlink? figalt? figcaption?
      youtube    = <#'(?i) *https?://(www\\.)?(youtube\\.com|youtu\\.be)/[^ \n\\?]*\\?'> #'[^ \n]+' figcaption? figattrs*
      figlink    = <#' +'> #'https?://[^ \n]+'
      figalt     = <#' +'> !'https://' #'[^ \n][^\n]*[^ \n]'
@@ -132,7 +132,7 @@
   (let [m (reduce
             (fn [m arg]
               (if (string? arg)
-                (assoc m :url arg)
+                (assoc m :url (str/replace arg #"\\ " " "))
                 (let [[tag & _body] arg]
                   (update m tag (fnil conj []) arg))))
             {}
@@ -239,9 +239,17 @@
 (defn transform-href [& body]
   [:href (str/join body)])
 
+
 (defn transform-paragraph [& body]
   (let [[classes body] (split-with #(and (vector? %) (= :class (first %))) body)
-        classes (map second classes)
+        classes        (map second classes)
+        body           (reduce
+                         (fn [acc el]
+                           (let [last (core/lastv acc nil)]
+                             (if (and (string? last) (string? el))
+                               (conj (pop acc) (str last el))
+                               (conj acc el))))
+                         [] body)
         body  (if (seq classes)
                 (cons {:class (str/join " " classes)} body)
                 body)]
