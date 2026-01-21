@@ -11,7 +11,7 @@ lobsters_url: https://lobste.rs/s/2gvk2r/it_s_hard_justify_tahoe_icons
 starred: true
 ---
 
-_Translations: [Chinese 1](https://nptr.cc/posts/2026-01/tonsky-tahoe/) [Chinese 2](https://sspai.com/post/105394)_
+_Translations: [Chinese 1](https://nptr.cc/posts/2026-01/tonsky-tahoe/) [Chinese 2](https://sspai.com/post/105394) [Russian](https://habr.com/ru/companies/ruvds/articles/985818/)_
 
 I was reading Macintosh Human Interface Guidelines [from 1992](https://dn721903.ca.archive.org/0/items/apple-hig/Macintosh_HIG_1992.pdf) and found this nice illustration:
 
