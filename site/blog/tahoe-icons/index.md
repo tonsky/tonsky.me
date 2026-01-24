@@ -132,7 +132,7 @@ Another cardinal sin is to use the same icon for different actions. Imagine: I h
 
 new_note@2x.webp
 
-Then I open an app and see![](square_and_pencil.svg). “Cool”, I think, “I already know what it means”:
+Then I open an app and see ![](square_and_pencil.svg). “Cool”, I think, “I already know what it means”:
 
 edit_address@2x.webp
 
