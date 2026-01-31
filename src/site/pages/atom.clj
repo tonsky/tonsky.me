@@ -34,9 +34,17 @@
         pages    (partition-all 5 all)
         max-page (- (count pages) 2)
         page     (some-> req :query-params (get "page") parse-long)
-        entries  (if page
-                   (nth pages (dec page))
-                   (apply concat (take-last 2 pages)))]
+        entries  (cond
+                   (nil? page)
+                   (apply concat (take-last 2 pages))
+
+                   (or
+                     (> page max-page)
+                     (< page 1))
+                   (throw (ex-info "Page does not exist" {:status 404}))
+
+                   page
+                   (nth pages (dec page)))]
     [:feed {:xmlns       "http://www.w3.org/2005/Atom"
             :xml:lang    "en-US"
             :xmlns:yt    "http://www.youtube.com/xml/schemas/2015"

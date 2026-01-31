@@ -88,6 +88,15 @@
   (fn [req]
     (handler (update req :uri ring-codec/url-decode))))
 
+(defn wrap-errors [handler]
+  (fn [req]
+    (try
+      (handler req)
+      (catch clojure.lang.ExceptionInfo e
+        (when-some [status (:status (ex-data e))]
+          {:status status
+           :body   (ex-message e)})))))
+
 ; (def *cache
 ;   (atom {}))
 
@@ -210,6 +219,7 @@
     wrap-redirects
     watcher/wrap-watcher
     wrap-decode-uri
+    wrap-errors
     ring-params/wrap-params
     ring-head/wrap-head
     (stats/wrap-stats {:db-path "stats.duckdb"
