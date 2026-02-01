@@ -114,5 +114,3 @@ Head to [github.com/tonsky/clj-simple-stats](https://github.com/tonsky/clj-simpl
 banner@2x.webp https://github.com/tonsky/clj-simple-stats
 
 Let me know what you think! Is it usable to you? What could be improved?
-
-P.S. You can try the live example at [tonsky.me/stats](https://tonsky.me/stats). The data was imported from Nginx access logs, which I turned on and off on a few occasions, so it’s a bit spotty. Still, it should give you a general idea.
