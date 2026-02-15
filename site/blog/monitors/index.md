@@ -435,6 +435,6 @@ To sum up, this is the best setup for programmers:
 
 Happy coding!
 
-[^1]: Except for LG 5k, this one [is haunted](https://steipete.com/posts/the-lg-ultrafine5k-kerneltask-and-me/).
+[^1]: Except for LG 5k, this one [is haunted](https://steipete.me/posts/2020/the-lg-ultrafine5k-kerneltask-and-me).
 [^2]: The might be other reasons affecting this, like Thunderbolt revision. I have a limited test base, but: Macbook Pro 15" 2019 works, Macbook Air 2018 does not, Mac mini 2018 only works with eGPU.
 [^3]: Actually, there’s an impressive [34WK95U-W](https://www.lg.com/us/monitors/lg-34WK95U-W-ultrawide-monitor), but you can also see it as a shorter version of more traditional [27MD5KL-B](https://www.lg.com/us/monitors/lg-27md5kl-b-5k-uhd-led-monitor).
