@@ -2,6 +2,8 @@
 title: Claude is an Electron App because we’ve lost native
 summary: Article argues that Claude is not an Electron app not because LLMs can’t do it, but because there are no advantages left for native
 published: 2026-03-03
+hackernews_id: 47235430
+lobsters_url: https://lobste.rs/s/r8kjli/claude_is_electron_app_because_we_ve_lost
 ---
 
 In [“Why is Claude an Electron App?”](https://www.dbreunig.com/2026/02/21/why-is-claude-an-electron-app.html) Drew Breunig wonders:
