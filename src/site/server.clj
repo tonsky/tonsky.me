@@ -71,7 +71,7 @@
               (assoc :body (java.io.ByteArrayInputStream. bytes))
               (update :headers assoc "Accept-Ranges" "bytes")
               (update :headers assoc "Content-Length" len)
-              (update :headers assoc "Content-Range" (str "bytes " start "-" (+ start len) "/" end)))))
+              (update :headers assoc "Content-Range" (str "bytes " start "-" (+ start len -1) "/" end)))))
         resp))))
 
 (defn wrap-files [handler dir]

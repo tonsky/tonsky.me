@@ -46,7 +46,7 @@
       (when (and core/dev? (not-empty drafts))
         (list
           [:h1 "Drafts"]
-          (for [post drafts]
+          (for [post (sort-by :title drafts)]
             [:p
              [:a {:href (:uri post)} (:title post)]
              (when-some [published (:published post)]

@@ -174,7 +174,9 @@
         [_ ext] (re-matches #".*\.([a-z0-9]+)" url)
         source  [:source 
                  {:src  url
-                  :type (str "video/" ext)}]
+                  :type (get {"mp4"  "video/mp4"
+                              "webm" "video/webm"
+                              "mov"  "video/quicktime"} ext)}]
         opts    (:video @*meta* "")
         video   [:video
                  {:autoplay    (not (str/index-of opts "-autoplay"))
