@@ -14,14 +14,14 @@ p, h1, h2, h3 { overflow-wrap: break-word; }
   --font-size: calc(var(--cap-height) * var(--cap-ratio));
   --font-smaller: calc(var(--cap-height) * 11 / 12 * var(--cap-ratio));
   --font-small: calc(var(--cap-height) * 10 / 12 * var(--cap-ratio));
-  --width: 575px;
+  --width: 600px;
   --border: 1.5px;
   --radius: calc(var(--cap-height) / 3);
   --gray-text: rgba(0, 0, 0, 0.4);
   --gray-line: rgba(0, 0, 0, 0.2);
-  --gray-bg: rgba(0, 0, 0, 0.06);
+  --gray-bg: rgba(255, 255, 255, 1);
   --text: #000;
-  --bg: #FDDB29;
+  --bg: #F0F0F0;
 
   --cursor: -webkit-image-set(url(/i/cursor@2x.png?t=1767542753) 2x) 5 5, default;
   --cursor-pressed: -webkit-image-set(url(/i/cursor_pressed@2x.png?t=1767542753) 2x) 5 5, default;
@@ -40,8 +40,12 @@ html {
 body {
   font-size: var(--font-size);
   line-height: 1.5;
-  font-family: 'IBM Plex Sans', sans-serif;
-  font-feature-settings: "kern" 1,"liga" 1,"calt" 1;
+  font-family: 'Gregory Text', 'IBM Plex Sans', sans-serif;
+  font-weight: 430;
+
+  font-size: 16px;
+  line-height: 26px;
+  font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
@@ -50,10 +54,10 @@ body {
   :root { --cap-height: calc(1rem * 18 / 16); }
 }
 
-body.winter { --bg: #6ADCFF; }
+/*body.winter { --bg: #F7F2E9; }*/
 
 body, .page { min-height: calc(100svh - var(--gap) * 8); }
-body { margin: calc(var(--gap) * 4) 0 calc(var(--gap) * 6) 0; background-color: var(--bg); color: var(--text); }
+body { margin: calc(var(--gap) * 4) 0 calc(var(--gap) * 6) 0; background-color: var(--bg); color: var(--text); background: url(/i/bg.png); background-size: 100px; }
 .page { display: flex; flex-direction: column; gap: calc(var(--gap) * 4); align-items: center; }
 
 /* MENU */
@@ -94,6 +98,7 @@ body.dark #darkModeGlow { opacity: 1; }
 .cover + .content { margin-top: 0; }
 .content { display: flex; flex-direction: column; gap: var(--gap); align-items: center; }
 .content > * { width: 96vw; max-width: var(--width); }
+.content p, .content li, .content blockquote { hyphens: auto; }
 
 .has_supercover { background-size: 100% auto; background-position: top calc(-40vw + var(--gap) * 10) center; background-repeat: no-repeat; }
 .has_supercover .content { margin-top: calc(66.6667vw - 40vw + var(--gap) * 2); }
