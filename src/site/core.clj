@@ -213,10 +213,12 @@
     #(.listFiles (io/file %))))
 
 (defn resize [^File file w h]
-  (let [[w h] (cond (str/index-of (.getName file) "@2x") [(quot w 2) (quot h 2)]
-                (>= w 1088)                           [(quot w 2) (quot h 2)]
-                (> h 700)                             [(quot w 2) (quot h 2)]
-                :else                                 [w h])]
+  (let [[w h] (cond
+                (str/index-of (.getName file) "@1x") [w h]
+                (str/index-of (.getName file) "@2x") [(quot w 2) (quot h 2)]
+                (>= w 1088)                          [(quot w 2) (quot h 2)]
+                (> h 700)                            [(quot w 2) (quot h 2)]
+                :else                                [w h])]
     (if (str/index-of (.getName file) "@hover")
       [w (quot h 2)]
       [w h])))

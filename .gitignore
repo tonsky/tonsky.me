@@ -21,8 +21,14 @@ site/presence
 
 # drafts
 site/blog/color-spaces
+site/blog/pl-syntax
 site/blog/popups
-site/blog/reject-modernity
+site/blog/reject-modernity-hover
+site/blog/reject-modernity-user-control
+site/blog/reject-modernity-small-screens
+site/blog/reject-modernity-onboarding
+site/blog/reject-modernity-notifications
+site/blog/reject-modernity-contrast
 site/blog/shortcuts
 site/blog/stability
 site/blog/tailwind
