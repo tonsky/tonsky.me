@@ -30,7 +30,7 @@ toolbar@2x.mp4
 
 If you feel like there are weird things going on there, there are! Look at slowed down version:
 
-toolbar_slow@2x.mp4
+toolbar_slow_reencode@2x.mp4
 
 Now let’s apply our rule and take screenshots in the middle of the animation. This doesn’t look right:
 
@@ -48,7 +48,7 @@ safari@2x.mp4
 
 Placeholder text here moves from the center but cursor animates from the left position:
 
-safari_slow@2x.mp4
+safari_slow_reencode@2x.mp4
 
 Not the end of the world by any means, but it does create a feeling that these two components are not in sync with each other. Next thought: maybe they weren’t designed together? If so, then they might not work well together. That’s how trust is lost.
 
@@ -60,7 +60,7 @@ This creates a _false_ feeling that something subtly changes when you switch bet
 
 Sometimes animations are supposed to help you understand a transition, so it’s doubly sad when they make it harder. Follow the magnifying glass:
 
-search_slow@2x.mp4
+search_slow_reencode@2x.mp4
 
 Same with Youtube. They had the simplest task in the world: move a rectangle from one position to another! Yet they decided to do something very strange:
 
@@ -78,7 +78,7 @@ save@1x.mp4
 
 The details are fascinating to watch:
 
-save_slow@1x.mp4
+save_slow_reencode@1x.mp4
 
 So yeah. Please pay attention not only to the start and end states, but also to everything in between. _Every frame matters._
 
