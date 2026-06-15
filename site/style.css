@@ -116,6 +116,7 @@ h1 + h2, h2 + h3 { margin-top: 0; }
 
 /* PARAGRAPHS */
 .loud { max-width: calc(var(--width) + 60px); font-weight: 600; line-height: 1.25; text-wrap: balance; border: var(--border) solid var(--gray-line); padding: calc(2 * var(--gap)); margin: var(--gap) 0; font-size: 1.4em; text-align: center; border-radius: var(--radius); }
+.note { font-size: var(--font-small); color: var(--gray-text); }
 .foot { text-align: center; font-size: var(--font-small); font-style: italic; }
 pre + .foot, figure + .foot blockquote + .foot { margin-top: -15px; }
 h1 + .foot, h2 + .foot, h3 + .foot { text-align: left; color: var(--gray-text); }

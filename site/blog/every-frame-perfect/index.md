@@ -2,6 +2,9 @@
 title: Every Frame Perfect
 summary: "How imprecise UI animations erode trust in product"
 published: 2026-06-13
+hackernews_id: 48516251
+lobsters_url: https://lobste.rs/s/bt7rtp/every_frame_perfect
+starred: true
 ---
 
 A while ago I was reading about Wayland and this quote stuck with me:
@@ -12,7 +15,9 @@ And I think this is a goal we should all aspire to. Wayland is talking about the
 
 The rule of thumb is:
 
-.loud If I take a screenshot of your app at any moment, it must make sense
+.loud If I take a screenshot of your app at any moment, you should be able to explain what I see
+
+.note EDIT: This used to say “..., it must make sense” but that doesn’t account for advanced animation techniques such as smear frames etc.
 
 Why care about every frame? It builds trust. Users can’t see the code, so UI is the only way for them to judge the quality of the app. If UI looks good, that means developers had time to polish it, which means that they probably spent a comparable amount of time to iron out the code. It’s a heuristic, but a reasonable one.
 

@@ -76,7 +76,7 @@
       (throw
         (ex-info
           (str "External process failed: " (str/join " " args) " returned " exit)
-          (assoc res :command args))))))
+          (assoc res :command args :status 500))))))
 
 (defn today []
   (LocalDate/now UTC))
