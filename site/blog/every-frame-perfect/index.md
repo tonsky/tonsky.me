@@ -7,6 +7,8 @@ lobsters_url: https://lobste.rs/s/bt7rtp/every_frame_perfect
 starred: true
 ---
 
+_Translations: [Russian](https://habr.com/ru/articles/1051492/)_
+
 A while ago I was reading about Wayland and this quote stuck with me:
 
 > A stated goal of Wayland is “[every frame is perfect](https://wayland-book.com/protocol-design/design-patterns.html)”.
