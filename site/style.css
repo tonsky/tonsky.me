@@ -11,6 +11,7 @@ p, h1, h2, h3 { overflow-wrap: break-word; }
   --cap-ratio: calc(1 / 0.698);
 
   --gap: var(--cap-height);
+  --font-size: calc(var(--cap-height) * var(--cap-ratio));
   --font-smaller: calc(var(--cap-height) * 11 / 12 * var(--cap-ratio));
   --font-small: calc(var(--cap-height) * 10 / 12 * var(--cap-ratio));
   --width: 575px;
@@ -37,7 +38,7 @@ html {
 }
 
 body {
-  font-size: calc(var(--cap-height) * var(--cap-ratio));
+  font-size: var(--font-size);
   line-height: 1.5;
   font-family: 'IBM Plex Sans', sans-serif;
   font-feature-settings: "kern" 1,"liga" 1,"calt" 1;
@@ -98,9 +99,9 @@ body.dark #darkModeGlow { opacity: 1; }
 .has_supercover .content { margin-top: calc(66.6667vw - 40vw + var(--gap) * 2); }
 
 /* INDEX */
-.starred { margin: 0 0.5em 0 -1.5em; }
+.index .starred { display: inline-block; width: 1em; height: 1em; background-size: 100%; background-image: url(/i/star.svg); margin: 0 0.4em -0.1em -1.4em; }
 @media only screen and (max-device-width: 480px) {
-  .starred { margin: 0 0.5em 0 0; }
+  .index .content p { padding-left: 1.3em; }
 }
 .date { color: var(--gray-text); font-size: var(--font-small); margin-left: calc(var(--cap-height) / 3); }
 

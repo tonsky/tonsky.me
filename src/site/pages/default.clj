@@ -100,7 +100,8 @@
                   (concat
                     (when dark? ["dark"])
                     (when winter? ["winter"])
-                    (when supercover ["has_supercover"]))
+                    (when supercover ["has_supercover"])
+                    (map name (:categories page)))
                   not-empty
                   (str/join " "))
          :style (when supercover

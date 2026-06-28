@@ -60,7 +60,7 @@
           (for [post posts]
             [:p
              (when (:starred post)
-               [:span {:class "starred"} "★"])
+               [:span {:class "starred"}])
              [:a {:href (:uri post)} (:title post)]
              [:span {:class "date"}
               (core/format-temporal (:published post) "M/d")]])))]}))
