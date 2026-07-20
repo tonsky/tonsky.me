@@ -28,6 +28,8 @@ I maintain several active projects — [AlleKinos.de](https://allekinos.de/), [G
 
 If you want to dive deeper, here’s the usual stuff: [Projects](https://tonsky.me/projects/) / [Talks](https://tonsky.me/talks/) / [LinkedIn](https://www.linkedin.com/in/prokopov/) / [GitHub](https://github.com/tonsky)
 
+I also made [a two-page PDF CV](./NikitaProkopovCV2026.pdf).
+
 # Why this post?
 
 It’s an attempt to reach beyond my immediate network. I’ve been doing Clojure for a long time, and now want to explore.
