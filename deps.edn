@@ -8,7 +8,7 @@
   mount/mount                        {:mvn/version "0.1.17"}
   org.clojure/clojure                {:mvn/version "1.12.3"}
   ring/ring-core                     {:mvn/version "1.8.0"}
-  io.github.tonsky/clj-simple-stats  {:git/sha "a70ad57286daf43f739d12db63af93bbf6bba623"}}
+  io.github.tonsky/clj-simple-stats  {:git/sha "4d825449bc5e74d7dc0864c96be8b4bd8591888a"}}
  :paths ["src"]
  :aliases
  {:dev
