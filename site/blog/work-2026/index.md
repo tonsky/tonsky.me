@@ -1,7 +1,7 @@
 ---
-title: "Looking for my next role"
+title: "[FOUND] [NOT RELEVANT] Looking for my next role"
 summary: "Niki is a software engineer and product designer specializing in databases, synchronization, frontend systems, and interface design. He is looking for a new role"
-published: 2026-07-20
+originally_published: 2026-07-20
 ---
 
 Hi, I am Niki, and I am looking for my next role.
