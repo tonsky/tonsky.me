@@ -159,7 +159,7 @@ UPD2: Big Sur seems to have removed the setting, but you might use a terminal co
 defaults -currentHost write -g AppleFontSmoothing -int 0
 ```
 
-UPD3: Alastair Byrne has released [a small tool](https://www.fontsmoothingadjuster.com/) to change the setting. Works on Big Sur!
+UPD3: Alastair Byrne has released [a small tool](https://github.com/bouncetechnologies/Font-Smoothing-Adjuster) to change the setting. Works on Big Sur!
 
 ## Integer scaling
 
