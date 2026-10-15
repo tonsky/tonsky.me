@@ -18,9 +18,12 @@ config.edn
 site/patrons/*.toml
 site/presence
 *.duckdb
+CLAUDE.md
+AGENTS.md
 
 # drafts
 site/blog/color-spaces
+site/blog/mouse-cursors
 site/blog/pl-syntax
 site/blog/popups
 site/blog/reject-modernity-hover
@@ -29,8 +32,10 @@ site/blog/reject-modernity-small-screens
 site/blog/reject-modernity-onboarding
 site/blog/reject-modernity-notifications
 site/blog/reject-modernity-contrast
+site/blog/rounded
 site/blog/shortcuts
 site/blog/stability
 site/blog/tailwind
+site/blog/text-input
 site/blog/timezones
 site/blog/yesterday-js

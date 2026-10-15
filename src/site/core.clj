@@ -18,6 +18,12 @@
 (def server-port
   8080)
 
+(def files-dir
+  "files")
+
+(def data-dir
+  ".")
+
 (def dev?
   false)
 
@@ -31,8 +37,12 @@
   (let [args (apply array-map args)]
     (when-some [ip (args "--ip")]
       (alter-var-root #'server-ip (constantly ip)))
-    (when-some [port (args "--port")]
+    (when-some [port (or (args "--port") (System/getenv "PORT"))]
       (alter-var-root #'server-port (constantly (parse-long port))))
+    (when-some [dir (args "--files-dir")]
+      (alter-var-root #'files-dir (constantly dir)))
+    (when-some [dir (or (args "--data-dir") (System/getenv "DATA_DIR"))]
+      (alter-var-root #'data-dir (constantly dir)))
     (when (= "true" (args "--dev"))
       (alter-var-root #'dev? (constantly true)))))
 

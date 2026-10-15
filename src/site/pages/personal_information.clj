@@ -1,5 +1,6 @@
 (ns site.pages.personal-information
   (:require
+   [clojure.java.io :as io]
    [clojure.string :as str]
    [ring.middleware.cookies :as ring-cookies]
    [site.core :as core]
@@ -70,7 +71,7 @@
                  "\n"
                  pi
                  "\n\n--------------------------------------------------------------------------------\n\n")]
-      (spit "files/personal-information.txt" text :append true)
+      (spit (io/file core/files-dir "personal-information.txt") text :append true)
       {:status 200
        :body "success"})
     (finally

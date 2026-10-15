@@ -2,13 +2,10 @@
   (:require
    [clj-simple-router.core :as router]
    [clj-simple-stats.core :as stats]
-   [clojure.edn :as edn]
    [clojure.java.io :as io]
-   [clojure.string :as str]
    [clojure+.core :as clojure+]
    [mount.core :as mount]
    [org.httpkit.server :as server]
-   [org.httpkit.client :as client]
    [ring.middleware.cookies :as ring-cookies]
    [ring.middleware.head :as ring-head]
    [ring.middleware.params :as ring-params]
@@ -34,10 +31,6 @@
    [site.render :as render])
   (:import
    [java.io File]))
-
-(def config
-  (edn/read-string
-    (slurp "config.edn")))
 
 (defn find-file ^File [path]
   (let [file ^File (io/file path)]
@@ -180,34 +173,27 @@
           "GET /blog/atom.xml"          [] (redirect "/atom.xml"))))
     cache/wrap-cached))
 
-(defn geoip [req]
-  (if-some [ip (or
-                 (-> req :headers (get "x-real-ip"))
-                 (-> req :params  (get "ip"))
-                 (when core/dev?
-                   (str/join "." (repeatedly 4 #(rand-int 256)))))]
-    (let [resp @(client/get (str "https://ipinfo.io/" ip "/json") {:query-params {"token" (:ipinfo-token config)}})]
-      {:status  200
-       :headers {"Content-Type" (or (-> resp :headers :content-type) "application/json; charset=UTF-8")}
-       :body    (:body resp)})
-    {:status  400
-     :headers {"Content-Type" "text/plain; charset=UTF-8"}
-     :body    "Missing IP address"}))
-
 (def router
   (router/router
     (router/routes
-      "GET /geoip"   req (geoip req)
       "GET /sign-in" req (resp-html req (sign-in/page req))
       "POST /personal-information/submit" req (personal-information/submit req))))
 
-(def app
+(defn wrap-up [handler]
+  (fn [req]
+    (if (= "/up" (:uri req))
+      {:status  200
+       :headers {"Content-Type" "text/plain; charset=UTF-8"}
+       :body    "OK"}
+      (handler req))))
+
+(defn app []
   (->
     (fn [req]
       {:status  404
        :headers {"Content-Type" "text/plain; charset=UTF-8"}
        :body    (str "Path '" (:uri req) "' not found")})
-    (wrap-files "files")
+    (wrap-files core/files-dir)
     (wrap-files "site")
     wrap-range
     ((fn [handler]
@@ -222,18 +208,19 @@
     wrap-errors
     ring-params/wrap-params
     ring-head/wrap-head
-    (stats/wrap-stats {:db-path "stats.duckdb"
+    (stats/wrap-stats {:db-path (str (io/file core/data-dir "stats.duckdb"))
                        :dash-perms-fn
                        (fn [req]
                          (= "true" (-> req :cookies (get "is_admin") :value)))})
-    ring-cookies/wrap-cookies))
+    ring-cookies/wrap-cookies
+    wrap-up))
 
 (mount/defstate server
   :start
   (let [opts   {:legacy-return-value? false
                 :ip   core/server-ip
                 :port core/server-port}
-        server (server/run-server app opts)]
+        server (server/run-server (app) opts)]
     (println "Started HTTP server on" (str (:ip opts) ":" (:port opts)))
     server)
   :stop

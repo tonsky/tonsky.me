@@ -26,7 +26,7 @@
                      (str/starts-with? uri "/")                  uri
                      :else                                       (str (:uri page) "/" uri))]
     (let [file  (io/file (str "site/" uri'))
-          file' (if (.exists file) file (io/file (str "files/" uri')))]
+          file' (if (.exists file) file (io/file core/files-dir uri'))]
       (when (.exists file')
         (touched file')
         file'))))
