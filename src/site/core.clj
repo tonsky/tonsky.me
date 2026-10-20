@@ -251,7 +251,7 @@
             (or
               (when (str/ends-with? (.getName file) ".svg")
                 (svg-dimensions file))
-              (let [out   (:out (sh "convert" (.getPath file) "-ping" "-format" "[%w,%h]" "info:"))
+              (let [out   (:out (sh "magick" (.getPath file) "-ping" "-format" "[%w,%h]" "info:"))
                     [w h] (edn/read-string out)]
                 (resize file w h)))))
         (catch Exception e
