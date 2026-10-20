@@ -20,7 +20,4 @@
   {:jvm-opts ["-Dclojure.main.report=stderr"
               "-Duser.language=en"
               "-Duser.country=US"
-              "-Dfile.encoding=UTF-8"]}
-  :uberdeps
-  {:replace-deps {uberdeps/uberdeps {:mvn/version "1.4.0"}}
-   :replace-paths []}}}
+              "-Dfile.encoding=UTF-8"]}}}
