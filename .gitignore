@@ -14,7 +14,6 @@ pom.xml.asc
 .DS_Store
 files
 mise.local.toml
-personal-information.txt
 .clj-kondo
 site/patrons/*.toml
 site/presence

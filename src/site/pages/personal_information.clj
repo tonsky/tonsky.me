@@ -71,7 +71,7 @@
                  "\n"
                  pi
                  "\n\n--------------------------------------------------------------------------------\n\n")]
-      (spit (io/file core/data-dir "personal-information.txt") text :append true)
+      (spit (io/file core/files-dir "personal-information.txt") text :append true)
       {:status 200
        :body "success"})
     (finally
