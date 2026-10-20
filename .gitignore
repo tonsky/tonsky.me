@@ -13,7 +13,7 @@ pom.xml.asc
 /.cpcache*
 .DS_Store
 files
-config.edn
+mise.local.toml
 .clj-kondo
 site/patrons/*.toml
 site/presence

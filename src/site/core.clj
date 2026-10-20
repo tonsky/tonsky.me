@@ -39,10 +39,10 @@
       (alter-var-root #'server-ip (constantly ip)))
     (when-some [port (or (args "--port") (System/getenv "PORT"))]
       (alter-var-root #'server-port (constantly (parse-long port))))
-    (when-some [dir (args "--files-dir")]
-      (alter-var-root #'files-dir (constantly dir)))
     (when-some [dir (or (args "--data-dir") (System/getenv "DATA_DIR"))]
       (alter-var-root #'data-dir (constantly dir)))
+    (let [dir (or (args "--files-dir") (System/getenv "FILES_DIR") (str (io/file data-dir "files")))]
+      (alter-var-root #'files-dir (constantly dir)))
     (when (= "true" (args "--dev"))
       (alter-var-root #'dev? (constantly true)))))
 
