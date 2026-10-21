@@ -14,12 +14,12 @@ p, h1, h2, h3 { overflow-wrap: break-word; }
   --font-size: calc(var(--cap-height) * var(--cap-ratio));
   --font-smaller: calc(var(--cap-height) * 11 / 12 * var(--cap-ratio));
   --font-small: calc(var(--cap-height) * 10 / 12 * var(--cap-ratio));
-  --width: 630px;
+  --width: 720px;
   --border: 1.5px;
   --radius: calc(var(--cap-height) / 3);
   --gray-text: rgba(0, 0, 0, 0.4);
   --gray-line: rgba(0, 0, 0, 0.2);
-  --gray-bg: rgba(255, 255, 255, 1);
+  --gray-bg: rgba(0, 0, 0, 0.1);
   --text: #000;
   --bg: #FDDB29;
 
@@ -59,7 +59,7 @@ body {
 
 body, .page { min-height: calc(100svh - var(--gap) * 10); }
 body { margin: calc(var(--gap) * 4) 0 calc(var(--gap) * 6) 0; background-color: var(--bg); color: var(--text); }
-.page { display: flex; flex-direction: column; gap: calc(var(--gap) * 4); align-items: center; }
+.page { display: flex; flex-direction: column; gap: calc(var(--gap) * 4); align-items: flex-start; margin-left: 200px; }
 
 /* MENU */
 .menu { width: min(var(--width), 96vw); display: flex; flex-direction: row; align-items: center; gap: calc(min(var(--gap), 2vw)); color: var(--gray-text); }
