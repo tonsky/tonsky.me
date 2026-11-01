@@ -11,7 +11,7 @@
    :uri    "/personal-information/"
    :styles
    [".outer { display: flex; flex-direction: column; align-items: flex-start; gap: var(--gap); }
-     .outer > p, textarea { width: 96vw; max-width: var(--width); }
+     .outer > p, textarea { width: var(--page-width); max-width: var(--width); }
      textarea { display: block; field-sizing: content; min-height: 10em; border: 1.5px solid #00000040; background: transparent; border-radius: 6px; margin: 0 -1em 0.5em; padding: 0.5em 1em; font: inherit; }
      textarea:disabled { background: #00000020; color: #00000030; }
      textarea:focus { outline: none; border-color: #000; }
