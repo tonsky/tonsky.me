@@ -27,6 +27,9 @@
 (def dev?
   false)
 
+(def font-tuner?
+  false)
+
 (def ^ZoneId UTC
   (ZoneId/of "UTC"))
 
@@ -44,7 +47,9 @@
     (let [dir (or (args "--files-dir") (System/getenv "FILES_DIR") (str (io/file data-dir "files")))]
       (alter-var-root #'files-dir (constantly dir)))
     (when (= "true" (args "--dev"))
-      (alter-var-root #'dev? (constantly true)))))
+      (alter-var-root #'dev? (constantly true)))
+    (when (= "true" (args "--font-tuner"))
+      (alter-var-root #'font-tuner? (constantly true)))))
 
 (defn concatv [& args]
   (vec (apply concat args)))

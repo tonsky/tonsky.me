@@ -94,7 +94,9 @@
         (for [script (:scripts page)]
           [:script {:src script :defer true}])
         (when core/dev?
-          [:script {:src "/watcher.js" :defer true}])]
+          [:script {:src "/watcher.js" :defer true}])
+        (when (and core/dev? core/font-tuner?)
+          [:script {:src "/font_tuner.js" :defer true}])]
        [:body
         {:class (some->>
                   (concat
