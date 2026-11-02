@@ -212,6 +212,15 @@
                :allowfullscreen true}]
      figcaption]))
 
+(defn- merge-strings [forms]
+  (reduce
+    (fn [acc el]
+      (let [last (core/lastv acc nil)]
+        (if (and (string? last) (string? el))
+          (conj (pop acc) (str last el))
+          (conj acc el))))
+    [] forms))
+
 (defn detect-links [form]
   (cond+
     (string? form)
@@ -233,11 +242,13 @@
     (#{:a :img :code :code-block :raw-html :video} tag)
     form
     
+    :let [content (map detect-links (merge-strings content))]
+    
     (empty? attrs)
-    (core/consv tag (map detect-links content))
+    (core/consv tag content)
     
     :else
-    (core/consv tag attrs (map detect-links content))))
+    (core/consv tag attrs content)))
 
 (defn transform-href [& body]
   [:href (str/join body)])
@@ -245,13 +256,6 @@
 (defn transform-paragraph [& body]
   (let [[classes body] (split-with #(and (vector? %) (= :class (first %))) body)
         classes        (map second classes)
-        body           (reduce
-                         (fn [acc el]
-                           (let [last (core/lastv acc nil)]
-                             (if (and (string? last) (string? el))
-                               (conj (pop acc) (str last el))
-                               (conj acc el))))
-                         [] body)
         body  (if (seq classes)
                 (cons {:class (str/join " " classes)} body)
                 body)]
