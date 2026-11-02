@@ -240,6 +240,21 @@
   (is (= [[:p "¯\\_(ツ)_/¯"]]
         (transform "¯\\\\\\_(ツ)_/¯"))))
 
+(deftest test-detect-links
+  (let [link [:a {:href "https://a.com/foo_bar_baz"} "a.com/foo_bar_baz"]]
+    (testing "underscores in a URL do not break it"
+      (is (= [[:p ["See " link " ok"]]]
+            (transform "See https://a.com/foo_bar_baz ok")))
+
+      (is (= [[:p [:em ["See " link " ok"]]]]
+            (transform "*See https://a.com/foo_bar_baz ok*")))
+
+      (is (= [[:p [:strong ["See " link " ok"]]]]
+            (transform "**See https://a.com/foo_bar_baz ok**")))
+
+      (is (= [[:p [:strong "See " [:em [link " ok"]]]]]
+            (transform "**See *https://a.com/foo_bar_baz ok***"))))))
+
 (deftest test-links
   (is (= [[:p "This "
            [:link
