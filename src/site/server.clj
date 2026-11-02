@@ -15,6 +15,7 @@
    [ring.util.time :as ring-time]
    [site.cache :as cache]
    [site.core :as core]
+   [site.font-tuner :as font-tuner]
    [site.pages.about :as about]
    [site.pages.atom :as atom]
    [site.pages.default :as default]
@@ -177,6 +178,9 @@
   (router/router
     (router/routes
       "GET /sign-in" req (resp-html req (sign-in/page req))
+      "GET /font-tuner/fonts.json" req (font-tuner/fonts req)
+      "GET /font-tuner/local.css" req (font-tuner/css req)
+      "GET /font-tuner/file/*" req (font-tuner/file req)
       "POST /personal-information/submit" req (personal-information/submit req))))
 
 (defn wrap-up [handler]

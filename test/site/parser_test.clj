@@ -224,6 +224,42 @@
   (is (= [[:p "Some " [:code "escape \\` in code"] " code"]]
         (parser/parse "Some `escape \\` in code` code"))))
 
+(deftest test-spaces-around-code
+  (testing "code without spaces is untouched"
+    (is (= [[:p "Some " [:code "inline"] " code"]]
+          (transform "Some `inline` code")))
+
+    (is (= [[:ul {:class "short-list"} [:li "Is " [:code "U+0041"] " here"]]]
+          (transform "- Is `U+0041` here"))))
+
+  (testing "code with spaces takes spaces around it"
+    (is (= [[:p "Bytes" [:code " " "00 01 F4 A9" " "] "here"]]
+          (transform "Bytes `00 01 F4 A9` here")))
+
+    (is (= [[:p [:code "a b" " "] "and" [:code " " "c d"] "."]]
+          (transform "`a b` and `c d`.")))
+
+    (is (= [[:p [:code "a b"] "/" [:code "c d"] "," [:code " " "f(x, y)"]]]
+          (transform "`a b`/`c d`, `f(x, y)`")))
+
+    (is (= [[:p "(" [:code "x y"] ")"]]
+          (transform "(`x y`)"))))
+
+  (testing "one space between adjacent code"
+    (is (= [[:p [:code "a b" " "] [:code "c d"]]]
+          (transform "`a b` `c d`")))
+
+    (is (= [[:p [:code "a"] [:code " " "c d"]]]
+          (transform "`a` `c d`"))))
+
+  (testing "only direct siblings"
+    (is (= [[:p "In " [:em [:code "e m"]] " and " [:strong "see" [:code " " "x y"]]]]
+          (transform "In *`e m`* and **see `x y`**"))))
+
+  (testing "code blocks untouched"
+    (is (= [[:p "Code:"] [:pre [:code "(+ 1 2)"]]]
+          (transform "Code:\n\n```\n(+ 1 2)\n```")))))
+
 (deftest test-escapes
   (is (= [[:p "Capturing " [:em "out"]]]
         (transform "Capturing *out*")))
@@ -346,7 +382,7 @@
           #ml "- **strong** *em* just text
                - `code`")))
   
-  (is (= [[:ol {:start "1"}
+  (is (= [[:ol {:start "1" :class "short-list"}
            [:li "First"]
            [:li "Second"]
            [:li "Third"]]]
@@ -355,7 +391,7 @@
                2. Second
                3. Third")))
   
-  (is (= [[:ol {:start "1"}
+  (is (= [[:ol {:start "1" :class "short-list"}
            [:li "First"]
            [:li "Second"]
            [:li "Third"]]]
@@ -366,7 +402,7 @@
                
                3. Third")))
   
-  (is (= [[:ol {:start "1"}
+  (is (= [[:ol {:start "1" :class "short-list"}
            [:li "First"]
            [:li "Second"]
            [:li "Third"]]]
@@ -375,7 +411,7 @@
                1. Second
                1. Third")))
   
-  (is (= [[:ol {:start "5"}
+  (is (= [[:ol {:start "5" :class "short-list"}
            [:li "First"]
            [:li "Second"]
            [:li "Third"]]]
@@ -384,16 +420,32 @@
                6. Second
                7. Third")))
   
-  (is (= [[:ol {:start "1"}
+  (is (= [[:ol {:start "1" :class "short-list"}
            [:li "First"]]
-          [:ul
+          [:ul {:class "short-list"}
            [:li "Second"]]
-          [:ol {:start "1"}
+          [:ol {:start "1" :class "short-list"}
            [:li "Third"]]]
         (transform
           #ml "1. First
                - Second
                1. Third"))))
+
+(deftest test-short-lists
+  (doseq [marker ["- " "5. "]]
+    (testing (str "60-character boundary for " marker)
+      (let [short-text (apply str (repeat 60 "a"))
+            short-list (first (transform (str marker "Short\n" marker short-text)))
+            long-list (first (transform (str marker "Short\n" marker short-text "a")))]
+        (is (= "short-list" (:class (second short-list))))
+        (is (not= "short-list" (:class (second long-list))))))
+    (testing (str "inline markup and link URLs do not count for " marker)
+      (let [text (apply str (repeat 60 "a"))
+            url (str "https://example.com/" text)
+            result (first (transform (str marker "**[" text "](" url ")**")))]
+        (is (= "short-list" (:class (second result)))))))
+  (testing "footnote lists keep their existing class"
+    (is (= "footnotes" (-> (transform "[^1]: Short") first last second :class)))))
 
 (deftest test-footnotes
   (is (= [[:p "Text" [:footnote "1"] " with" [:footnote "2"] " footnote" [:footnote "3"]]]

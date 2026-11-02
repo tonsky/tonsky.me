@@ -250,6 +250,54 @@
     :else
     (core/consv tag attrs content)))
 
+(defn- spaced-code? [form]
+  (and (vector? form) (= :code (first form)) (re-find #"\s" (inner-text form))))
+
+(defn- pad-code [[tag & content] before? after?]
+  (let [[attrs content] (if (map? (first content))
+                          [[(first content)] (next content)]
+                          [nil content])]
+    (core/concatv [tag] attrs (when before? [" "]) content (when after? [" "]))))
+
+(defn- move-spaces-in-children [children]
+  (let [v (vec children)]
+    (->> (range (count v))
+      (reduce
+        (fn [v i]
+          (let [form (v i)]
+            (if (spaced-code? form)
+              (let [prev    (when (pos? i) (v (dec i)))
+                    next    (when (< (inc i) (count v)) (v (inc i)))
+                    before? (and (string? prev) (re-find #"\s$" prev))
+                    after?  (and (string? next) (re-find #"^\s" next))]
+                (cond-> (assoc v i (pad-code form before? after?))
+                  before? (assoc (dec i) (str/replace prev #"\s+$" ""))
+                  after?  (assoc (inc i) (str/replace next #"^\s+" ""))))
+              v)))
+        v)
+      (remove #(= "" %)))))
+
+(defn move-spaces-into-code
+  "Whitespace right before or after inline code that has spaces inside goes inside it,
+   so the spaces around match the code font's spaces inside"
+  [form]
+  (cond
+    (and (sequential? form) (not (vector? form)))
+    (apply list (move-spaces-in-children (map move-spaces-into-code form)))
+
+    (not (vector? form))
+    form
+
+    (#{:pre :code :raw-html} (first form))
+    form
+
+    :else
+    (let [[tag & content] form
+          [attrs content] (if (map? (first content))
+                            [[(first content)] (next content)]
+                            [nil content])]
+      (core/concatv [tag] attrs (move-spaces-in-children (map move-spaces-into-code content))))))
+
 (defn transform-href [& body]
   [:href (str/join body)])
 
@@ -270,9 +318,17 @@
   [:div {:class "hr"}
    [:div {:class "hr_inner"}]])
 
+(defn transform-list [tag attrs items]
+  (let [attrs (if (every? #(<= (count (inner-text %)) 60) items)
+                (assoc attrs :class "short-list")
+                attrs)]
+    (if (seq attrs)
+      (core/consv tag attrs items)
+      (core/consv tag items))))
+
 (defn transform-ol [& body]
   (let [start (-> body first second)]
-    (core/consv
+    (transform-list
       :ol {:start start}
       (map (fn [[_ _ & rest]] (core/consv :li rest)) body))))
 
@@ -297,6 +353,7 @@
   {:h1         #(transform-header :h1 %&)
    :h2         #(transform-header :h2 %&)
    :h3         #(transform-header :h3 %&)
+   :ul         #(transform-list :ul {} %&)
    :uli        #(core/consv :li %&)
    :ol         transform-ol
    :fl         transform-fl
@@ -320,7 +377,7 @@
           [meta content] (if (map? (first content))
                            [(first content) (next content)]
                            [nil content])]
-      (assoc meta :content (doall content)))))
+      (assoc meta :content (doall (move-spaces-into-code content))))))
 
 (def parse-md
   (core/memoize-by
