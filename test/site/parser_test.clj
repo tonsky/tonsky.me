@@ -177,13 +177,14 @@
            [:a {:href "http://link"}
             [:img {:src "img.jpg"
                    :alt "alt text"
-                   :title "alt text"}]]
+                   :title "alt text"
+                   :loading "lazy"}]]
            [:figcaption
             "Also " [:em "some"] " caption"]]]
         (transform
           #ml "img.jpg http://link alt text
          Also *some* caption")))
-  (is (= [[:figure [:img {:src "img@hover.jpg", :class "hoverable noround", :alt "alt text", :title "alt text"}] nil]]
+  (is (= [[:figure [:img {:src "img@hover.jpg", :class "hoverable noround", :alt "alt text", :title "alt text", :loading "lazy"}] nil]]
         (transform ".noround img@hover.jpg alt text"))))
 
 (deftest test-inlines
@@ -227,16 +228,16 @@
   (is (= [[:p "Capturing " [:em "out"]]]
         (transform "Capturing *out*")))
   
-  (is (= [[:p "Capturing " "*" "out" "*"]]
+  (is (= [[:p "Capturing *out*"]]
         (transform "Capturing \\*out*")))
-  
-  (is (= [[:p "Capturing " "~" "280"]]
+
+  (is (= [[:p "Capturing ~280"]]
         (transform "Capturing \\~280")))
-  
-  (is (= [[:p "¯" "_" "(ツ)" "_" "/¯"]]
+
+  (is (= [[:p "¯_(ツ)_/¯"]]
         (transform "¯\\_(ツ)_/¯")))
-  
-  (is (= [[:p "¯" "\\" "_" "(ツ)" "_" "/¯"]]
+
+  (is (= [[:p "¯\\_(ツ)_/¯"]]
         (transform "¯\\\\\\_(ツ)_/¯"))))
 
 (deftest test-links
