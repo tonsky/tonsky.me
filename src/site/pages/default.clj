@@ -57,10 +57,10 @@
           (list
             [:meta {:property "og:type" :content "website"}]
             [:meta {:property "og:image"
-                    :content "https://dynogee.com/gen?id=24m2qx9uethuw6p&title=That+yellow+website"}]
+                    :content "https://dynogee.tonsky.me/open_graph_facebook.png?title=That+yellow+website"}]
             [:meta {:name "twitter:card" :content "summary_large_image"}]
             [:meta {:name "twitter:image"
-                    :content "https://dynogee.com/gen?id=nm509093bpj50lv&title=That+yellow+website"}]))
+                    :content "https://dynogee.tonsky.me/open_graph_twitter.png?title=That+yellow+website"}]))
         (when post?
           (list
             [:meta {:property "article:published_time" :content (:published page)}]
@@ -69,16 +69,16 @@
             [:meta {:property "og:image"
                     :content  (if-some [img (:og_facebook page)]
                                 (str url "/" img)
-                                (str "https://dynogee.com/gen"
-                                  "?id=" (if long? "niutqf5hxi7rjlw" "24m2qx9uethuw6p")
-                                  "&title=" (URLEncoder/encode (:title page))))}]
+                                (str "https://dynogee.tonsky.me/"
+                                  (if long? "open_graph_facebook_long.png" "open_graph_facebook.png")
+                                  "?title=" (URLEncoder/encode (:title page))))}]
             [:meta {:name "twitter:card" :content "summary_large_image"}]
             [:meta {:name "twitter:image"
                     :content (if-some [img (:og_twitter page)]
                                (str url "/" img)
-                               (str "https://dynogee.com/gen"
-                                 "?id=" (if long? "awabsokfn29i8xt" "nm509093bpj50lv")
-                                 "&title=" (URLEncoder/encode (:title page))))}]))
+                               (str "https://dynogee.tonsky.me/"
+                                 (if long? "open_graph_twitter_long.png" "open_graph_twitter.png")
+                                 "?title=" (URLEncoder/encode (:title page))))}]))
         (when-some [summary (:summary page)]
           (list
             [:meta {:property "og:description" :content summary}]
