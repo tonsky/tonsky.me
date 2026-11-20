@@ -4,7 +4,7 @@ summary: "A collection of anti-patterns seen in big IT companies regarding hirin
 published: 2019-03-11
 hackernews_id: 19541617
 starred: true
-cover: cover@2x.webp
+illustration: illustration.webp
 ---
 
 _Translations: [Korean](https://muchtrans.com/translations/how-not-to-hire-a-software-engineer.ko.html) [Russian](https://habr.com/ru/company/itelma/blog/551152/) • Illustrations by [Julia Litvin](https://www.behance.net/julia_litvin)_

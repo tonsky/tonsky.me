@@ -18,6 +18,7 @@ p, h1, h2, h3 { overflow-wrap: break-word; }
   --indent: calc(var(--font-size) * 1.2); /* of blockquote, list and code text */
   --width: 700px;
   --margin: 100px;
+  --min-margin: 2vw; /* the page margin on narrow screens */
   --page-width: calc(98vw - var(--margin));
   --border: 1.5px;
   --radius: calc(var(--cap-height) / 3);
@@ -25,7 +26,7 @@ p, h1, h2, h3 { overflow-wrap: break-word; }
   --gray-line: rgba(0, 0, 0, 0.2);
   --gray-bg: rgba(0, 0, 0, 0.06);
   --text: #000;
-  --bg: #ffe440;
+  --bg: #FFE040;
 
   --cursor: -webkit-image-set(url(/i/cursor@2x.png?t=1767542753) 2x) 5 5, default;
   --cursor-pressed: -webkit-image-set(url(/i/cursor_pressed@2x.png?t=1767542753) 2x) 5 5, default;
@@ -70,11 +71,12 @@ body { margin: calc(var(--gap) * 4) 0 calc(var(--gap) * 6) 0; background-color: 
 
 /* MENU */
 .menu { width: min(var(--width), var(--page-width)); display: flex; flex-direction: row; align-items: center; gap: calc(min(var(--gap), 2vw)); color: var(--gray-text); }
-.menu > li { list-style: none; }
-.menu > li > a { text-decoration-color: transparent; }
-.menu > li.inside > a { text-decoration-color: var(--gray-line); }
-.menu > li.selected > a,
-.menu > li:hover > a { color: #000; text-decoration-color: #000; }
+.menu_links, .menu_controls { display: flex; flex-direction: row; align-items: center; gap: calc(min(var(--gap), 2vw)); }
+.menu_links > li { list-style: none; }
+.menu_links > li > a { text-decoration-color: transparent; }
+.menu_links > li.inside > a { text-decoration-color: var(--gray-line); }
+.menu_links > li.selected > a,
+.menu_links > li:hover > a { color: #000; text-decoration-color: #000; }
 .menu > .spacer { flex-grow: 1; }
 div.winter { width: 26px; height: 26px; background-image: url(/i/snow.svg?t=1737982031); opacity: .3; cursor: var(--cursor-hand); }
 body.winter div.winter { opacity: 1; }
@@ -100,15 +102,39 @@ body.dark #darkModeGlow { opacity: 1; }
 .hamburger a.selected:before { content: '> '; }
 
 /* CONTENT */
-.cover { width: 100%; display: flex; flex-direction: column; align-items: center; }
-.cover > img { width: auto; max-height: 50svh; }
+.illustration { width: 100%; display: flex; flex-direction: column; align-items: center; }
+/* Illustration: an image above the title, wider than the text column. It overhangs it on both
+   sides by the page margin minus --min-margin, so it stays --min-margin away from the page edge
+   (on narrow screens the two are equal and the illustration is exactly the column). Capped at the
+   page width minus --min-margin on both sides so it never overflows horizontally */
+.illustration > img { --overhang: calc(var(--margin) - var(--min-margin)); width: min(calc(min(var(--width), var(--page-width)) + 2 * var(--overhang)), calc(100% + var(--margin) - 2 * var(--min-margin))); margin-left: calc(0px - var(--overhang)); }
 .content { margin-top: calc(var(--cap-height) * 2); }
-.cover + .content { margin-top: 0; }
+.illustration + .content { margin-top: 0; }
 .content { display: flex; flex-direction: column; gap: var(--spacing); align-items: center; }
 .content > * { width: var(--page-width); max-width: var(--width); }
 
-.has_supercover { background-size: 100% auto; background-position: top calc(-40vw + var(--gap) * 10) center; background-repeat: no-repeat; }
-.has_supercover .content { margin-top: calc(66.6667vw - 40vw + var(--gap) * 2); }
+/* Cover (`cover:`; `illustration:` is the in-column alternative): a 3:2 image as the body
+   background, edge to edge, its top cut off. The menu sits on two plates over it, in solid colors:
+   `menu_bg` / `menu_fg` in frontmatter, page background and text by default */
+.has_cover { --menu-bg: var(--bg); --menu-fg: var(--text); }
+.has_cover .menu_links,
+.has_cover .menu_controls { --plate-y: calc(var(--gap) / 2); --plate-x: min(var(--gap), calc(var(--margin) / 2)); background: var(--menu-bg); color: var(--menu-fg); border-radius: calc(var(--radius) * 2); padding: var(--plate-y) var(--plate-x); margin: calc(0px - var(--plate-y)) calc(0px - var(--plate-x)); }
+.has_cover .menu_links > li > a { color: var(--menu-fg); }
+.has_cover .menu_links > li.inside > a { text-decoration-color: color-mix(in srgb, var(--menu-fg) 30%, transparent); }
+.has_cover .menu_links > li.selected > a,
+.has_cover .menu_links > li:hover > a { text-decoration-color: var(--menu-fg); }
+/* Icons are redrawn as masks so they take --menu-fg. The dark mode icon draws on ::before:
+   a mask on .dark_mode itself would clip #darkModeGlow */
+.has_cover .dark_mode,
+.has_cover .hamburger label { opacity: 1; }
+.has_cover .dark_mode { background-image: none; }
+.has_cover .dark_mode::before { content: ""; width: 26px; height: 26px; background-color: var(--menu-fg); mask: url(/i/dark_mode.svg?t=1728653997) 0 0 / 52px 52px no-repeat; }
+.has_cover.dark .dark_mode::before { mask-position: -26px 0; }
+.has_cover .hamburger label { background-image: none; background-color: var(--menu-fg); mask: url(/i/hamburger.svg?t=1728664532) 0 0 / 100% no-repeat; }
+.has_cover div.winter { background-image: none; background-color: var(--menu-fg); mask: url(/i/snow.svg?t=1737982031) 0 0 / 100% no-repeat; }
+
+.has_cover { background-size: 100% auto; background-position: top calc(-40vw + var(--gap) * 10) center; background-repeat: no-repeat; }
+.has_cover .content { margin-top: calc(66.6667vw - 40vw + var(--gap) * 2); }
 
 /* INDEX */
 .index .starred { display: inline-block; width: 1em; height: 1em; background-size: 100%; background-image: url(/i/star.svg); margin: 0 0.4em -0.1em -1.4em; }
@@ -153,8 +179,8 @@ img.inline { margin: 0; display: inline-block; position: relative; top: 3px; }
 .content > figure > iframe,
 .content > figure > a > img { border-radius: var(--radius);  }
 .content > figure > a > img.noround { border-radius: 0; }
-/* macOS window shadow: hairline edge plus a large soft drop */
-img.window { box-shadow: 0 0 0 .5px rgba(0, 0, 0, .15), 0 5px 15px 0 rgba(0, 0, 0, .10), 0 11px 35px 2px rgba(0, 0, 0, .1); }
+/* macOS window shadow. drop-shadow follows the image's alpha, so it hugs whatever rounded corners the screenshot has; no clipping, the screenshot's own transparency is the shape */
+.content > figure img.window { border-radius: 0; filter: drop-shadow(0 5px 15px rgba(0, 0, 0, .10)) drop-shadow(0 11px 35px rgba(0, 0, 0, .1)); }
 .content > figure > a { text-decoration: none; }
 figcaption { max-width: var(--width); text-align: center; font-size: var(--font-small); /* font-style: italic; */ }
 
@@ -288,7 +314,7 @@ body.winter .about_photo { background-image: url(/i/photo_winter.webp?t=17379820
 .page_about dl, .projects dl { font-size: var(--font-small); display: grid; grid-template-columns: max-content 1fr; grid-gap: 5px 10px; --border: 1px; }
 
 /* LEFT ALIGNMENT */
-.page, .content, .cover, .content > figure { align-items: flex-start; }
+.page, .content, .illustration, .content > figure { align-items: flex-start; }
 .page { padding-left: var(--margin); }
 .fig { margin-left: -30px; }
 .loud { margin-left: calc((var(--column) - var(--loud-width)) / 2); }
@@ -298,7 +324,7 @@ body.winter .about_photo { background-image: url(/i/photo_winter.webp?t=17379820
   .about_photo { display: none; }
 }
 @media (max-width: 860px) {
-  :root { --margin: 2vw; }
+  :root { --margin: var(--min-margin); }
   .fig, .about { margin-left: 0; }
   /* No margin to overhang into: smaller, kept inside the screen. */
   .content ul > li::before { width: .8em; margin: 0 calc(var(--indent) - .8em) 0 calc(0em - var(--indent)); }

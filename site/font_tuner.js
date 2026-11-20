@@ -320,7 +320,7 @@
   /** APPLYING **/
 
   function centerCss() {
-    return `.page, .content, .cover, .content > figure { align-items: center; }
+    return `.page, .content, .illustration, .content > figure { align-items: center; }
 .page { padding-left: 0; }
 .fig, .loud, .about { margin-left: 0; }
 .foot, figcaption, .loud { text-align: center; }
