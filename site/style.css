@@ -117,8 +117,17 @@ body.dark #darkModeGlow { opacity: 1; }
    background, edge to edge, its top cut off. The menu sits on two plates over it, in solid colors:
    `menu_bg` / `menu_fg` in frontmatter, page background and text by default */
 .has_cover { --menu-bg: var(--bg); --menu-fg: var(--text); }
+/* Both plates are the same height: the 32px hamburger plus --plate-y above and below. Link text is
+   trimmed to cap height..baseline, so centering it in the plate centers the caps exactly */
 .has_cover .menu_links,
-.has_cover .menu_controls { --plate-y: calc(var(--gap) / 2); --plate-x: min(var(--gap), calc(var(--margin) / 2)); background: var(--menu-bg); color: var(--menu-fg); border-radius: calc(var(--radius) * 2); padding: var(--plate-y) var(--plate-x); margin: calc(0px - var(--plate-y)) calc(0px - var(--plate-x)); }
+.has_cover .menu_controls { --plate-y: 6px; --plate-x: min(20px, calc(var(--margin) / 2)); height: calc(32px + 2 * var(--plate-y)); background: var(--menu-bg); color: var(--menu-fg); border-radius: 14px; padding: 0 var(--plate-x); margin: calc(0px - var(--plate-y)) calc(0px - var(--plate-x)); }
+.has_cover .menu_links > li { text-box: trim-both cap alphabetic; }
+/* A squircle corner bends in much less than a round one of the same radius: at 45° it sits
+   r * (1 - 2^-1/4) = 0.16r from the corner vs 0.29r for round. 26px squircle ≈ 14px round */
+@supports (corner-shape: squircle) {
+  .has_cover .menu_links,
+  .has_cover .menu_controls { border-radius: 26px; corner-shape: squircle; }
+}
 .has_cover .menu_links > li > a { color: var(--menu-fg); }
 .has_cover .menu_links > li.inside > a { text-decoration-color: color-mix(in srgb, var(--menu-fg) 30%, transparent); }
 .has_cover .menu_links > li.selected > a,
