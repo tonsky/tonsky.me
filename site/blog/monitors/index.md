@@ -4,7 +4,7 @@ summary: "A non-comprehensive and opinionated guide to best monitor for programm
 published: 2020-06-17
 hackernews_id: 23551983
 starred: true
-cover: cover.gif
+illustration: illustration.webp
 ---
 
 _Translations: [Chinese](https://sspai.com/post/61252) [Russian](https://habr.com/ru/post/508824/) • Illustration by [Julia Litvin](https://www.behance.net/julia_litvin)_

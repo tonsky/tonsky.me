@@ -99,8 +99,9 @@ function updateFlashlight(e) {
   flashlight.style.left = mousePos.clientX - 250 + 'px';
   flashlight.style.top = mousePos.clientY - 250 + 'px';
 
-  const centerX = darkModeGlow.offsetLeft + 38;
-  const centerY = darkModeGlow.offsetTop + 12;
+  const rect = darkModeGlow.getBoundingClientRect();
+  const centerX = rect.left + rect.width / 2 + window.scrollX;
+  const centerY = rect.top + rect.height / 2 + window.scrollY;
   const dist = Math.hypot(mousePos.pageX - centerX, mousePos.pageY - centerY);
   const opacity = Math.max(0, Math.min(1, (dist - 50) / (200 - 50)));
   darkModeGlow.style.opacity = opacity;
@@ -123,6 +124,7 @@ function maybeUpdateDarkMode(e) {
   } else if (isDark && !shouldBeDark) {
     bodyCL.remove('dark');
     bodyCL.add('dark0');
+    darkModeGlow.style.opacity = '';
     setTimeout(() => {
       bodyCL.remove('dark0');
       maybeUpdateThemeColor();

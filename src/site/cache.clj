@@ -62,7 +62,7 @@
         (when-some [file (find-file page (:content attrs))]
           (core/consv :meta (update attrs :content core/timestamp-url file) content))
 
-        (and (= :body tag) (some-> (:class attrs) (str/includes? "has_supercover")))
+        (and (= :body tag) (some-> (:class attrs) (str/includes? "has_cover")))
         (core/consv :body
           (update attrs :style str/replace #"(?<=url\('?)[^']+(?='?\))"
             (fn [url]

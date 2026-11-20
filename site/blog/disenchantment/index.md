@@ -9,7 +9,9 @@ reddit_url_2: "https://www.reddit.com/r/programming/comments/eipb5c/software_dis
 related_url: "/blog/good-times-weak-men/"
 related_title: "Good times create weak men"
 starred: true
-cover: cover.jpg
+cover: cover.webp
+menu_bg: "#000"
+menu_fg: var(--bg)
 ---
 
 _Translations: [Chinese](zh/) [French](fr/) [Hungarian](hu/) [Italian](it/) [Korean](ko/) [Portuguese](pt/) [Russian](ru/) [Spanish](es/)_

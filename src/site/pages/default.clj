@@ -22,7 +22,7 @@
         long?      (> (count (:title page "")) 60)
         index?     (:index (:categories page))
         post?      (:blog (:categories page))
-        supercover (:supercover page)
+        cover      (:cover page)
         winter?    (and
                      (#{Month/DECEMBER Month/JANUARY Month/FEBRUARY} (.getMonth (LocalDate/now)))
                      (= "true" (get-in req [:cookies "winter" :value])))
@@ -94,45 +94,51 @@
         (for [script (:scripts page)]
           [:script {:src script :defer true}])
         (when core/dev?
-          [:script {:src "/watcher.js" :defer true}])]
+          [:script {:src "/watcher.js" :defer true}])
+        (when (and core/dev? core/font-tuner?)
+          [:script {:src "/font_tuner.js" :defer true}])]
        [:body
         {:class (some->>
                   (concat
                     (when dark? ["dark"])
                     (when winter? ["winter"])
-                    (when supercover ["has_supercover"])
+                    (when cover ["has_cover"])
                     (map name (:categories page)))
                   not-empty
                   (str/join " "))
-         :style (when supercover
-                  (str "background-image: url('" supercover "'); "))}
+         :style (when cover
+                  (str "background-image: url('" cover "'); "
+                    (some->> (:menu_bg page) (format "--menu-bg: %s; "))
+                    (some->> (:menu_fg page) (format "--menu-fg: %s; "))))}
         [:.page
-         [:ul.menu
-          (for [[url title] [["/"          "Blog"]
-                             ["/projects/" "Work"]
-                             ["/talks/"    "Talks"]
-                             ["/design/"   "Logos"]
-                             ["/about/"    "About"]]]
-            [:li {:class (cond
-                           (= (:uri page) url) "selected"
-                           (and post? (= url "/")) "inside")}
-             [:a {:href url} title]])
+         [:nav.menu
+          [:ul.menu_links
+           (for [[url title] [["/"          "Blog"]
+                              ["/projects/" "Work"]
+                              ["/talks/"    "Talks"]
+                              ["/design/"   "Logos"]
+                              ["/about/"    "About"]]]
+             [:li {:class (cond
+                            (= (:uri page) url) "selected"
+                            (and post? (= url "/")) "inside")}
+              [:a {:href url} title]])]
           [:.spacer]
-          (when (#{12 1 2} (.getMonthValue (LocalDate/now)))
-            [:.winter])
-          [:.dark_mode
-           [:#darkModeGlow]]
-          [:.hamburger
-           [:input#checkbox {:type "checkbox"}]
-           [:label {:for "checkbox"}]
-           [:ul
-            (for [[url title] [["/sign-in/" "Sign In"]
-                               ["/personal-information/" "Personal Information"]
-                               ["/user-agreement/" "User Agreement"]
-                               ; ["/scheme/" "Color Scheme"]
-                               ]]
-              [:li [:a {:class (when (= (:uri page) url) "selected")
-                        :href url} title]])]]]
+          [:.menu_controls
+           (when (#{12 1 2} (.getMonthValue (LocalDate/now)))
+             [:.winter])
+           [:.dark_mode
+            [:#darkModeGlow]]
+           [:.hamburger
+            [:input#checkbox {:type "checkbox"}]
+            [:label {:for "checkbox"}]
+            [:ul
+             (for [[url title] [["/sign-in/" "Sign In"]
+                                ["/personal-information/" "Personal Information"]
+                                ["/user-agreement/" "User Agreement"]
+                                ; ["/scheme/" "Color Scheme"]
+                                ]]
+               [:li [:a {:class (when (= (:uri page) url) "selected")
+                         :href url} title]])]]]]
                  
       
          (when index?
