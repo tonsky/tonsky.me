@@ -2,6 +2,7 @@
 title: "How to get hired in 2025"
 summary: "A collection of red flags in software engineers' test assignments"
 cover: cover.webp
+menu_bg: "#FFF"
 published: 2025-11-26
 ---
 

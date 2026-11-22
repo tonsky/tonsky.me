@@ -12,9 +12,9 @@
 (defn post [page]
   (assoc page :content
     (list
-      (when-some [cover (:cover page)]
-        [:div.cover
-         [:img {:src cover}]])
+      (when-some [illustration (:illustration page)]
+        [:div.illustration
+         [:img {:src illustration}]])
       [:article.content
        ;; title
        [:h1 {:class "title"} (:title page)]
@@ -110,7 +110,7 @@
      [:content {:type "html"}
       [:CDATA (render/render-inner-html
                 (list
-                  (when-some [cover (:cover post)]
+                  (when-some [cover (or (:illustration post) (:cover post))]
                     [:img {:src (absolutize cover (:uri post))}])
                   (:content post)))]]
      [:author

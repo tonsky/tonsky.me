@@ -3,6 +3,7 @@ title: Local, first, forever
 summary: "We explore how to build local-first sync on top of simple file storage"
 published: 2024-06-24
 cover: cover.webp
+menu_bg: "#FFF"
 hackernews_id: 40786425
 starred: true
 ---

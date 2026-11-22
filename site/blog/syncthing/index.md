@@ -5,7 +5,7 @@ published: 2020-06-15
 hackernews_id: 23537243
 hackernews_id_2: 29837696
 starred: true
-cover: cover.gif
+illustration: illustration.webp
 ---
 
 _Translations: [Russian](https://habr.com/ru/company/itelma/blog/550404/) [Chinese](https://blog.xinshijiededa.men/syncthing/) • Illustration by [Julia Litvin](https://www.behance.net/julia_litvin)_

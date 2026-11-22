@@ -5,7 +5,7 @@ published: 2019-02-28
 hackernews_id: 19276113
 reddit_url: "https://www.reddit.com/r/programming/comments/aw7swh/redesigning_the_github_repository_page_tonskyme/"
 starred: true
-cover: 00_cover.png
+illustration: illustration.webp
 ---
 
 _Illustration by [Julia Litvin](https://www.behance.net/julia_litvin)_

@@ -1,8 +1,8 @@
-.talks { --width: 1000px; --radius: 10px; width: 100%; display: flex; flex-direction: column; gap: 70px; align-items: center; margin: 70px 0; }
-.talks > * { width: 96vw; max-width: var(--width); }
+.talks { --width: 1000px; --radius: 10px; width: 100%; display: flex; flex-direction: column; gap: 70px; align-items: flex-start; margin: 70px 0; }
+.talks > * { width: var(--page-width); max-width: var(--width); }
 .talk-inner { display: flex; flex-direction: row; gap: 20px; }
-@media (max-width: 1000px) {
-  .talk-inner { flex-direction: column; align-items: center; }
+@media (max-width: 1100px) {
+  .talk-inner { flex-direction: column; align-items: flex-start; }
 }
 .content > ul { gap: 4px; }
 
@@ -35,7 +35,7 @@ iframe { display: block; border-radius: var(--radius); }
 .talk-details { width: calc(var(--width) - 20px - 560px); min-height: 315px; display: flex; flex-direction: column; gap: 15px; }
 h2 { margin-top: 0; }
 .talk-details > .spacer { flex-grow: 1; }
-@media (max-width: 1000px) {
+@media (max-width: 1100px) {
   .talk-details { width: 560px; min-height: unset; }
   .talk-details > .spacer { display: none; }
 }

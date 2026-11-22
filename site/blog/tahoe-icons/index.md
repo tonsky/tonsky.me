@@ -1,7 +1,7 @@
 ---
 title: "It’s hard to justify Tahoe icons"
 summary: "Looking at the first principles of icon design—and how Apple failed to apply all of them in macOS Tahoe"
-supercover: cover.webp
+cover: cover.webp
 og_facebook: open_graph_facebook_smol.png
 og_twitter: open_graph_twitter_smol.png
 published: 2026-01-05
